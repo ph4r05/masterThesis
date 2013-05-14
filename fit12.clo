@@ -1,0 +1,212 @@
+%%
+%% This is file `fit12.clo',
+%% This file is size option of class fithesis2.cls
+\ProvidesFile{fit12.clo}[2008/12/15 fithesis2 (size option)]
+
+% redefines \normalsize command to change font size
+\renewcommand{\normalsize}{\fontsize\@xiipt{14.5}\selectfont%
+\abovedisplayskip 12\p@ plus3\p@ minus7\p@
+\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip  \z@ plus3\p@
+\belowdisplayshortskip  6.5\p@ plus3.5\p@ minus3\p@
+\let\@listi\@listI}
+
+% redefines \small command to change font size
+\renewcommand{\small}{\fontsize\@xipt{13.6}\selectfont%
+\abovedisplayskip 11\p@ plus3\p@ minus6\p@
+\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip  \z@ plus3\p@
+\belowdisplayshortskip  6.5\p@ plus3.5\p@ minus3\p@
+\def\@listi{\leftmargin\leftmargini %% Added 22 Dec 87
+\parsep 4.5\p@ plus2\p@ minus\p@
+            \itemsep \parsep
+            \topsep 9\p@ plus3\p@ minus5\p@}}
+
+% redefines \footnote command to change font size
+\renewcommand{\footnotesize}{\fontsize\@xpt{12}\selectfont%
+\abovedisplayskip 10\p@ plus2\p@ minus5\p@
+\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip  \z@ plus3\p@
+\belowdisplayshortskip  6\p@ plus3\p@ minus3\p@
+\def\@listi{\leftmargin\leftmargini %% Added 22 Dec 87
+\topsep 6\p@ plus2\p@ minus2\p@\parsep 3\p@ plus2\p@ minus\p@
+\itemsep \parsep}}
+
+\renewcommand{\scriptsize}{\fontsize\@viiipt{9.5pt}\selectfont}
+\renewcommand{\tiny}{\fontsize\@vipt{7pt}\selectfont}
+\renewcommand{\large}{\fontsize\@xivpt{18pt}\selectfont}
+\renewcommand{\Large}{\fontsize\@xviipt{22pt}\selectfont}
+\renewcommand{\LARGE}{\fontsize\@xxpt{25pt}\selectfont}
+\renewcommand{\huge}{\fontsize\@xxvpt{30pt}\selectfont}
+\renewcommand{\Huge}{\fontsize\@xxvpt{30pt}\selectfont}
+
+\let\@normalsize\normalsize
+\normalsize
+
+% if twosided document margins will be
+\if@twoside
+   \oddsidemargin 0.75in
+   \evensidemargin 0.4in
+   \marginparwidth 0pt
+% if singlesided
+\else
+   \oddsidemargin 0.75in
+   \evensidemargin 0.75in
+   \marginparwidth 0pt
+\fi
+\marginparsep 10pt
+
+\topmargin 0.4in
+
+\headheight 20pt
+\headsep 10pt
+\topskip 10pt
+\footskip 30pt
+
+\textheight = 37\baselineskip
+\advance\textheight by \topskip
+\textwidth 5.0truein
+\columnsep 10pt
+\columnseprule 0pt
+
+\footnotesep 8.4pt
+\skip\footins 10.8pt plus 4pt minus 2pt
+\floatsep 14pt plus 2pt minus 4pt
+\textfloatsep 20pt plus 2pt minus 4pt
+\intextsep 14pt plus 4pt minus 4pt
+\dblfloatsep 14pt plus 2pt minus 4pt
+\dbltextfloatsep 20pt plus 2pt minus 4pt
+
+\@fptop 0pt plus 1fil
+\@fpsep 10pt plus 2fil
+\@fpbot 0pt plus 1fil
+\@dblfptop 0pt plus 1fil
+\@dblfpsep 10pt plus 2fil
+\@dblfpbot 0pt plus 1fil
+\marginparpush 7pt
+
+\parskip 0pt plus 0pt
+\partopsep 3pt plus 2pt minus 2pt
+
+\@lowpenalty   51
+\@medpenalty  151
+\@highpenalty 301
+\@beginparpenalty -\@lowpenalty
+\@endparpenalty   -\@lowpenalty
+\@itempenalty     -\@lowpenalty
+
+% defines style of chapter heading
+\def\@makechapterhead#1{%
+  {\setlength\parindent{\z@}%
+   \setlength\parskip  {\z@}%
+    \ifnum \c@secnumdepth >\m@ne
+        \par\nobreak
+        \vskip 10\p@
+    \fi
+    \Large \ChapFont \thechapter{} \space #1\par
+    \nobreak
+    \vskip 20\p@
+  }}
+
+% style of starred chapter heading
+\def\@makeschapterhead#1{%
+  {\setlength\parindent{\z@}%
+   \setlength\parskip  {\z@}%
+   \Large \ChapFont #1\par
+    \nobreak
+    \vskip 20\p@
+  }}
+
+% style of beginning page of chapter
+\def\chapter{\clearpage
+   \thispagestyle{plain}
+   \global\@topnum\z@
+   \@afterindentfalse
+ \secdef\@chapter\@schapter}
+
+% definiton of chapter command
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+        \refstepcounter{chapter}%
+        \typeout{\@chapapp\space\thechapter.}%
+        \addcontentsline{toc}{chapter}{\protect
+        \numberline{\thechapter}\bfseries #1}\else
+      \addcontentsline{toc}{chapter}{\bfseries #1}\fi
+   \chaptermark{#1}%
+   \addtocontents{lof}%
+       {\protect\addvspace{4\p@}}
+   \addtocontents{lot}%
+       {\protect\addvspace{4\p@}}
+   \if@twocolumn
+           \@topnewpage[\@makechapterhead{#2}]%
+     \else \@makechapterhead{#2}%
+           \@afterheading
+     \fi}
+
+% other sectioning commands
+\def\section{\@startsection {section}{1}{\z@}{-3.5ex plus-1ex minus
+    -.2ex}{2.3ex plus.2ex}{\reset@font\large\bfseries}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-3.25ex plus-1ex
+    minus-.2ex}{1.5ex plus.2ex}{\reset@font\normalsize\bfseries}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-3.25ex plus
+    -1ex minus-.2ex}{1.5ex plus.2ex}{\reset@font\normalsize}}
+\def\paragraph{\@startsection
+    {paragraph}{4}{\z@}{3.25ex plus1ex minus.2ex}{-1em}{\reset@font
+    \normalsize\bfseries}}
+\def\subparagraph{\@startsection
+     {subparagraph}{4}{\parindent}{3.25ex plus1ex minus
+     .2ex}{-1em}{\reset@font\normalsize\bfseries}}
+
+% sectioning commands will be numbered up to command \subsection
+\setcounter{secnumdepth}{2}
+
+% if appendix command is used, reset chapter and section counter
+% headings will now start with upper case letter
+\def\appendix{\par
+  \setcounter{chapter}{0}%
+  \setcounter{section}{0}%
+  \def\@chapapp{\appendixname}%
+  \def\thechapter{\Alph{chapter}}}
+
+% margins of enumeration environment
+\leftmargini 2.5em
+\leftmarginii 2.2em     % > \labelsep + width of '(m)'
+\leftmarginiii 1.87em   % > \labelsep + width of 'vii.'
+\leftmarginiv 1.7em     % > \labelsep + width of 'M.'
+\leftmarginv 1em
+\leftmarginvi 1em
+
+\leftmargin\leftmargini
+\labelsep .5em
+\labelwidth\leftmargini\advance\labelwidth-\labelsep
+
+% definition of list envronments
+\def\@listI{\leftmargin\leftmargini \parsep 5\p@ plus2.5\p@ minus\p@
+\topsep 10\p@ plus4\p@ minus6\p@
+\itemsep 5\p@ plus2.5\p@ minus\p@}
+
+\let\@listi\@listI
+\@listi
+
+\def\@listii{\leftmargin\leftmarginii
+   \labelwidth\leftmarginii\advance\labelwidth-\labelsep
+   \topsep 5\p@ plus2.5\p@ minus\p@
+   \parsep 2.5\p@ plus\p@ minus\p@
+   \itemsep \parsep}
+
+\def\@listiii{\leftmargin\leftmarginiii
+    \labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+    \topsep 2.5\p@ plus\p@ minus\p@
+    \parsep \z@ \partopsep \p@ plus\z@ minus\p@
+    \itemsep \topsep}
+
+\def\@listiv{\leftmargin\leftmarginiv
+     \labelwidth\leftmarginiv\advance\labelwidth-\labelsep}
+
+\def\@listv{\leftmargin\leftmarginv
+     \labelwidth\leftmarginv\advance\labelwidth-\labelsep}
+
+\def\@listvi{\leftmargin\leftmarginvi
+     \labelwidth\leftmarginvi\advance\labelwidth-\labelsep}
+\endinput
+%%
+%% End of file `fit12.clo'.
