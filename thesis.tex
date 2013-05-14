@@ -179,11 +179,11 @@ Introduction here
     Practical results for attack implementation, time to break.
     
     \section{Scheme improvement}
-    Few ideas how to improve dual scheme in order to resist existing bilets attack - twofish key dependent S-boxes.\\
-    
-    As it is visible from the BGE attack, it strongly relies on publicly known constants and primitives used in cryptographic algorithm (MixColumn constants, fixed S-box). 
-    This leads to an idea of turning constant part of cipher into key dependent ones. It should increase computational complexity of the attack since attacker would have to try
-    all combinations of key dependent part of the cipher. In the ideal scenario the attack will be infeasible due to high computational complexity. \\
+    The BGE attack strongly relies on publicly known constants and building blocks used in the AES cipher (MixColumn constants, fixed S-box). 
+    This leads to an idea of turning constant part of cipher into key dependent ones, according to Kerckhoffs's principle. 
+
+    It should increase computational complexity of the attack since attacker would have to try
+    all combinations of key dependent part of the cipher. In the ideal scenario the attack will be unfeasible due to high computational complexity. \\
     
     As we know AES S-box is constant and has relatively simple algebraic form. In blackbox context, it is quite difficult to construct algebraic equations for whole AES (this was 
     one of design criterias of an AES in order to prevent possible algebraic attacks), but BGE attack aims only on one round of the cipher and from this perspective it is 
@@ -191,20 +191,23 @@ Introduction here
     
     In whitebox implementation of cipher we have two contrary goals - to minimize table size and to prevent attack in whitebox context. Table size is what puts quite limitations
     in implementation and on security boundaries. In one extreme case we would build lookup table for whole AES for every possible input of size 
-    $\left(2^{128} \cdot 128\right) > 10^{40}$ bytes. This 
-    scheme is no weaker than AES in blackbox context, so perfectly secure in whitebox context, but rather infeasible in practice.
+    $\left(2^{128} \cdot 16\right) > 10^{39}$ bytes. This 
+    scheme is no weaker than AES in blackbox context, so perfectly secure in whitebox context, but rather unfeasible in practice.
 
     As we seen in BGE attack it is easy to turn random non-linear bijections (input/output encodings), protecting table contents, to affine transformations between rounds of
     cipher, so more complicated non-linear bijections are probably not the way out of this.
     
-    The main idea here is to break backward compatibility with AES - as it does not have proper structure for whitebox implementation [CITE HERE]. In literature was already
-    proposed to design a new cipher with whitebox implementation issues in mind. So we took inspiration from Twofish \cite{twofish} cipher which has key dependent S-boxes with rather
+    The main idea here is to break backward compatibility with AES (or any other well known cipher)- as it does not have proper structure for whitebox implementation, what is 
+    also visible from the fact there no non-broken whitebox scheme of AES exists nowadays [CITE HERE]. 
+    In literature was already proposed to design a new cipher with whitebox implementation issues in mind. 
+
+    So we took inspiration from Twofish \cite{twofish} cipher which has key dependent S-boxes with rather
     complicated algebraic representations. As I emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations more difficult for an attacker.
     Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
 
     \subsection{Twofish S-boxes}
     Here observe Twofish S-boxes (from \cite{twofish}) and their algebraic representation.
-    \begin{align}
+    \begin{align}\label{eq:twofish_sbox}
 	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
 	s_{1,k_2,k_3}\left(x\right) &= q_0\left[q_0\left[q_1\left[x\right] \oplus k_2 \right] \oplus k_3 \right]\\
 	s_{2,k_4,k_5}\left(x\right) &= q_1\left[q_1\left[q_0\left[x\right] \oplus k_4 \right] \oplus k_5 \right]\\
@@ -219,23 +222,22 @@ Introduction here
     In blackbox context there is disadvantage for key dependent S-boxes since it takes some time to generate them, for each encryption key, but in whitebox context
     the whole cipher is generated before use, including S-boxes, so during encryption/decryption there is no such disadvantage anymore.
    
-    
     \subsection{Key schedule}
     BGE attack also make use of reversible AES key schedule to obtain encryption key. It is only needed to obtain round keys for two consecutive
     rounds of cipher in order to obtain full encryption key.
 
-    In order to avoid this reversing we also modify key schedule here.
-    In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as in BGE case.
+    In order to avoid this reversing we also modify key schedule.
+    In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as in BGE attack.
     
-    We suggest to use \emph{bcrypt} as a hash function for generating hash chains. The main reason is high time complexity needed to generate such hash, this
-    makes eventual bruteforcing even harder, since low hashshes per second ratio. We could
+    We suggest to use \emph{bcrypt} \cite{bcrypt} or \emph{scrypt} as a hash function for generating hash chains. The main reason is high time complexity needed to evaluate 
+    such hash functions. This makes eventual bruteforcing even harder, because of low hashes per second ratio. We could
     use for example also \emph{SHA-256} hash function to generate hash chain, but nowadays there exists even special hardware for computing SHA digests 
     (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining}, bruteforcing with such device would be
     much faster. 
     
     In \cite{bcrypthash} M. Gosney used cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
-    details see table \ref{tbl:hash_performance}. \emph{bcrypt} is by order of magnitudes slower than SHA1, almost by factor $10^6$. This makes bruteforce
-    not feasible on general purpose hardware. 
+    details see table \ref{tbl:hash_performance}. \emph{bcrypt} is by orders of magnitude slower than SHA1, almost by factor $10^6$. This makes bruteforce
+    unfeasible on general purpose hardware. 
 
     \begin{table}
     \begin{center}
@@ -251,16 +253,59 @@ Introduction here
     \end{center} 
     \end{table}
     
-    Number of rounds of bcrypt, $N_{bc}$,  can be further specified, it can be considered as kind of security parameter.
+    In AES-128 we have 128~bit cipher key, $k_0,\dots,k_{15}$. We define $k_i^r$ to be round key byte $i \in [0,15]$ used in round $r \in [0,10]$.
     
-    In AES-128 we have 128~bit key, $k_0,\dots,k_15$. 
+    We define hash function used further in our modified key schedule
+    \begin{equation}
+	hash\left(inp, salt\right)_{N_{bc}, N_{sha}} = bcrypt\left(N_{bc}, salt, \text{SHA-}256^{N_{sha}}\left(inp\right)\right)
+    \end{equation}
+    Where we have 2 security parameters in this scheme.
+    $N_{bc}$ is work load for bcrypt, determines computation complexity of bcrypt hash function. $N_{sha}$ is number of nested iterations of SHA-256 function. 
+    
+    With this we define key schedule for our new cipher:
+    \begin{equation}\label{eq:keySchedule}
+    k_i^r = \left\{ 
+    \begin{array}{l l} 
+	hash_{N_{bc}, N_{sha}}(key, salt)_i                   & \quad \text{if $r=0$}\\
+	hash_{N_{bc}, N_{sha}}(k^{r-1} \; || \;  key, salt)_i & \quad \text{otherwise}
+    \end{array} \right.
+    \end{equation}
+    Where
+    \begin{itemize}
+     \item[$i$] subscript on right side stands for i-th byte of resulting hash
+     \item[$key$] is encryption key, 128 bits
+     \item[$k^{r-1}$] is whole round key for roudn $r-1$
+     \item[$||$] symbol is concatenation of two binary arguments
+     \item[$salt$] is arbitrary 128 bit salt used in bcrypt algorithm. This can be publicly known - published together with ciphertext or 
+	in particular whitebox cipher instance.
+    \end{itemize}
+
+    Equation for $k_i^r$ is chosen with two primary goals in mind, attacker is not able to:
+    \begin{enumerate}
+     \item derive encryption key from two (or more) consecutive round keys. This results from infeasability of reversing hash chain. 
+	We are also using computational intensive hash function so even bruteforcing is unfeasible.
+     \item derive round key for $r_1-1$ or $r_2+1$ if he already have round keys for rounds $[r_1, r_2]$. Unavailability of deriving 
+	round key for $r_1-1$ results from the previous argument, but here is also important that from already derived round keys we are not able to derive 	
+	next ones (compared AES schedule case) since it also depends on encryption key directly.
+    \end{enumerate}
     
     \subsection{Key bytes for S boxes}
-    In order to increase strength of proposed scheme we don't use key bytes directly for S-box computation. If someone succeds in determining 
-    this key bytes by computing proposition 3 from BGE attack for all key bytes possibilities it could help to derive encryption key.
+    In order to increase strength of proposed scheme we don't use round key bytes for S-box computation directly. If someone succeds in determining 
+    this round key bytes by computing proposition 3 from BGE attack for all key bytes possibilities it could help to derive the round keys.
     
-    From this reason we use completely different keys for key-dependent S-boxes that in rest of the cipher. It will be derived from encryption key,
-    but key schedule for it will be quite different.
+    From this reason we use completely different keys for key-dependent S-boxes that in rest of the cipher.
+
+    \begin{equation}\label{eq:keyForSbox}
+    k_i^{r \; \prime} = \left\{ 
+    \begin{array}{l l} 
+	hash_{N_{bc}, N_{sha}}(key\; || \; "\text{magicConstant}", salt)_i                              & \quad \text{if $r=0$}\\
+	hash_{N_{bc}, N_{sha}}(k^{r-1} \; || \; key \; || \; "\text{magicConstant}", salt)_i            & \quad \text{otherwise}
+    \end{array} \right.
+    \end{equation}
+    
+    The equation \ref{eq:keyForSbox} is the same as \ref{eq:keySchedule} with only difference of concatenation of "magicConstant". This makes 
+    two hash chains (1 for round keys, 1 for S-boxes) completely different and non-transformable one to another.
+   
     
     \subsection{Analysis}
     In this chapter we try to analyze suggested scheme improvement from whitebox point of view, particularly we try to mount BGE attack to this modified variant. 
@@ -273,31 +318,62 @@ Introduction here
 	\widetilde{P}_3 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_3} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, 00, 00, x\right) \right)
     \end{align}
     
-    In our implementation we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \text{GF}(2^8)\times\text{GF}(2^8)$ what gives complexity $2^{16}$ for one mapping.
+    In our implementation of the BGE attack we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \text{GF}(2^8)\times\text{GF}(2^8)$ what gives complexity $2^{16}$ for one mapping.
     In each step is mapping checked for affinity in $2^8$ steps (for affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
     $2^{26}$ steps.
     
-    Here is the place where we use public knowledge of AES S-Box definitions. 
+    Here is the place where we use public knowledge of AES S-Box definitions. One way how to mount BGE attack to this modiffied variant is to guess also particular S-box
+    mapping for each $\widetilde{P}$ and to test for its affinity. 
     
+    Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mappings stored as lookup table takes $2^8$ bytes.
+    Thus pre-computed $s_0$ s-box would take $2^8 \cdot 2^{16} = 2^{24} > 10^7$ bytes. 
     
+    Even if attacker determines round keys for S-boxes it will be completely useless for further extraction of cipher key since hash chains are different. 
     
+    Twofish S-boxes thus increase complexity of proposition 3 from BGE from $2^{24}$ to $2^{40}$. This is still not strong enough, it is highly parallelizable problem.
+    In order to increase work needed to mount proposition 3 attack one could redefine key-dependent S-boxes to increase attack complexity to level $2^{128}$ what is larger
+    than best known attack on AES. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear Sboxes is $256! \approx 8.5\cdot 10^{506}$ so there are still options to expand 
+    S-box space. 
+    
+    \begin{equation}\label{eq:complex_sbox}
+	s^{\prime}_{j}\left(x\right) = sboxgen(j,12,x)
+    \end{equation}
+    
+    Where S-box is generated recursively by $sboxgen$, following the idea of nesting fixed permutations with addition of round key:
+    
+    \begin{equation}\label{eq:sboxgen}
+	sboxgen(j,l,x) = \left\{ 
+	\begin{array}{l l} 
+	    q^{\prime}_{j,0}\left[ x \right] \oplus k_{j}		 & \quad \text{if $l=0$}\\
+	    sboxgen\left(j, l-1,x\right) \oplus k_{j \cdot (l+1)}          & \quad \text{otherwise}
+	\end{array} \right.
+    \end{equation}
+    
+    Where $q^{\prime}_{j,l}$ is one of two fixed Twofish 8-bit permutations. Particular sequence of nested permutations would require deeper analysis, to avoid possible weaknesess 
+    induced by composing inapropriate permutations together, but we can choose for example:
+    \setcounter{MaxMatrixCols}{13}
+    \begin{align}
+	q^{\prime}_{0} &= \begin{bmatrix}  q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_0 \end{bmatrix}\\
+	q^{\prime}_{1} &= \begin{bmatrix}  q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 \end{bmatrix}\\
+	q^{\prime}_{2} &= \begin{bmatrix}  q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 \end{bmatrix}\\
+	q^{\prime}_{3} &= \begin{bmatrix}  q_0 & q_0 & q_0 & q_1 & q_1 & q_1 & q_0 & q_0 & q_0 & q_1 & q_1 & q_1 & q_1 \end{bmatrix}
+    \end{align}
 
+    This gives us good security margin for BGE attack. Also as long as are SHA-256 and bcrypt uncracked, key extraction should be unfeasible, since it is not possible
+    to invert hash function easily. 
     
+    Suggested modification of whitebox cipher don't increase table sizes, because modifications made are only in S-box definitions and key schedule - both 
+    parts of the cipher are already evaluated and stored in the lookup tables. Our modifications also don't affect encryption/decryption performance since the only
+    difference is made during particular whitebox instance (lookup tables) generation. Encryption/decryption algorithm itself is not affected.
     
-
-
     \subsection*{Drawbacks}
     By modification of AES design we are comming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
     context and being relatively secure. Designing a new cipher may help with increasing security in whitebox context but there also may be weaknesess in blackbox context. 
-    It would be needed to analyze the new cipher from this point of view, for example for resistance to linear or differential cryptanalysis. 
-  
-
-    
-    
-
+    It would be needed to analyze the new cipher from this point of view, for example for resistance to linear or differential cryptanalysis. There is no guarantee that 
+    proposed cipher modifications are strong enough to resist clasical blackbox context cryptanalysis.
     
     \section{Discussion}
-    Few words about field, discussion about  WB cryptography.
+    Few words about field, discussion about WB cryptography.
     
 \chapter{Future work}\label{sec:futurework}
     Some future work here
@@ -305,49 +381,43 @@ Introduction here
 \appendix
 
 \chapter{Appendix A}
-    Appendix A
-
     \subsection{Affinity check}\label{appendix:affcheck}
-    In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}_i$ as a lookup table
-    and the task is to test it for affinity. If $\widetilde{P}_i$ is affine it must hold:
+    In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a lookup table
+    and the task is to test it for affinity. If $\widetilde{P}$ is affine it must hold:
     \begin{equation}
-	\widetilde{P}_i\left(x\right) = M \times x \oplus c
+	\widetilde{P}\left(x\right) = M \times x \oplus c
     \end{equation}
-    For some square matrix $M$ and constant $c \in \text{GF}(2^8)$.\\
+    For some square matrix $M$ with coefficients from $\text{GF}(2)$ and constant $c \in \text{GF}(2^8)$ (or equivalently $8\times1$ vector with coeficients from $\text{GF}(2)$).\\
     
-    By evaluating $\widetilde{P}_i\left(0\right) = c$ we directly determine affine constant $c$ so we obtain new mapping $\widetilde{P^\prime}_i$,
-    reducing the problem to test $\widetilde{P^\prime}_i$ for being linear mapping.
+    By evaluating $\widetilde{P}\left(0\right) = c$ we obtain affine constant $c$ so we derive new mapping $\widetilde{P^\prime}$,
+    reducing the problem to test $\widetilde{P^\prime}$ for being linear.
     \begin{equation}
-	\widetilde{P^\prime}_i \left(x\right) = \widetilde{P}_i\left(x\right) \oplus c
+	\widetilde{P^\prime} \left(x\right) = \widetilde{P}\left(x\right) \oplus c
     \end{equation}
    
-    
-    Now we obtain mapping of standard base $e_j\;, j \in [0,7]$ via mapping $\widetilde{P^\prime}_j \left(x\right)$. 
-    \begin{equation}
-	g_j = \widetilde{P^\prime}_i \left(e_j\right) \; j \in [0,7]
-    \end{equation}
     And from linearity the following formula must hold:
     \begin{equation}
-	\forall x \in \text{GF}(2^8), \; \exists! \; k_j, \; j \in [0,7] \; : \; x = \sum_{j=0}^{7} k_j \cdot g_j \; 
+	\forall x \in \text{GF}(2^8), \; \exists! \; k_j \in \{0,1\}, \; j \in [0,7] \; : \; x = \sum_{j=0}^{7} k_j \cdot \widetilde{P^\prime} \left(e_j\right) \; 
     \end{equation}
-    From algorithm \ref{alg:affineTest} we have time complexity $2^8$.
+    It says that each element from the field has to be unique sum of its basis vectors. Assuming that $\widetilde{P^\prime}$ is linear,
+    we can obtain mapped base vectors for this transformation easily as $g_j = \widetilde{P^\prime}\left(e_j\right)$. Now it is visible that time complexity is $2^8$.
     
     \begin{algorithm}
        \caption{Algorithm for testing given mapping for being affine}
 	\begin{algorithmic}[1]
-	    \Function{isAffine}{$P : \text{GF}(2^8) \mapsto \text{GF}(2^8)$}\Comment{Determine if P is affine mapping}
-	    \State $c \gets P[0]$\Comment{$c$ is affine constant}
-	    \State $P^{\prime}[x] \gets P[x] + c$\Comment{$2^8$ time complexity}
+	    \Function{isAffine}{$\widetilde{P} : \text{GF}(2^8) \mapsto \text{GF}(2^8)$}\Comment{Determine if P is affine mapping}
+	    \State $c \gets \widetilde{P}[0]$\Comment{$c$ is affine constant}
+	    \State $\widetilde{P^{\prime}}[x] \gets \widetilde{P}[x] + c$\Comment{$2^8$ time complexity}
 	    \State $isAffine \gets true$
 	    \For{$x\gets 0, (2^8-1)$}
-		\State $px\gets P^{\prime}[x]$
+		\State $px\gets \widetilde{P^{\prime}}[x]$
 		\State $cx\gets 0$
 		\For{$i\gets 0, 7$}
 		    \If{$x_{i} = 1$}\Comment{$x_{i}$ is $i$-th bit of x in binary}
-			\State $cx \gets cx \oplus P^{\prime}\left[1<<i\right]$\Comment{$ P^{\prime}\left[1<<i\right] = g_i$}
+			\State $cx \gets cx \oplus \widetilde{P^{\prime}}\left[e_i\right]$\Comment{$ \widetilde{P^{\prime}}\left[e_i\right]$ is mapped base vector}
 		    \EndIf
 		\EndFor
-		\If{$ px\neq cx $}\Comment{$cx$ is expressed via $g_i$, mapped base vectors, must match}
+		\If{$ px\neq cx $}\Comment{$cx$ is expressed via mapped base vectors}
 		    \State $isAffine \gets false$
 		    \State \textbf{return}
 		\EndIf
@@ -365,6 +435,7 @@ Introduction here
 
 \begin{thebibliography}{9}
 	\bibitem{twofish} \uppercase{SCHNEIRER, B. KELSEY, J., Whiting, D., Wagner, D., Hall, C., Ferguson, N.} , Twofish: A 128-Bit Block Cipher \textless\url{http://www.schneier.com/paper-twofish-paper.pdf}, cited~14.05.2012.
+	\bibitem{bcrypt} \uppercase{Provos, N., Talan Jason Sutton, T. J.} {\it A Future-Adaptable Password Scheme.} Proceedings of 1999 USENIX Annual Technical Conference: 81--92.
 	\bibitem{shamining} Butterfly labs \textless\url{https://products.butterflylabs.com} cited~14.05.2012.
 	\bibitem{bcrypthash} \uppercase{Gosney, J. M.} Password Cracking HPC , Passwords\^12 Security Conference, 2012. Available at \textless\url{http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
 %	\bibitem{wsn} AGHAVENDRA, C., SIVALINGAN, KRISHNA M. {\it Wireless Sensor Networks}. Springer, 2004. ISBN~978-0-387-35269-5.
