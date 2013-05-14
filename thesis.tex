@@ -27,6 +27,17 @@
 % text super/sub scripts
 \usepackage{fixltx2e}
 
+% % algpseudocode was not installed by default; http://ctan.org/pkg/algorithmicx
+% % http://tex.stackexchange.com/questions/38978/how-can-i-manually-install-a-latex-package-debian-ubuntu-linux
+% % http://ftp.cstug.cz/pub/tex/CTAN/macros/latex/contrib/algorithmicx/algorithmicx.pdf
+\usepackage{algpseudocode}
+
+% \usepackage[options]{algorithm2e}
+\usepackage{algorithm}
+%\usepackage{algorithmic}
+
+
+
 \def\R{\mbox{\sffamily\bfseries R}}
 
 \DeclareGraphicsExtensions{.pdf,.png,.jpg,.gif}
@@ -108,14 +119,9 @@ white box attack resistant cryptography, look up tables form, AES
 \end{ThesisKeyWords}
 \MainMatter
 \renewcommand{\contentsname}{Table of contents}
+
 \tableofcontents
 \pagestyle{plain}
-
-
-% regex test
-% 
-% a~b $1~$2 $1~$2 $1~$2 u~r e~cd f~h r~s e~f f~s w~r g~v
-
 \hyphenation{how-to}
 
 \chapter{Introduction}
@@ -185,7 +191,7 @@ Introduction here
     
     In whitebox implementation of cipher we have two contrary goals - to minimize table size and to prevent attack in whitebox context. Table size is what puts quite limitations
     in implementation and on security boundaries. In one extreme case we would build lookup table for whole AES for every possible input of size 
-    $\left(2^{128} \cdot 128\right) > 10^{38}$ bytes. This 
+    $\left(2^{128} \cdot 128\right) > 10^{40}$ bytes. This 
     scheme is no weaker than AES in blackbox context, so perfectly secure in whitebox context, but rather infeasible in practice.
 
     As we seen in BGE attack it is easy to turn random non-linear bijections (input/output encodings), protecting table contents, to affine transformations between rounds of
@@ -196,23 +202,86 @@ Introduction here
     complicated algebraic representations. As I emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations more difficult for an attacker.
     Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
 
-    \subsection*{Twofish S-boxes}
+    \subsection{Twofish S-boxes}
     Here observe Twofish S-boxes (from \cite{twofish}) and their algebraic representation.
     \begin{align}
-	s_0\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
-	s_1\left(x\right) &= q_0\left[q_0\left[q_1\left[x\right] \oplus k_2 \right] \oplus k_3 \right]\\
-	s_2\left(x\right) &= q_1\left[q_1\left[q_0\left[x\right] \oplus k_4 \right] \oplus k_5 \right]\\
-	s_3\left(x\right) &= q_0\left[q_1\left[q_1\left[x\right] \oplus k_6 \right] \oplus k_7 \right]
+	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
+	s_{1,k_2,k_3}\left(x\right) &= q_0\left[q_0\left[q_1\left[x\right] \oplus k_2 \right] \oplus k_3 \right]\\
+	s_{2,k_4,k_5}\left(x\right) &= q_1\left[q_1\left[q_0\left[x\right] \oplus k_4 \right] \oplus k_5 \right]\\
+	s_{3,k_6,k_7}\left(x\right) &= q_0\left[q_1\left[q_1\left[x\right] \oplus k_6 \right] \oplus k_7 \right]
     \end{align}
-    Where $q_0, q_1$ are fixed 8-bit permutations, $k_i,\; i \in [0,7]$ are key bytes, $s_j,\; j \in [0,4]$ are resulting S-boxes.
+    Where $q_0, q_1$ are fixed 8-bit permutations, $k_i,\; i \in [0,7]$ are key bytes, $s_{j,k_a,k_b},\; j \in [0,4]$ are resulting S-boxes.
+
+    Thus instead of fixed AES S-box we use Twofish key dependent S-boxes. In particular we use $s_{j,k_a,k_b},\; j \in [0,4]$ instead of 4 the same constant
+    S-boxes in computation of one column of state matrix - consistent approach with Twofish algorithm, in Twofish we have MDS as a diffusion element,
+    here we have MixColumn operation [FIGURE HERE]. 
 
     In blackbox context there is disadvantage for key dependent S-boxes since it takes some time to generate them, for each encryption key, but in whitebox context
     the whole cipher is generated before use, including S-boxes, so during encryption/decryption there is no such disadvantage anymore.
+   
+    
+    \subsection{Key schedule}
+    BGE attack also make use of reversible AES key schedule to obtain encryption key. It is only needed to obtain round keys for two consecutive
+    rounds of cipher in order to obtain full encryption key.
 
+    In order to avoid this reversing we also modify key schedule here.
+    In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as in BGE case.
+    
+    We suggest to use \emph{bcrypt} as a hash function for generating hash chains. The main reason is high time complexity needed to generate such hash, this
+    makes eventual bruteforcing even harder, since low hashshes per second ratio. We could
+    use for example also \emph{SHA-256} hash function to generate hash chain, but nowadays there exists even special hardware for computing SHA digests 
+    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining}, bruteforcing with such device would be
+    much faster. 
+    
+    In \cite{bcrypthash} M. Gosney used cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
+    details see table \ref{tbl:hash_performance}. \emph{bcrypt} is by order of magnitudes slower than SHA1, almost by factor $10^6$. This makes bruteforce
+    not feasible on general purpose hardware. 
+
+    \begin{table}
+    \begin{center}
+    \begin{tabular}{ l | l }
+% 	\hline
+	function & hashes per second \\ \hline
+	SHA1     & $63$ G/s \\ \hline
+	MD5      & $180$ G/s \\ \hline
+	BCrypt   & $71$ K/s \\   \hline
+    \end{tabular}
+    \caption{Hash functions performance comparison}
+    \label{tbl:hash_performance}
+    \end{center} 
+    \end{table}
+    
+    Number of rounds of bcrypt, $N_{bc}$,  can be further specified, it can be considered as kind of security parameter.
+    
+    In AES-128 we have 128~bit key, $k_0,\dots,k_15$. 
+    
+    \subsection{Key bytes for S boxes}
+    In order to increase strength of proposed scheme we don't use key bytes directly for S-box computation. If someone succeds in determining 
+    this key bytes by computing proposition 3 from BGE attack for all key bytes possibilities it could help to derive encryption key.
+    
+    From this reason we use completely different keys for key-dependent S-boxes that in rest of the cipher. It will be derived from encryption key,
+    but key schedule for it will be quite different.
+    
     \subsection{Analysis}
     In this chapter we try to analyze suggested scheme improvement from whitebox point of view, particularly we try to mount BGE attack to this modified variant. 
 
-    S-box definitions are needed in proposition 3 in BGE attack
+    S-box definitions are needed in proposition 3 in BGE attack where we obtain 4 affine mappings.
+    \begin{align}
+	\widetilde{P}_0 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_0} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(x, 00, 00, 00\right) \right)\\
+	\widetilde{P}_1 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_1} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, x, 00, 00\right) \right)\\
+	\widetilde{P}_2 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_2} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, 00, x, 00\right) \right)\\
+	\widetilde{P}_3 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_3} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, 00, 00, x\right) \right)
+    \end{align}
+    
+    In our implementation we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \text{GF}(2^8)\times\text{GF}(2^8)$ what gives complexity $2^{16}$ for one mapping.
+    In each step is mapping checked for affinity in $2^8$ steps (for affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
+    $2^{26}$ steps.
+    
+    Here is the place where we use public knowledge of AES S-Box definitions. 
+    
+    
+    
+
     
     
 
@@ -238,58 +307,115 @@ Introduction here
 \chapter{Appendix A}
     Appendix A
 
-\begin{thebibliography}{9}
-	\bibitem{twofish} \uppercase{SCHNEIRER, B. KELSEY, J., Whiting, D., Wagner, D., Hall, C., Ferguson, N.} , Twofish: A 128-Bit Block Cipher \textless\url{http://www.schneier.com/paper-twofish-paper.pdf}, cit.~14.05.2012.
-	
-        \bibitem{wsn} AGHAVENDRA, C., SIVALINGAN, KRISHNA M. {\it Wireless Sensor Networks}. Springer, 2004. ISBN~978-0-387-35269-5.
-        \bibitem{abat} HARTER, A., et al. {\it The anatomy of a~context-aware application.} Proceedings of the 5th Annual ACM/IEEE International Conference on Mobile Computing and Networking (Mobicom '99), Seattle, Washington, USA, August 15-20 1999. New York, NY, USA: ACM, 1999. str.~59--68. ISBN~1-58113-142-9. doi:~10.1145/313451.313476.
-        \bibitem{cricket} PRIYANTHHA, N., CHAKRABORTY, A., BALAKRISHNAN, H. {\it The Cricket Location-Support System.} Proceedings of the 6th annual international conference on Mobile computing and networking (ACM MOBICOM), Boston, MA, August 2000. New York, NY, USA: ACM, 1999. str.~32--43. ISBN~1-58113-197-6. doi:~10.1145/345910.345917.
-        \bibitem{trilateration} KAMINSKY A. {\it Trilateration.} \textless\url{http://www.cs.rit.edu/~ark/543/module05/trilateration.pdf}\textgreater 2007, cit.~5.5.2011.
-	\bibitem{trans_standard} IEEE {\it IEEE std. 802.15.4 - 2006: Wireless Medium Access Control (MAC) and Physical Layer (PHY) specifications for Low Rate Wireless Personal Area Networks (LR-WPANs).} \textless\url{http://standards.ieee.org/getieee802/download/802.15.4-2006.pdf}\textgreater 2006, cit.~5.5.2011.	
-	\bibitem{antenna} \uppercase{Christodoulou, C.G. and Wahid, P.F.} {\it Fundamentals of antennas: concepts and applications}. SPIE Press, 2001. str.~13. ISBN~9780819441126.
-	\bibitem{reactive} \uppercase{Seybold, J.S.} {\it Introduction to RF propagation}. Wiley, 2005. ISBN~9780471655961.
-	\bibitem{fraunhofer_small_antenna} \uppercase{Cincinnati Technical Center} {\it Electromagnetic radiation and how it affects your instruments}. \textless\url{http://www.osha.gov/SLTC/radiofrequencyradiation/electromagnetic\_fieldmemo/electromagnetic.html}\textgreater 2011. cit.~5.5.2011.
-	\bibitem{rappaport1996wireless} \uppercase{Rappaport, T.S.} {\it Wireless communications: principles and practice}. Prentice Hall PTR, 1996. str.~69--196. ISBN~9780133755367.
-	\bibitem{fresnel} \uppercase{Stavrou, S. and Saunders, S.R.} {\it Factors influencing outdoor to indoor radio wave propagation.} Antennas and Propagation, 2003. (ICAP 2003). Twelfth International Conference on (Conf. Publ. No. 491). str.~581--585 vol 2. doi:~10.1049/cp:20030142.
-	\bibitem{wirelessAndrea} \uppercase{Goldsmith, A.} {\it Wireless communications}. Cambridge University Press, 2005. str.~ 383--392,404--414,427. ISBN~9780521837163.
-	\bibitem{nearfar} \uppercase{Hadzi-Velkov, Z., Spasenovski B.} {\it Capture Effect in IEEE 802.11 Basic Service Area Under Influence of Rayleigh Fading and Near/Far Effect}. IEEE Internation Symposium on Personal Indoor Communication, 2002.
-	\bibitem{nearfar_indoor} \uppercase{Whitehouse, K. and Woo, A. and Jiang, F. and Polastre, J. and Culler, D.} {\it Exploiting the capture effect for collision detection and recovery.} Proceedings of the 2nd IEEE workshop on Embedded Networked Sensors, Washington, DC, USA, 2005. IEEE Computer Society, 2005. str.~45--52. ISBN~0-7803-9246-9.
-	\bibitem{multipath} \uppercase{Sohraby, K. and Minoli, D. and Znati, T.F.} {\it Wireless sensor networks: technology, protocols, and applications}. Wiley-Interscience, 2007. str.~90--101. ISBN~9780471743002.
-	\bibitem{positionLocation} \uppercase{Mu{\~n}oz, D. and Vargas, C.} {\it Position location techniques and applications}. Academic Press, 2009. ISBN~9780123743534.
-	\bibitem{apache_common} \uppercase{Appache commons} {\it Commons-Math: The Apache Commons Mathematics Library} 2011, \textless\url{http://commons.apache.org/math/}\textgreater 2001, cit.~5.5.2011.
-	\bibitem{numerical} \uppercase{Nocedal, J. and Wright, S.J.} {\it Numerical optimization.} Springer, 1999. str.~250--274. ISBN~9780387987934.
-	\bibitem{lm} \uppercase{Gershenfeld, N.A.} {\it The nature of mathematical modeling}. Cambridge University Press, 1999. ISBN~9780521570954.
-	\bibitem{winklerMovingAverage} \uppercase{Winkler Z.} {\it Měření rychlosti.} Dostupné z~World Wide Web: \textless\url{http://robotika.cz/guide/filtering/en}\textgreater, cit.~5.5.2011.
-	\bibitem{trilateration_robot} \uppercase{Zhou, Y.} {\it An efficient least-squares trilateration algorithm for mobile robot localization.} Proceedings of the 2009 IEEE/RSJ international conference on Intelligent robots and systems, IROS'09, St. Louis, MO, USA. IEEE Press, 2009. str.~3474--3479. ISBN~978-1-4244-3803-7.
-	\bibitem{thomas_robotLocalization} \uppercase{Thomas, F. and Ros, L.} {\it Revisiting trilateration for robot localization.} IEEE Transactions on robotics vol. 21, Feb. 2005. str.~93--101. doi:~\mbox{10.1109/TRO.2004.833793}.
-	\bibitem{overdetermined} Wikipedia, the free encyclopedia: {\it Overdetermined system}. \textless\url{http://en.wikipedia.org/wiki/Overdetermined_system}\textgreater, cit.~5.5.2011.
-	\bibitem{farahani2008zigbee} \uppercase{Farahani, S.} {\it ZigBee wireless networks and transceivers.} Newnes/Elsevier, 2008. str.~229--231. ISBN~9780750683937.
-	\bibitem{tmote_datasheet} \uppercase{Moteiv Corporation.} {\it Telos (rev B):PRELIMINARY Datasheet.} 2004. \textless\url{http://www.bandwavetech.com/download/tmote-sky-datasheet.pdf}\textgreater 2004, cit.~5.5.2011.
-	\bibitem{tinyos} {\it TinyOS Documentation Wiki.} \textless\url{http://docs.tinyos.net/index.php/}\textgreater 2011, cit.~5.5.2009.    %http://www.tinyos.net/
-	\bibitem{invertedf01} \uppercase{Andersen A.} {\it 2.4GHz Inverted F Antenna, Design note DN0007}, 2008. \textless\url{http://focus.ti.com.cn/cn/lit/an/swru120b/swru120b.pdf}\textgreater 2008, cit 5.5.2011.
-	\bibitem{printantena} WATERHOUSE, R. B. {\it Printed antennas for wireless communications}. Wiley, 2007. ISBN~047051069.
-	\bibitem{invertedFGain} \uppercase{Raman, B., Chebrolu, K., Madabhushi, N., Go, D. Y., Valiveti, P. K.k and Jain, D.,} {\it Implications of link range and (In)stability on sensor network architecture}, Proceedings of the 12th annual international conference on Mobile computing and networking , Los Angeles, CA, USA, pp. 65-72, 2006.
-	\bibitem{cc2420} \uppercase{Chipcon}, {\it 2.4 GHz IEEE 802.15.4 / ZigBee-ready RF Transceiver.} str.~11,~48--49. \textless\url{http://focus.ti.com/lit/ds/symlink/cc2420.pdf}\textgreater 2009, cit.~5.5.2011. 
-	\bibitem{tos_message} \uppercase{Levis P.} {\it message\_t} \textless\url{http://www.tinyos.net/tinyos-2.x/doc/html/tep111.html}\textgreater 2011, cit.~5.5.2011.
-	\bibitem{sht1x_datasheet} \uppercase{Sensirion.} {\it Datasheet SHT1x (SHT10, SHT11, SHT15). Humidity and Temperature Sensor} 2010. \textless\url{http://www.sensirion.com/en/pdf/product_information/Datasheet-humidity-sensor-SHT1x.pdf}\textgreater 2010, cit.~5.5.2011.
-	\bibitem{dePbloThesis} \uppercase{Escol\`{a} A.} {\it Development of a wireless sensor network with 6LoWPAN support.} Dostupné z~World Wide Web: \textless\url{http://upcommons.upc.edu/pfc/bitstream/2099.1/7806/1/memoria.pdf}\textgreater, cit.~5.5.2011.
-	\bibitem{rss_localization_study} \uppercase{De Cauwer, P. Van Overtveldt, T., Doggen, J., Van der Schueren, F. Weyn, M., Bracke, J.} {\it Study of RSS-Based Localisation Methods in Wireless Sensor Networks.} Proceeding of the Fourth European Conference on the Use of Modern Information and Communication Technologies, Gent, Beglium, 2010. 
-	\bibitem{s1} PATWARI, N., HERO, A. {\it Using proximity and quantized RSS for sensor.} Proceedings of the 2nd ACM international conference on Wireless sensor networks and applications, San Diego, CA, USA, 2003. New York, NY, USA: ACM, 2003. str.~20--29. ISBN~1-58113-764-8. doi:~10.1145/941350.941354.
-        \bibitem{s2} ELNAHRAWY, E., LI, X.,MARTIN, R. {\it The limits of localization using RSS.} Proceedings of the 2nd international conference on Embedded networked sensor systems, Baltimore, MD, USA, 2004. New York, NY, USA: ACM, 2004. str.~283--284. ISBN~1-58113-879-2. doi:~10.1145/1031495.1031537.
-% 	\bibitem{neuro} GURNEY, K., GURNEY, K. {\it An introduction to neural networks}. UCL Press, 1997. ISBN~1-85728-503-4.
-	\bibitem{probab} FULLER, R., KOUTSOUKOS, D. {\it Mobile Entity Localization and Tracking in GPS-less Environnments.} Second International Workshop, MELT~2009, Orlando, FL, USA, September 30, 2009, Springer, 2009. str.~66--78.
-	
-	\bibitem{sqlitejdbc} Zentus, {\it SqliteJDBC} 2011, \textless\url{http://www.zentus.com/sqlitejdbc}\textgreater, cit.~5.5.2011.
-	\bibitem{sqlite} SQLite \textless\url{http://www.sqlite.org}\textgreater, cit.~5.5.2011.
-	\bibitem{jfreechart} \uppercase{Gilbert D.} {\it JFreeChart} 2011, \textless\url{http://www.jfree.org/jfreechart}\textgreater, cit.~5.5.2011.
-	\bibitem{bsdlicense} University of California, Berkeley {\it BSD License}, \textless\url{http://www.opensource.org/licenses/bsd-license.php}\textgreater, cit.~5.5.2011.
-	\bibitem{gnulgpl} {\it GNU Lesser General Public License}, \textless\url{http://www.gnu.org/copyleft/lesser.html}\textgreater, cit.~5.5.2011.
-	\bibitem{apachelicence} Apache commons {\it The Apache Software License, version 2}, \textless\url{http://commons.apache.org/math/license.html}\textgreater, cit.~5.5.2011.
-	
+    \subsection{Affinity check}\label{appendix:affcheck}
+    In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}_i$ as a lookup table
+    and the task is to test it for affinity. If $\widetilde{P}_i$ is affine it must hold:
+    \begin{equation}
+	\widetilde{P}_i\left(x\right) = M \times x \oplus c
+    \end{equation}
+    For some square matrix $M$ and constant $c \in \text{GF}(2^8)$.\\
+    
+    By evaluating $\widetilde{P}_i\left(0\right) = c$ we directly determine affine constant $c$ so we obtain new mapping $\widetilde{P^\prime}_i$,
+    reducing the problem to test $\widetilde{P^\prime}_i$ for being linear mapping.
+    \begin{equation}
+	\widetilde{P^\prime}_i \left(x\right) = \widetilde{P}_i\left(x\right) \oplus c
+    \end{equation}
+   
+    
+    Now we obtain mapping of standard base $e_j\;, j \in [0,7]$ via mapping $\widetilde{P^\prime}_j \left(x\right)$. 
+    \begin{equation}
+	g_j = \widetilde{P^\prime}_i \left(e_j\right) \; j \in [0,7]
+    \end{equation}
+    And from linearity the following formula must hold:
+    \begin{equation}
+	\forall x \in \text{GF}(2^8), \; \exists! \; k_j, \; j \in [0,7] \; : \; x = \sum_{j=0}^{7} k_j \cdot g_j \; 
+    \end{equation}
+    From algorithm \ref{alg:affineTest} we have time complexity $2^8$.
+    
+    \begin{algorithm}
+       \caption{Algorithm for testing given mapping for being affine}
+	\begin{algorithmic}[1]
+	    \Function{isAffine}{$P : \text{GF}(2^8) \mapsto \text{GF}(2^8)$}\Comment{Determine if P is affine mapping}
+	    \State $c \gets P[0]$\Comment{$c$ is affine constant}
+	    \State $P^{\prime}[x] \gets P[x] + c$\Comment{$2^8$ time complexity}
+	    \State $isAffine \gets true$
+	    \For{$x\gets 0, (2^8-1)$}
+		\State $px\gets P^{\prime}[x]$
+		\State $cx\gets 0$
+		\For{$i\gets 0, 7$}
+		    \If{$x_{i} = 1$}\Comment{$x_{i}$ is $i$-th bit of x in binary}
+			\State $cx \gets cx \oplus P^{\prime}\left[1<<i\right]$\Comment{$ P^{\prime}\left[1<<i\right] = g_i$}
+		    \EndIf
+		\EndFor
+		\If{$ px\neq cx $}\Comment{$cx$ is expressed via $g_i$, mapped base vectors, must match}
+		    \State $isAffine \gets false$
+		    \State \textbf{return}
+		\EndIf
+	    \EndFor\Comment{All elements from field checked for linearity}
+	    \State \textbf{return} $isAffine$
+	    \EndFunction
+	\end{algorithmic}
+	\label{alg:affineTest}
+    \end{algorithm}
 
-	%images
-% 	\bibitem{img_fresnel_zones} Fresnelove zóny, \textless\url{http://www.zytrax.com/tech/wireless/fresnel.htm}\textgreater, cit.~2.5.2011.
-	\bibitem{img_skm_studyroom} Požiarny evakuačný plán 11. poschodia SKM MU, Bratří Žůrku 5, Brno.
+    
+
+    
+
+
+\begin{thebibliography}{9}
+	\bibitem{twofish} \uppercase{SCHNEIRER, B. KELSEY, J., Whiting, D., Wagner, D., Hall, C., Ferguson, N.} , Twofish: A 128-Bit Block Cipher \textless\url{http://www.schneier.com/paper-twofish-paper.pdf}, cited~14.05.2012.
+	\bibitem{shamining} Butterfly labs \textless\url{https://products.butterflylabs.com} cited~14.05.2012.
+	\bibitem{bcrypthash} \uppercase{Gosney, J. M.} Password Cracking HPC , Passwords\^12 Security Conference, 2012. Available at \textless\url{http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
+%	\bibitem{wsn} AGHAVENDRA, C., SIVALINGAN, KRISHNA M. {\it Wireless Sensor Networks}. Springer, 2004. ISBN~978-0-387-35269-5.
+%	\bibitem{abat} HARTER, A., et al. {\it The anatomy of a~context-aware application.} Proceedings of the 5th Annual ACM/IEEE International Conference on Mobile Computing and Networking (Mobicom '99), Seattle, Washington, USA, August 15-20 1999. New York, NY, USA: ACM, 1999. str.~59--68. ISBN~1-58113-142-9. doi:~10.1145/313451.313476.
+%	\bibitem{cricket} PRIYANTHHA, N., CHAKRABORTY, A., BALAKRISHNAN, H. {\it The Cricket Location-Support System.} Proceedings of the 6th annual international conference on Mobile computing and networking (ACM MOBICOM), Boston, MA, August 2000. New York, NY, USA: ACM, 1999. str.~32--43. ISBN~1-58113-197-6. doi:~10.1145/345910.345917.
+%	\bibitem{trilateration} KAMINSKY A. {\it Trilateration.} \textless\url{http://www.cs.rit.edu/~ark/543/module05/trilateration.pdf}\textgreater 2007, cit.~5.5.2011.
+% 	\bibitem{trans_standard} IEEE {\it IEEE std. 802.15.4 - 2006: Wireless Medium Access Control (MAC) and Physical Layer (PHY) specifications for Low Rate Wireless Personal Area Networks (LR-WPANs).} \textless\url{http://standards.ieee.org/getieee802/download/802.15.4-2006.pdf}\textgreater 2006, cit.~5.5.2011.	
+% 	\bibitem{antenna} \uppercase{Christodoulou, C.G. and Wahid, P.F.} {\it Fundamentals of antennas: concepts and applications}. SPIE Press, 2001. str.~13. ISBN~9780819441126.
+% 	\bibitem{reactive} \uppercase{Seybold, J.S.} {\it Introduction to RF propagation}. Wiley, 2005. ISBN~9780471655961.
+% 	\bibitem{fraunhofer_small_antenna} \uppercase{Cincinnati Technical Center} {\it Electromagnetic radiation and how it affects your instruments}. \textless\url{http://www.osha.gov/SLTC/radiofrequencyradiation/electromagnetic\_fieldmemo/electromagnetic.html}\textgreater 2011. cit.~5.5.2011.
+% 	\bibitem{rappaport1996wireless} \uppercase{Rappaport, T.S.} {\it Wireless communications: principles and practice}. Prentice Hall PTR, 1996. str.~69--196. ISBN~9780133755367.
+% 	\bibitem{fresnel} \uppercase{Stavrou, S. and Saunders, S.R.} {\it Factors influencing outdoor to indoor radio wave propagation.} Antennas and Propagation, 2003. (ICAP 2003). Twelfth International Conference on (Conf. Publ. No. 491). str.~581--585 vol 2. doi:~10.1049/cp:20030142.
+% 	\bibitem{wirelessAndrea} \uppercase{Goldsmith, A.} {\it Wireless communications}. Cambridge University Press, 2005. str.~ 383--392,404--414,427. ISBN~9780521837163.
+% 	\bibitem{nearfar} \uppercase{Hadzi-Velkov, Z., Spasenovski B.} {\it Capture Effect in IEEE 802.11 Basic Service Area Under Influence of Rayleigh Fading and Near/Far Effect}. IEEE Internation Symposium on Personal Indoor Communication, 2002.
+% 	\bibitem{nearfar_indoor} \uppercase{Whitehouse, K. and Woo, A. and Jiang, F. and Polastre, J. and Culler, D.} {\it Exploiting the capture effect for collision detection and recovery.} Proceedings of the 2nd IEEE workshop on Embedded Networked Sensors, Washington, DC, USA, 2005. IEEE Computer Society, 2005. str.~45--52. ISBN~0-7803-9246-9.
+% 	\bibitem{multipath} \uppercase{Sohraby, K. and Minoli, D. and Znati, T.F.} {\it Wireless sensor networks: technology, protocols, and applications}. Wiley-Interscience, 2007. str.~90--101. ISBN~9780471743002.
+% 	\bibitem{positionLocation} \uppercase{Mu{\~n}oz, D. and Vargas, C.} {\it Position location techniques and applications}. Academic Press, 2009. ISBN~9780123743534.
+% 	\bibitem{apache_common} \uppercase{Appache commons} {\it Commons-Math: The Apache Commons Mathematics Library} 2011, \textless\url{http://commons.apache.org/math/}\textgreater 2001, cit.~5.5.2011.
+% 	\bibitem{numerical} \uppercase{Nocedal, J. and Wright, S.J.} {\it Numerical optimization.} Springer, 1999. str.~250--274. ISBN~9780387987934.
+% 	\bibitem{lm} \uppercase{Gershenfeld, N.A.} {\it The nature of mathematical modeling}. Cambridge University Press, 1999. ISBN~9780521570954.
+% 	\bibitem{winklerMovingAverage} \uppercase{Winkler Z.} {\it Měření rychlosti.} Dostupné z~World Wide Web: \textless\url{http://robotika.cz/guide/filtering/en}\textgreater, cit.~5.5.2011.
+% 	\bibitem{trilateration_robot} \uppercase{Zhou, Y.} {\it An efficient least-squares trilateration algorithm for mobile robot localization.} Proceedings of the 2009 IEEE/RSJ international conference on Intelligent robots and systems, IROS'09, St. Louis, MO, USA. IEEE Press, 2009. str.~3474--3479. ISBN~978-1-4244-3803-7.
+% 	\bibitem{thomas_robotLocalization} \uppercase{Thomas, F. and Ros, L.} {\it Revisiting trilateration for robot localization.} IEEE Transactions on robotics vol. 21, Feb. 2005. str.~93--101. doi:~\mbox{10.1109/TRO.2004.833793}.
+% 	\bibitem{overdetermined} Wikipedia, the free encyclopedia: {\it Overdetermined system}. \textless\url{http://en.wikipedia.org/wiki/Overdetermined_system}\textgreater, cit.~5.5.2011.
+% 	\bibitem{farahani2008zigbee} \uppercase{Farahani, S.} {\it ZigBee wireless networks and transceivers.} Newnes/Elsevier, 2008. str.~229--231. ISBN~9780750683937.
+% 	\bibitem{tmote_datasheet} \uppercase{Moteiv Corporation.} {\it Telos (rev B):PRELIMINARY Datasheet.} 2004. \textless\url{http://www.bandwavetech.com/download/tmote-sky-datasheet.pdf}\textgreater 2004, cit.~5.5.2011.
+% 	\bibitem{tinyos} {\it TinyOS Documentation Wiki.} \textless\url{http://docs.tinyos.net/index.php/}\textgreater 2011, cit.~5.5.2009.    %http://www.tinyos.net/
+% 	\bibitem{invertedf01} \uppercase{Andersen A.} {\it 2.4GHz Inverted F Antenna, Design note DN0007}, 2008. \textless\url{http://focus.ti.com.cn/cn/lit/an/swru120b/swru120b.pdf}\textgreater 2008, cit 5.5.2011.
+% 	\bibitem{printantena} WATERHOUSE, R. B. {\it Printed antennas for wireless communications}. Wiley, 2007. ISBN~047051069.
+% 	\bibitem{invertedFGain} \uppercase{Raman, B., Chebrolu, K., Madabhushi, N., Go, D. Y., Valiveti, P. K.k and Jain, D.,} {\it Implications of link range and (In)stability on sensor network architecture}, Proceedings of the 12th annual international conference on Mobile computing and networking , Los Angeles, CA, USA, pp. 65-72, 2006.
+% 	\bibitem{cc2420} \uppercase{Chipcon}, {\it 2.4 GHz IEEE 802.15.4 / ZigBee-ready RF Transceiver.} str.~11,~48--49. \textless\url{http://focus.ti.com/lit/ds/symlink/cc2420.pdf}\textgreater 2009, cit.~5.5.2011. 
+% 	\bibitem{tos_message} \uppercase{Levis P.} {\it message\_t} \textless\url{http://www.tinyos.net/tinyos-2.x/doc/html/tep111.html}\textgreater 2011, cit.~5.5.2011.
+% 	\bibitem{sht1x_datasheet} \uppercase{Sensirion.} {\it Datasheet SHT1x (SHT10, SHT11, SHT15). Humidity and Temperature Sensor} 2010. \textless\url{http://www.sensirion.com/en/pdf/product_information/Datasheet-humidity-sensor-SHT1x.pdf}\textgreater 2010, cit.~5.5.2011.
+% 	\bibitem{dePbloThesis} \uppercase{Escol\`{a} A.} {\it Development of a wireless sensor network with 6LoWPAN support.} Dostupné z~World Wide Web: \textless\url{http://upcommons.upc.edu/pfc/bitstream/2099.1/7806/1/memoria.pdf}\textgreater, cit.~5.5.2011.
+% 	\bibitem{rss_localization_study} \uppercase{De Cauwer, P. Van Overtveldt, T., Doggen, J., Van der Schueren, F. Weyn, M., Bracke, J.} {\it Study of RSS-Based Localisation Methods in Wireless Sensor Networks.} Proceeding of the Fourth European Conference on the Use of Modern Information and Communication Technologies, Gent, Beglium, 2010. 
+% 	\bibitem{s1} PATWARI, N., HERO, A. {\it Using proximity and quantized RSS for sensor.} Proceedings of the 2nd ACM international conference on Wireless sensor networks and applications, San Diego, CA, USA, 2003. New York, NY, USA: ACM, 2003. str.~20--29. ISBN~1-58113-764-8. doi:~10.1145/941350.941354.
+%         \bibitem{s2} ELNAHRAWY, E., LI, X.,MARTIN, R. {\it The limits of localization using RSS.} Proceedings of the 2nd international conference on Embedded networked sensor systems, Baltimore, MD, USA, 2004. New York, NY, USA: ACM, 2004. str.~283--284. ISBN~1-58113-879-2. doi:~10.1145/1031495.1031537.
+% % 	\bibitem{neuro} GURNEY, K., GURNEY, K. {\it An introduction to neural networks}. UCL Press, 1997. ISBN~1-85728-503-4.
+% 	\bibitem{probab} FULLER, R., KOUTSOUKOS, D. {\it Mobile Entity Localization and Tracking in GPS-less Environnments.} Second International Workshop, MELT~2009, Orlando, FL, USA, September 30, 2009, Springer, 2009. str.~66--78.
+% 	
+% 	\bibitem{sqlitejdbc} Zentus, {\it SqliteJDBC} 2011, \textless\url{http://www.zentus.com/sqlitejdbc}\textgreater, cit.~5.5.2011.
+% 	\bibitem{sqlite} SQLite \textless\url{http://www.sqlite.org}\textgreater, cit.~5.5.2011.
+% 	\bibitem{jfreechart} \uppercase{Gilbert D.} {\it JFreeChart} 2011, \textless\url{http://www.jfree.org/jfreechart}\textgreater, cit.~5.5.2011.
+% 	\bibitem{bsdlicense} University of California, Berkeley {\it BSD License}, \textless\url{http://www.opensource.org/licenses/bsd-license.php}\textgreater, cit.~5.5.2011.
+% 	\bibitem{gnulgpl} {\it GNU Lesser General Public License}, \textless\url{http://www.gnu.org/copyleft/lesser.html}\textgreater, cit.~5.5.2011.
+% 	\bibitem{apachelicence} Apache commons {\it The Apache Software License, version 2}, \textless\url{http://commons.apache.org/math/license.html}\textgreater, cit.~5.5.2011.
+% 	
+% 
+% 	%images
+% % 	\bibitem{img_fresnel_zones} Fresnelove zóny, \textless\url{http://www.zytrax.com/tech/wireless/fresnel.htm}\textgreater, cit.~2.5.2011.
+% 	\bibitem{img_skm_studyroom} Požiarny evakuačný plán 11. poschodia SKM MU, Bratří Žůrku 5, Brno.
 	
 %       citovanie el.
 %         \bibitem{varekova} Svobodová Vařeková, R.: {\it PV082 Computational chemistry} [online].  Dostupné z~World Wide Web: \textless\url{http://ncbr.chemi.muni.cz/~svobodova/vyuka/pocitacova_chemie/}\textgreater
