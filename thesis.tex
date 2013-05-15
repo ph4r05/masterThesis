@@ -142,7 +142,7 @@ Introduction here
     \section{Homomorphic encryption}
     \begin{enumerate}
      \item security point of view - optimal
-     \item practical usabuility
+     \item practical usability
      \item state of the art practical results
     \end{enumerate}
 
@@ -207,12 +207,14 @@ Introduction here
 
     \subsection{Twofish S-boxes}
     Here observe Twofish S-boxes (from \cite{twofish}) and their algebraic representation.
-    \begin{align}\label{eq:twofish_sbox}
+    \begin{subequations}\label{eq:twofish_sbox}
+    \begin{align}
 	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
 	s_{1,k_2,k_3}\left(x\right) &= q_0\left[q_0\left[q_1\left[x\right] \oplus k_2 \right] \oplus k_3 \right]\\
 	s_{2,k_4,k_5}\left(x\right) &= q_1\left[q_1\left[q_0\left[x\right] \oplus k_4 \right] \oplus k_5 \right]\\
 	s_{3,k_6,k_7}\left(x\right) &= q_0\left[q_1\left[q_1\left[x\right] \oplus k_6 \right] \oplus k_7 \right]
     \end{align}
+    \end{subequations}
     Where $q_0, q_1$ are fixed 8-bit permutations, $k_i,\; i \in [0,7]$ are key bytes, $s_{j,k_a,k_b},\; j \in [0,4]$ are resulting S-boxes.
 
     Thus instead of fixed AES S-box we use Twofish key dependent S-boxes. In particular we use $s_{j,k_a,k_b},\; j \in [0,4]$ instead of 4 the same constant
@@ -274,7 +276,7 @@ Introduction here
     \begin{itemize}
      \item[$i$] subscript on right side stands for i-th byte of resulting hash
      \item[$key$] is encryption key, 128 bits
-     \item[$k^{r-1}$] is whole round key for roudn $r-1$
+     \item[$k^{r-1}$] is whole round key for round $r-1$
      \item[$||$] symbol is concatenation of two binary arguments
      \item[$salt$] is arbitrary 128 bit salt used in bcrypt algorithm. This can be publicly known - published together with ciphertext or 
 	in particular whitebox cipher instance.
@@ -299,7 +301,7 @@ Introduction here
     k_i^{r \; \prime} = \left\{ 
     \begin{array}{l l} 
 	hash_{N_{bc}, N_{sha}}(key\; || \; "\text{magicConstant}", salt)_i                              & \quad \text{if $r=0$}\\
-	hash_{N_{bc}, N_{sha}}(k^{r-1} \; || \; key \; || \; "\text{magicConstant}", salt)_i            & \quad \text{otherwise}
+	hash_{N_{bc}, N_{sha}}(k^{r-1 \; \prime} \; || \; key \; || \; "\text{magicConstant}", salt)_i            & \quad \text{otherwise}
     \end{array} \right.
     \end{equation}
     
@@ -311,12 +313,14 @@ Introduction here
     In this chapter we try to analyze suggested scheme improvement from whitebox point of view, particularly we try to mount BGE attack to this modified variant. 
 
     S-box definitions are needed in proposition 3 in BGE attack where we obtain 4 affine mappings.
+    \begin{subequations}\label{eq:BGE_prop3}
     \begin{align}
 	\widetilde{P}_0 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_0} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(x, 00, 00, 00\right) \right)\\
 	\widetilde{P}_1 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_1} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, x, 00, 00\right) \right)\\
 	\widetilde{P}_2 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_2} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, 00, x, 00\right) \right)\\
 	\widetilde{P}_3 \;&: \; x \mapsto \left( S^{-1} \circ \Lambda_{\delta_3} \circ \widetilde{A}_0^{-1}\right) \left( y_0\left(00, 00, 00, x\right) \right)
     \end{align}
+    \end{subequations}
     
     In our implementation of the BGE attack we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \text{GF}(2^8)\times\text{GF}(2^8)$ what gives complexity $2^{16}$ for one mapping.
     In each step is mapping checked for affinity in $2^8$ steps (for affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
@@ -326,13 +330,13 @@ Introduction here
     mapping for each $\widetilde{P}$ and to test for its affinity. 
     
     Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mappings stored as lookup table takes $2^8$ bytes.
-    Thus pre-computed $s_0$ s-box would take $2^8 \cdot 2^{16} = 2^{24} > 10^7$ bytes. 
+    Thus pre-computed $s_0$ s-box for all possible key bytes would take $2^8 \cdot 2^{16} = 2^{24} > 10^7$ bytes. 
     
     Even if attacker determines round keys for S-boxes it will be completely useless for further extraction of cipher key since hash chains are different. 
     
     Twofish S-boxes thus increase complexity of proposition 3 from BGE from $2^{24}$ to $2^{40}$. This is still not strong enough, it is highly parallelizable problem.
     In order to increase work needed to mount proposition 3 attack one could redefine key-dependent S-boxes to increase attack complexity to level $2^{128}$ what is larger
-    than best known attack on AES. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear Sboxes is $256! \approx 8.5\cdot 10^{506}$ so there are still options to expand 
+    than best known attack on AES. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear Sboxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand 
     S-box space. 
     
     \begin{equation}\label{eq:complex_sbox}
@@ -352,17 +356,25 @@ Introduction here
     Where $q^{\prime}_{j,l}$ is one of two fixed Twofish 8-bit permutations. Particular sequence of nested permutations would require deeper analysis, to avoid possible weaknesess 
     induced by composing inapropriate permutations together, but we can choose for example:
     \setcounter{MaxMatrixCols}{13}
+    \begin{subequations}
     \begin{align}
 	q^{\prime}_{0} &= \begin{bmatrix}  q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_0 \end{bmatrix}\\
 	q^{\prime}_{1} &= \begin{bmatrix}  q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 \end{bmatrix}\\
 	q^{\prime}_{2} &= \begin{bmatrix}  q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 \end{bmatrix}\\
 	q^{\prime}_{3} &= \begin{bmatrix}  q_0 & q_0 & q_0 & q_1 & q_1 & q_1 & q_0 & q_0 & q_0 & q_1 & q_1 & q_1 & q_1 \end{bmatrix}
     \end{align}
+    \end{subequations}
 
-    This gives us good security margin for BGE attack. Also as long as are SHA-256 and bcrypt uncracked, key extraction should be unfeasible, since it is not possible
+    This gives us good security margin for BGE attack, raising computational complexity to $2^{128}$. 
+    Pre-computed $s_0$ S-box for all possible key bytes would take $2^8 \cdot 2^{8\cdot13} = 2^{112} > 10^{33}$ bytes. 
+
+    Also as long as are SHA-256 and bcrypt uncracked, key extraction should be unfeasible, since it is not possible
     to invert hash function easily. 
-    
-    Suggested modification of whitebox cipher don't increase table sizes, because modifications made are only in S-box definitions and key schedule - both 
+
+    Cipher modification only affects S-boxes and round keys, so other parts of the BGE attack are not affected, namely transforming non-linear parts
+    to affine, propositions 1 and 2 work as before. 
+
+    Cipher modification don't increase table sizes, because modifications made are only in S-box definitions and key schedule - both 
     parts of the cipher are already evaluated and stored in the lookup tables. Our modifications also don't affect encryption/decryption performance since the only
     difference is made during particular whitebox instance (lookup tables) generation. Encryption/decryption algorithm itself is not affected.
     
@@ -429,9 +441,6 @@ Introduction here
     \end{algorithm}
 
     
-
-    
-
 
 \begin{thebibliography}{9}
 	\bibitem{twofish} \uppercase{SCHNEIRER, B. KELSEY, J., Whiting, D., Wagner, D., Hall, C., Ferguson, N.} , Twofish: A 128-Bit Block Cipher \textless\url{http://www.schneier.com/paper-twofish-paper.pdf}, cited~14.05.2012.
