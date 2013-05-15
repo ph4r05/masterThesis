@@ -73,7 +73,7 @@
 % bibtex
 \usepackage{url}
 \usepackage[numbers]{natbib}
-\bibliographystyle{plain}
+\bibliographystyle{unsrtnat}
 
 \begin{document}
 \newenvironment{atribut_description}
@@ -411,6 +411,21 @@ Introduction here
 	column is used different generic AES. This implementation is compatible with default AES, so after computing in dual AES we have to transform the result to default AES
 	with base change transformation $\Delta$.\\
 
+
+
+    \section{Implementation of the cipher}
+    Cipher implementation description
+
+    \section{Results}
+    Practical results for implementation, performance statistics, results.
+    
+    \section{Attack}
+    My attack, see proof.tex
+
+    \section{Attacking Dual AES scheme}
+	According to \citep{Karroumi:2010:PWA:2041036.2041060} whitebox scheme using Dual AES is considered to be more difficult to crack with BGE attack and thus it is consider
+	safer than original scheme proposed in \citep{Chow02white-boxcryptography}. But we show that it is not true. This result is new and was not published yet.
+	
 	\begin{myprop}
 	Whitebox Dual AES scheme can be broken with the Billet's attack with the same time complexity as Whitebox AES scheme.
 	\end{myprop}
@@ -419,7 +434,7 @@ Introduction here
 	Let's define round function for whitebox AES and for whitebox dual AES and compare it.
 
 	\subsubsection*{Round function - whitebox AES}
-	There are additional $Q' ,P' $ functions
+	There are additional $Q' ,P' $ functions, input and output bijections, for details see \citep{Chow02white-boxcryptography} \citep{Billet:2004:CWB:2080787.2080809}.
 	\begin{subequations}
 	\begin{align} 
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) & = Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot S \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \right) \right) \\
@@ -429,8 +444,6 @@ Introduction here
 	\end{subequations}
 
 	\subsubsection*{Round function - whitebox dual AES}
-	The same thing we can do for whitebox dual AES
-
 	\begin{subequations}
 	\begin{align} \label{eq:whitebox_dual_aes_r}
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \Delta \left(\alpha_{l,j}\right) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \\
@@ -488,21 +501,6 @@ Introduction here
 		\caption{Whitebox Dual AES implementation - round \#2}
 		\label{fig:wbaesdual}
 		\end{figure*}
-
-
-
-
-
-
-
-    \section{Implementation of the cipher}
-    Cipher implementation description
-
-    \section{Results}
-    Practical results for implementation, performance statistics, results.
-    
-    \section{Attack}
-    My attack, see proof.tex
 
     \section{Implementation of the attack}
     Attack implementation description
