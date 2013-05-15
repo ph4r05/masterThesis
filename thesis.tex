@@ -347,9 +347,9 @@ Introduction here
     
     \begin{equation}\label{eq:sboxgen}
 	sboxgen(j,l,x) = \left\{ 
-	\begin{array}{l l} 
-	    q^{\prime}_{j,0}\left[ x \right] \oplus k_{j}		 & \quad \text{if $l=0$}\\
-	    sboxgen\left(j, l-1,x\right) \oplus k_{j \cdot (l+1)}          & \quad \text{otherwise}
+	\begin{array}{l l}  
+	    q^{\prime}_{j,0}\left[ x \right]                          \oplus k_{j+1}		            & \quad \text{if $l=0$}\\
+	    q^{\prime}_{j,l}\left[sboxgen\left(j, l-1,x\right)\right] \oplus k_{(j+1) \cdot (l+1)}          & \quad \text{otherwise}
 	\end{array} \right.
     \end{equation}
     
