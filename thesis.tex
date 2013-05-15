@@ -11,6 +11,7 @@
 \usepackage{calc}
 \usepackage{subfig}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{amsmath}
 
 % floating for figures H
@@ -18,7 +19,6 @@
 \restylefloat{figure}
 
 % \usepackage{sistyle}
-\usepackage[numbers]{natbib}
 
 % some symbols in package
 % \usepackage{textcomp}
@@ -62,6 +62,18 @@
 \newcommand{\protocommand}[1]{\emph{\uppercase{#1}}}
 \newcommand{\protoparam}[1]{\emph{#1}}
 % \underset{x}{\operatorname{argmin}}
+
+% some math & modulo
+\newtheorem{mydef}{Definition}
+\newtheorem{myprop}{Proposition}
+\makeatletter
+\def\imod#1{\allowbreak\mkern10mu({\operator@font mod}\,\,#1)}
+\makeatother
+
+% bibtex
+\usepackage{url}
+\usepackage[numbers]{natbib}
+\bibliographystyle{plain}
 
 \begin{document}
 \newenvironment{atribut_description}
@@ -128,10 +140,6 @@ white box attack resistant cryptography, look up tables form, AES
 Introduction here
 
 \chapter{Area overview}\label{sec:theory}
-
-%may be usefull:
-% ~\cite{trans_standard}
-% \ref{sec:hardware}
     
     \section{Overview}
     Overview, setting picture in cryptographic world
@@ -158,10 +166,334 @@ Introduction here
     Schemes used with AES, DES
 
 \chapter{Whitebox context attack resistant AES implementation using dual AES}
-    Scheme description \& attack
+    Scheme description \& attack\\
+    In this chapter I describe whitebox scheme proposed in \citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers.
     
     \section{Scheme}
-    Scheme
+    A little algebra introduction is needed to continue with scheme description.
+
+	\subsection{Generic AES}
+	It is possible to generalize AES by changing its polynomial and generator to obtain generic form of AES.
+
+	Generic AES can be represented as a $\{R(x), \beta \}$, where $R(x) \in \left(\mathbb{Z}/p\mathbb{Z}\right)[x]$ is 
+	irreducible polynomial of degree 8, $\beta \in GF(2^8)$ is a generator of the field $GF(2^8)$.
+
+	Default AES (as in NIST standard) in this notation is represented as $\{\{11B\}_x, \{03\}_x\}$. Polynomial is expressed
+	in hexadecimal notation, each bit corresponds to polynomial coefficient, LSB corresponds to constant term.\\
+	Thus $0x11B_{16} = 1 \; 0001 \; 1011_{2} \; \Rightarrow \{11B\}_x \sim x^8+x^4+x^3+x+1$.
+
+	It is known that there are $30$ irreducible polynomials over $\text{GF}(2^8)$. For each of them there are $8$ possible
+	generators that can be used to generate field and to preserve duality mentioned in the next section.
+
+	\subsection{AES duality}
+
+	\begin{mydef}
+	Two ciphers $E$ and $E'$ are called Dual Ciphers, if they are
+	isomorphic, i.e., if there exist invertible transformations $f()$, $g()$ and $h()$ such
+	that
+
+	\begin{equation} 
+	\forall p, k: E_k(p) = f^{-1}\left(E'_{g(k)}(h(p))\right)
+	\end{equation}
+	where $p$ is the plaintext, and $k$ is the secret key.
+	\end{mydef}
+
+	\subsubsection*{Generic AES duality}
+	Let's assume we have some arbitrary generic AES $\{R(x), \beta \}$. 
+
+	All elements of the field $\text{GF}(2^8) = \{01, 02, \dots, FF\}$
+	can be expressed in terms of the generator $\beta$, $\text{GF}(2^8) = \{\beta^i \; | \; i \in [0,254]\} = \{\beta^0, \beta^1, \dots, \beta^{254}\}$.
+
+	We can then construct $8 \times 8$ matrix $\Delta = \begin{bmatrix} \beta^0 & \beta^{25} & \beta^{50} & \beta^{75} & \beta^{100} & \beta^{125} & \beta^{150} & \beta^{175}  \end{bmatrix}$ where 
+	$\beta^i \in \text{GF}(2^8) \cong \text{GF}(2)^8$ is a column vector.  $\Delta$ is a base change matrix:
+	\begin{align}
+	    \Delta &: \{\{11B\}_x, \{03\}_x\}  \longrightarrow \{R(x), \beta \} \\
+	    \Delta^{-1} &: \{R(x), \beta \}  \longrightarrow \{\{11B\}_x, \{03\}_x\}
+	\end{align}
+
+	For default AES $\{\{11B\}_x, \{03\}_x\}$ holds $\Delta = \begin{bmatrix} 03^0 & 03^{25} & 03^{50} & 03^{75} & 03^{100} & 03^{125} & 03^{150} & 03^{175}  \end{bmatrix} = \begin{bmatrix} 01 & 02 & 04 & 08 & 16 & 32 & 64 & 128 \end{bmatrix} = I_8$ as expected.
+
+	From this it is clear that following duality holds: $E \sim \{\{11B\}_x, \{03\}_x\}, \; E' \sim \{R(x), \beta \}$ then:
+	\begin{equation} 
+	\forall p, k: E_k(p) = \Delta^{-1}\left(E'_{\Delta(k)}(\Delta(p))\right)
+	\end{equation}
+
+	\subsubsection*{Constructing Dual AES}
+	We can construct arbitrary dual AES from default AES. Recall there are 4 operations used in single AES round: \emph{ShiftRows}, \emph{AddRoundKey}, \emph{SubByte}, \emph{MixColumn}.
+
+	\subsubsection*{Default AES}
+	At first recall two most important functions in AES round that we will then transform to generic form.
+
+	\subsubsection*{SubByte}
+	\begin{align}
+	S: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
+	x               & \longmapsto A \times x^{-1} \oplus c
+	\end{align}
+	where $x^{-1}$ is element inverse in $\text{GF}(2^8)$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard.
+
+	Equation for Sbox:
+	\begin{align}
+		\begin{bmatrix}
+		    y_0\\
+		    y_1\\
+		    y_2\\
+		    y_3\\
+		    y_4\\
+		    y_5\\
+		    y_6\\
+		    y_7\\
+		\end{bmatrix}
+		    =
+		\begin{bmatrix}
+		    1 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+		    1 & 1 & 0 & 0 & 0 & 1 & 1 & 1 \\
+		    1 & 1 & 1 & 0 & 0 & 0 & 1 & 1 \\
+		    1 & 1 & 1 & 1 & 0 & 0 & 0 & 1 \\
+		    1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+		    0 & 1 & 1 & 1 & 1 & 1 & 0 & 0 \\
+		    0 & 0 & 1 & 1 & 1 & 1 & 1 & 0 \\
+		    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+		\end{bmatrix}
+		\begin{bmatrix}
+		    x_0\\
+		    x_1\\
+		    x_2\\
+		    x_3\\
+		    x_4\\
+		    x_5\\
+		    x_6\\
+		    x_7\\
+		\end{bmatrix}
+		    +
+		\begin{bmatrix}
+		    1\\
+		    1\\
+		    0\\
+		    0\\
+		    0\\
+		    1\\
+		    1\\
+		    0\\
+		\end{bmatrix}
+	    \end{align}
+	where $x_i, y_i \in \text{GF}(2)$.
+
+	\subsubsection*{MixColumn}
+	    \begin{itemize}
+	    \item columns considered as polynomials over $GF(2^8)$
+	    \item $p(x) \cdot c(x) \imod{x^4+1}$\\
+	    where $c(x)$ is fixed polynomial $c(x) = 03x^3+01x^2 + 01x + 02$
+	    \end{itemize}
+	    \begin{align}
+		\begin{bmatrix}
+		    y_0\\
+		    y_1\\
+		    y_2\\
+		    y_3\\
+		\end{bmatrix}
+		    =	
+		\begin{bmatrix}
+		    02 & 03 & 01 & 01\\
+		    01 & 02 & 03 & 01\\
+		    01 & 01 & 02 & 03\\
+		    03 & 01 & 01 & 02\\
+		\end{bmatrix}
+		\begin{bmatrix}
+		    x_0\\
+		    x_1\\
+		    x_2\\
+		    x_3\\
+		\end{bmatrix}
+	    \end{align}
+	where $x_i, y_i \in \text{GF}(2^8)$.
+	\newpage
+
+	\subsubsection{Generic AES}
+	In the generic AES operations \emph{ShiftRows}, \emph{AddRoundKey} work same as in default AES, they are not affected by base change operation.
+
+	\subsubsection*{SubByte}
+	\begin{align}
+	S_{dual}: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
+	x               & \longmapsto \Delta \times A \times \Delta^{-1} \left( x^{-1} \right) \oplus \Delta \left(c\right)
+	\end{align}
+
+	\subsubsection*{MixColumn}
+	We can express MixColumn matrix coefficients in terms of generator $\beta = 03$.
+	\[
+	\begin{bmatrix}
+		    \beta^{25} & \beta^{1} & \beta^{0} & \beta^{0}\\
+		    \beta^{0} & \beta^{25} & \beta^{1} & \beta^{0}\\
+		    \beta^{0} & \beta^{0} & \beta^{25} & \beta^{1}\\
+		    \beta^{1} & \beta^{0} & \beta^{0} & \beta^{25}\\
+	\end{bmatrix}
+	\]
+
+	\subsubsection*{Round function - default AES}
+	We consider whole AES round as a single function $R$ of a state array. Let's define
+	\[
+	\begin{bmatrix} 
+	    x_{0,0} & x_{0,1} & x_{0,2} & x_{0,3}\\
+	    x_{1,0} & x_{1,1} & x_{1,2} & x_{1,3}\\
+	    x_{2,0} & x_{2,1} & x_{2,2} & x_{2,3}\\
+	    x_{3,0} & x_{3,1} & x_{3,2} & x_{3,3}\\
+	\end{bmatrix} 
+	\overset{R}{\longrightarrow}
+	\begin{bmatrix} 
+	    y_{0,0} & y_{0,1} & y_{0,2} & y_{0,3}\\
+	    y_{1,0} & y_{1,1} & y_{1,2} & y_{1,3}\\
+	    y_{2,0} & y_{2,1} & y_{2,2} & y_{2,3}\\
+	    y_{3,0} & y_{3,1} & y_{3,2} & y_{3,3}\\
+	\end{bmatrix} 
+	\]
+
+	From this we define $y_{i,j}$ as a function with 4 arguments from $\text{GF}(2^8)$:
+	\begin{equation}
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \bigoplus^3_{l=0} \alpha_{l,j} \cdot S(x_{i,l} \oplus k_{i,l})
+	\end{equation}
+	where $\alpha_{k,j}$ is MixColumn matrix coefficient in $k$-th row and $j$-th column. We are abstracting here \emph{ShiftRows} operation, it won't be needed for our further argumentation.
+	To make it clear here are equations for the first column of state array:
+
+	{\footnotesize
+	\begin{align}
+	y_{0,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 02 \cdot T_{0,0}(x_{0,0}) \oplus 03 \cdot T_{1,0}(x_{1,0})\oplus 01 \cdot T_{2,0}(x_{2,0})\oplus 01 \cdot T_{3,0}(x_{3,0})\\
+	y_{1,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 01 \cdot T_{0,0}(x_{0,0}) \oplus 02 \cdot T_{1,0}(x_{1,0})\oplus 03 \cdot T_{2,0}(x_{2,0})\oplus 01 \cdot T_{3,0}(x_{3,0})\\
+	y_{2,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 01 \cdot T_{0,0}(x_{0,0}) \oplus 01 \cdot T_{1,0}(x_{1,0})\oplus 02 \cdot T_{2,0}(x_{2,0})\oplus 03 \cdot T_{3,0}(x_{3,0})\\
+	y_{3,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 03 \cdot T_{0,0}(x_{0,0}) \oplus 01 \cdot T_{1,0}(x_{1,0})\oplus 01 \cdot T_{2,0}(x_{2,0})\oplus 02 \cdot T_{3,0}(x_{3,0})
+	\end{align}}
+	where $T_{i,j}(x) = S\left(x \oplus k_{i,j}\right)$.
+
+	\subsubsection*{Round function - generic AES}
+	Using aforementioned generic form of \emph{SubByte} and \emph{MixColumn} functions we can define round function also for generic AES in the same way, using base change transformation.
+	From this we define $y_{i,j}$ as a function with 4 arguments from $\text{GF}(2^8)$:
+	\begin{equation}
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left(x_{i,l} \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right)
+	\end{equation}
+
+	\subsection{Whitebox AES}
+
+		\begin{figure*}
+		\begin{center}
+		\leavevmode
+		\centerline{\scalebox{1.0}{\includegraphics{WBAES_PQ.pdf}}}
+		\end{center}
+		\caption{Whitebox AES implementation - round \#2}
+		\label{fig:wbaes}
+		\end{figure*}
+
+	Whitebox AES is AES implementation based on table lookups, functions used in AES are stored as lookup tables. Figure \ref{fig:wbaes} shows one round of whitebox AES
+	implementation using lookup tables, protected with whitebox techniques like Mixing Bijections and internal encodings.
+
+	On the diagram in figure \ref{fig:wbaes} are following whitebox functions:
+	\begin{itemize}
+	\item MB stands for Mixing Bijection. It is $32 \times 32$ matrix over $\text{GF}(2)$ representing linear transformation over $\text{GF}(2)$. 
+	$\text{MB}^{-1}_{\{0,1,2,3\}}$ are then column stripes of corresponding MB inverse matrix - linearity is used here to perform multiplication with MB inverse matrix.
+	This transformation is not interesting since it cancels out within one round. We are interested in round function R, this transformation has no effect on it.
+	\item L stands also for Mixing Bijection but in this case it is $8 \times 8$ matrix over $\text{GF}(2)$ representing linear transformation over $\text{GF}(2)$. 
+	Original purpose of it was to protect output of round $r$ connected to the input of round $r+1$ in table representation. 
+	\item Q,P. These are random non-linear bijections in $\text{GF}(2^8)$, called internal encodings. It holds that $P^{r+1}_{i,j} \circ Q^{r}_{i,j} = id$
+	\end{itemize}
+
+	Since transformation $L$, $L^{-1}$ is performed byte-wise on state array, we can compose them with corresponding internal encodings bijections
+	\begin{align}
+	    Q^{r \; \prime}_{i,j} &= Q^{r}_{i,j} \circ L^{r+1}_{j} \label{eq:ioencoding_abstract_q}\\
+	    P^{r \; \prime}_{i,j} &= (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
+	\end{align}
+
+	We again obtain non-linear random bijections with embedded L transformation in it, without loss of generality. This abstraction is done in Billet's attack.
+
+	\newpage
+
+
+	\subsection{Whitebox Dual AES}
+	There was published a paper describing AES whitebox implementation with use of dual AES. It claimed that this implementation should be harder (in terms of time complexity)
+	to break using Billet's attack on whitebox AES. On the figure \ref{fig:wbaesdual} is scheme for one round, one column of state array, whitebox dual AES implementation for round 2.
+	According to the original paper, in each
+	column is used different generic AES. This implementation is compatible with default AES, so after computing in dual AES we have to transform the result to default AES
+	with base change transformation $\Delta$.\\
+
+	\begin{myprop}
+	Whitebox Dual AES scheme can be broken with the Billet's attack with the same time complexity as Whitebox AES scheme.
+	\end{myprop}
+
+	\begin{proof}
+	Let's define round function for whitebox AES and for whitebox dual AES and compare it.
+
+	\subsubsection*{Round function - whitebox AES}
+	There are additional $Q' ,P' $ functions
+	\begin{subequations}
+	\begin{align} 
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) & = Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot S \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \right) \right) \\
+								& = Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot \left( A \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus k_{i,l} \right)^{-1} \right) \oplus c \right) \right) \\
+								& = Q^{r \; \prime}_{i,j} \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_aes_roud}
+	\end{align}
+	\end{subequations}
+
+	\subsubsection*{Round function - whitebox dual AES}
+	The same thing we can do for whitebox dual AES
+
+	\begin{subequations}
+	\begin{align} \label{eq:whitebox_dual_aes_r}
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \Delta \left(\alpha_{l,j}\right) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \\
+								&= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \Delta \left(\alpha_{l,j}        \cdot \left(               A \times \Delta^{-1} \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus c \right) \right) \right)
+	\end{align}
+	\end{subequations}
+
+	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking whitebox AES breaks whitebox dual AES scheme. From figure \ref{fig:wbaesdual}
+	observe how rounds are connected to each other with respect to dual AESes. It is cearly visible in the case of the first round, where the inverse base change matrix $\Delta^{-1}$ is identity, because
+	there is no previous dual AES encoding transformation in first round.
+
+	Therefore the first round function is:
+	\begin{subequations}
+	\begin{align} \label{eq:whitebox_dual_aes_r_proof}
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(         \left(\Delta \circ P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:whitebox_dual_aes_r_proof_1} \\ 
+								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \Delta  \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:whitebox_dual_aes_r_proof_2} \\
+								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times             \left(         \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right)\\
+								&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(         \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus              c        \right) \right)\\
+								&= Q^{r \; \prime}_{i,j} \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_dual_aes_r_proof_final}
+	\end{align}
+	\end{subequations}
+
+	Transformation from \ref{eq:whitebox_dual_aes_r_proof_1} to \ref{eq:whitebox_dual_aes_r_proof_2} is possible since it holds:
+	\begin{align}
+	    \forall x,y \in \text{GF}(2^8) \; : \; y = x^{-1} \Rightarrow \Delta \left(y\right) = \Delta \left( x^{-1} \right)
+	\end{align}
+	due to properties of generator and base change matrix.
+
+	Now if we compare equations \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_r_proof_final}, they are very similar, 
+	the only difference here is the application of base change matrix $\Delta$.
+
+	Here we can do the similar thing we did in equations \ref{eq:ioencoding_abstract_q}, \ref{eq:ioencoding_abstract_p} where we composed
+	two transformations, non-linear and linear to non-linear transformation, with equation \ref{eq:whitebox_dual_aes_r_proof_final}. 
+
+	We can thus define:
+	\begin{align}
+	    Q^{r \; \prime\prime}_{i,j} &= Q^{r \; \prime}_{i,j} = Q^{r}_{i,j} \circ \Delta = Q^{r}_{i,j} \circ L^{r+1}_{j} \circ \Delta \\
+	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}       \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \\
+	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime\prime}_{i,j} \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_dual_aes_round}
+	\end{align}
+
+	Now it is evident that equations for whitebox AES \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_round} are the same, the only difference is only in non-linear 
+	transformations $Q$, but it is important they are both non-linear. 
+
+	Conslusion is if attack can break whitebox AES scheme with round function \ref{eq:whitebox_aes_roud} it can also break whitebox dual AES cheme. During the attack is transformation $Q$ 
+	fully determined, we verified that if Dual AES scheme is used, transformation $Q$ is the exact form as described above.
+	\end{proof}
+
+
+		\begin{figure*}
+		\begin{center}
+		\leavevmode
+		\centerline{\scalebox{0.9}{\includegraphics{WBAES_PQ_DUAL.pdf}}}
+		\end{center}
+		\caption{Whitebox Dual AES implementation - round \#2}
+		\label{fig:wbaesdual}
+		\end{figure*}
+
+
+
+
+
+
 
     \section{Implementation of the cipher}
     Cipher implementation description
@@ -199,14 +531,14 @@ Introduction here
     
     The main idea here is to break backward compatibility with AES (or any other well known cipher)- as it does not have proper structure for whitebox implementation, what is 
     also visible from the fact there no non-broken whitebox scheme of AES exists nowadays [CITE HERE]. 
-    In literature was already proposed to design a new cipher with whitebox implementation issues in mind. 
+    In literature was already proposed to design a new cipher with whitebox implementation issues in mind \citep{Billet:2004:CWB:2080787.2080809}. 
 
     So we took inspiration from Twofish \cite{twofish} cipher which has key dependent S-boxes with rather
     complicated algebraic representations. As I emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations more difficult for an attacker.
     Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
 
     \subsection{Twofish S-boxes}
-    Here observe Twofish S-boxes (from \cite{twofish}) and their algebraic representation.
+    Here observe Twofish S-boxes (from \cite{twofish} \citep{Schneier98twofish:a}) and their algebraic representation.
     \begin{subequations}\label{eq:twofish_sbox}
     \begin{align}
 	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
@@ -231,10 +563,10 @@ Introduction here
     In order to avoid this reversing we also modify key schedule.
     In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as in BGE attack.
     
-    We suggest to use \emph{bcrypt} \cite{bcrypt} or \emph{scrypt} as a hash function for generating hash chains. The main reason is high time complexity needed to evaluate 
+    We suggest to use \emph{bcrypt} \cite{bcrypt} \citep{Provos99afuture-adaptable} or \emph{scrypt} \citep{Percival_strongerkey} as a hash function for generating hash chains. The main reason is high time complexity needed to evaluate 
     such hash functions. This makes eventual bruteforcing even harder, because of low hashes per second ratio. We could
     use for example also \emph{SHA-256} hash function to generate hash chain, but nowadays there exists even special hardware for computing SHA digests 
-    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining}, bruteforcing with such device would be
+    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining} \cite{shamining_web}, bruteforcing with such device would be
     much faster. 
     
     In \cite{bcrypthash} M. Gosney used cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
@@ -440,6 +772,8 @@ Introduction here
 	\label{alg:affineTest}
     \end{algorithm}
 
+    % bibtex here
+    \bibliography{thesis}
     
 
 \begin{thebibliography}{9}
@@ -484,15 +818,12 @@ Introduction here
 %         \bibitem{s2} ELNAHRAWY, E., LI, X.,MARTIN, R. {\it The limits of localization using RSS.} Proceedings of the 2nd international conference on Embedded networked sensor systems, Baltimore, MD, USA, 2004. New York, NY, USA: ACM, 2004. str.~283--284. ISBN~1-58113-879-2. doi:~10.1145/1031495.1031537.
 % % 	\bibitem{neuro} GURNEY, K., GURNEY, K. {\it An introduction to neural networks}. UCL Press, 1997. ISBN~1-85728-503-4.
 % 	\bibitem{probab} FULLER, R., KOUTSOUKOS, D. {\it Mobile Entity Localization and Tracking in GPS-less Environnments.} Second International Workshop, MELT~2009, Orlando, FL, USA, September 30, 2009, Springer, 2009. str.~66--78.
-% 	
 % 	\bibitem{sqlitejdbc} Zentus, {\it SqliteJDBC} 2011, \textless\url{http://www.zentus.com/sqlitejdbc}\textgreater, cit.~5.5.2011.
 % 	\bibitem{sqlite} SQLite \textless\url{http://www.sqlite.org}\textgreater, cit.~5.5.2011.
 % 	\bibitem{jfreechart} \uppercase{Gilbert D.} {\it JFreeChart} 2011, \textless\url{http://www.jfree.org/jfreechart}\textgreater, cit.~5.5.2011.
 % 	\bibitem{bsdlicense} University of California, Berkeley {\it BSD License}, \textless\url{http://www.opensource.org/licenses/bsd-license.php}\textgreater, cit.~5.5.2011.
 % 	\bibitem{gnulgpl} {\it GNU Lesser General Public License}, \textless\url{http://www.gnu.org/copyleft/lesser.html}\textgreater, cit.~5.5.2011.
 % 	\bibitem{apachelicence} Apache commons {\it The Apache Software License, version 2}, \textless\url{http://commons.apache.org/math/license.html}\textgreater, cit.~5.5.2011.
-% 	
-% 
 % 	%images
 % % 	\bibitem{img_fresnel_zones} Fresnelove zóny, \textless\url{http://www.zytrax.com/tech/wireless/fresnel.htm}\textgreater, cit.~2.5.2011.
 % 	\bibitem{img_skm_studyroom} Požiarny evakuačný plán 11. poschodia SKM MU, Bratří Žůrku 5, Brno.
