@@ -14,8 +14,8 @@ $(CO).pdf: clean
 	pdflatex $(CO)
 
 $(CO).dvi: $(CO).tex $(CO).bib
-#        latex $(CO)
-#        bibtex $(CO)
+	latex $(CO)
+	bibtex $(CO)
 	latex $(CO)
 	latex $(CO)
 

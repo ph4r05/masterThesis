@@ -183,8 +183,56 @@ Introduction here
 
 \chapter{Whitebox cryptography}
     
-    \section{Introduction}
-    Small introduction, motivation, DRM, notions definitions, whitebox vs. blackbox, attacker definition.
+    \section{Introduction}    
+% Whitebox def
+    In this part of cryptography we are studying cryptographic algorithms with a much stronger attacker model, saying it is executed in a 
+    whitebox context.
+
+% attacker def
+    \emph{Whitebox context} (also abbreviated as WBC) is itself defined by the attacker model. WBC attacker has full control over execution of particular 
+    algorithm. Namely attacker has the following abilities:
+    
+    \begin{itemize}
+	\item can observe execution:
+	\begin{itemize}
+	    \item access to instructions processing at the moment of computation
+	    \item trace algorithm flow
+	    \item sees memory used
+	\end{itemize}
+	\item controls execution environment - runtime modification:
+	\begin{itemize}
+	    \item tamper program memory
+	    \item execute only specified part of the algorithm (one round of the cipher)
+	    \item modify if-conditions
+	    \item change cycle counters
+	    \item fault induction
+	\end{itemize}
+    \end{itemize}
+    
+    In contrast to \emph{blackbox context} (also abreviated as BBC) that has only access to output of the cryptographic algorithm. In BBC the cryptographic algorithm is
+    considered as an oracle/blackbox performing some function (analogy to executing algorithm in secure environment).
+    Depending on finer granularity of attacker model, one can have 
+    access only to algorithm output (ciphertext), or attacker can also query oracle (chosen plain-text attack) and so on, but has no access to computation itself.
+
+    Cryptographic algorithms (we are mainly interested in symmetric ciphers in this work) were extensively studied for attacks in BBC, 
+    they were originaly designed to resist attacks considering only BBC. But if the context is wrong, it can be possible entry point for an attacker.
+    Typical example is DRM \footnote{Digital rights management, \textless\url{http://en.wikipedia.org/wiki/Digital_rights_management}}, where software of a vendor
+    (representing the right owner) is executed in potentionaly hostile environment, where user can have motivation to extract protected content without
+    restrictions added by DRM software. In this situation we cannot consider DRM software to be executed in BBC.
+    
+    Let's take some symmetric block cipher as an another example. Usually it is constructed as a keyed permutation (round function) that is repeated 
+    several times to add randomness and to improve statistical results of the cipher, increasing security. But if we can inspect such execution, it is 
+    very easy to extract encryption keys, since we can read memory during execution or trace algorithm flow.
+    
+    One such whitebox attack is \emph{Key Whitening Attack} \cite{Kerins06acautionary}. Key whitening is technique intended to increase the security of the iterated block cipher.
+    It is typically implemented as adding a key material to the data (usually by simple operation, such as XOR) in the first and the last round. Such key whitening 
+    uses Twofish \citep{Schneier98twofish:a} and in modified version (only adding the key material in the last round) also AES \citep{2002-daemen}. In Key Whitening Attacking
+    is modified cipher binary (we are in whitebox context) in such a way that the output of the cipher will be the key material itself. 
+    
+    The definition of whitebox cryptography could be:
+    ``The challenge that white-box cryptography aims to address is to implement a cryptographic algorithm in 
+    software in such a way that cryptographic assets remain secure even when subject to white-box attacks.
+    Software implementations that resist such white-box attacks are denoted white-box implementations.'' \cite{hiding_keys}.
     
     \section{History}
     History overview, oorschot, billet, imposibility of obfuscation, generic attacks on AES, DES
@@ -699,7 +747,7 @@ Introduction here
     Then would one byte of state array depend on 16 bytes, making round function 128-bit wide.
 
     MDS matrix acts as diffusion element in the cipher, since our cipher is of type substitution-permutation cipher, our MDS matrix 
-    is represents invertible linear mapping. The important metric for its security is \emph{branch number} \citep{daemenBranch}, it gives measure on
+    represents invertible linear mapping. The important metric for its security is \emph{branch number} \citep{daemenBranch}, it gives measure on
     worst case diffusion. If the diffusion matrix has a maximal possible branch number, it is \emph{optimal}. 
     AES \citep{2002-daemen}, Twofish \citep{Schneier98twofish:a} and SHARK \citep{shark96} ciphers are using MDS matrices optimizing branch number as 
     main security measure of diffusion layer.
@@ -771,7 +819,7 @@ Introduction here
     In each step is mapping checked for affinity in $2^8$ steps (for affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
     $2^{26}$ steps.
     
-    Here is the place where we use public knowledge of AES S-Box definitions. One way how to mount BGE attack to this modiffied variant is to guess also particular S-box
+    Here is the place where we use public knowledge of AES S-Box definitions. One way how to mount BGE attack to this modified variant is to guess also particular S-box
     mapping for each $\widetilde{P}$ and to test for its affinity. 
     
     Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mappings stored as lookup table takes $2^8$ bytes.
