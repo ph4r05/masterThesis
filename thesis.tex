@@ -518,27 +518,27 @@ Introduction here
 	there is no previous dual AES encoding transformation in first round.
 
 	Therefore the first round function is:
-	\begin{subequations}
-	\begin{align} \label{eq:whitebox_dual_aes_r_proof}
-	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(         \left(\Delta \circ P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:whitebox_dual_aes_r_proof_1} \\ 
-								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \Delta  \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:whitebox_dual_aes_r_proof_2} \\
+	\begin{subequations} \label{eq:wb_dual_aes_r_proof}
+	\begin{align} 
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(         \left(\Delta \circ P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof1} \\ 
+								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \Delta  \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof2} \\
 								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times             \left(         \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right)\\
 								&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(         \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus              c        \right) \right)\\
-								&= Q^{r \; \prime}_{i,j} \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_dual_aes_r_proof_final}
+								&= Q^{r \; \prime}_{i,j} \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:wb_dual_aes_r_prooffinal}
 	\end{align}
 	\end{subequations}
 
-	Transformation from \ref{eq:whitebox_dual_aes_r_proof_1} to \ref{eq:whitebox_dual_aes_r_proof_2} is possible since it holds:
+	Transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible since it holds:
 	\begin{align}
 	    \forall x,y \in \text{GF}(2^8) \; : \; y = x^{-1} \Rightarrow \Delta \left(y\right) = \Delta \left( x^{-1} \right)
 	\end{align}
 	due to properties of generator and base change matrix.
 
-	Now if we compare equations \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_r_proof_final}, they are very similar, 
+	Now if we compare equations \ref{eq:whitebox_aes_roud} and \ref{eq:wb_dual_aes_r_prooffinal}, they are very similar, 
 	the only difference here is the application of base change matrix $\Delta$.
 
 	Here we can do the similar thing we did in equations \ref{eq:ioencoding_abstract_q}, \ref{eq:ioencoding_abstract_p} where we composed
-	two transformations, non-linear and linear to non-linear transformation, with equation \ref{eq:whitebox_dual_aes_r_proof_final}. 
+	two transformations, non-linear and linear to non-linear transformation, with equation \ref{eq:wb_dual_aes_r_prooffinal}. 
 
 	We can thus define:
 	\begin{align}

@@ -8,8 +8,8 @@ $(CO).ps: $(CO).dvi
 	dvips $(CO)
 
 $(CO).pdf: clean
-#        pdflatex $(CO)
-#        bibtex $(CO)
+	pdflatex $(CO)
+	bibtex $(CO)
 	pdflatex $(CO)
 	pdflatex $(CO)
 
@@ -25,4 +25,4 @@ clean:
 	rm -f *~
 
 pack:
-	tar czvf bcthesis-325219.tar.gz *.tex *.cls *.mf *.clo *.bib *.bst ./fig/* ./cls/* Makefile
+	tar czvf mgrthesis-325219.tar.gz *.tex *.cls *.sty *.mf *.clo *.bib *.bst *.pdf ./fig/* ./cls/* Makefile
