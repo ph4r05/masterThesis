@@ -1,9 +1,14 @@
 % fithesis2 with modifications used, please use local fithesis.cls file, not system-wide installed.
 \documentclass[11pt,oneside,final]{fithesis2}
 % \documentclass[oneside,final]{fithesis2}
+% \usepackage[resetfonts]{cmap}
+\usepackage{lmodern}
+
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
-\usepackage[IL2]{fontenc}
+%\usepackage[IL2]{fontenc}
+\usepackage[T1]{fontenc}
+
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{color}
@@ -164,6 +169,27 @@ Introduction here
 
     \section{Description of schemes}
     Schemes used with AES, DES
+
+    \subsection{Cipher invertibility}\label{sec:cipher_invertibility}
+    One of the requirements on whitebox cipher implementation is usually a \emph{non-invertibility}. It means that given a encryption part of the cipher 
+    with embedded key one should not be able to use it also for decryption and vice versa. This property is especially usefull if one want's to use symmetric
+    cipher to simulate an asymmetric. But it is important to realize that this goal is difficult to achieve in whitebox context.
+    
+    As an example take AES whitebox implementation. Inverting cipher is blackbox context is rather computationaly difficult. Using brute-force one would
+    need $2^{128}$ operations to invert the cipher. The whitebox context is in contrast to blackbox rather in advantage. One of the problems here is 
+    that ShiftRows operation can be very easily canceled in whitebox context and that attacker can execute only particular round of the cipher. 
+    I propose some improvement addressing this problem in section \ref{sec:cipher_invert_improvement}.
+
+    There are 4 columns of state array within one round independent on each other.
+    Thus cipher can be easily inverted running the cipher backwards and finding inversion for each column separately. Thus the main task is to find 
+    inversion of 32-bit wide function representing one round of the cipher on one column of the state array by running through the space $\text{GF}\left(2^8\right)^4$,
+    evaluating the round function and comparing with wanted result.
+    
+    Computational complexity to invert the cipher
+    is $\underbrace{10}_\text{rounds} \cdot \underbrace{4}_\text{columns} \cdot \underbrace{2^{32}}_\text{column function space}$ operations.
+    
+    One can also pre-compute tables for inverted cipher, that would occupy $10 \cdot 4 \cdot (2^{32} \cdot 4)\;\text{B} \approx 69\;\text{GB}$.
+    We have implemented inverting WB AES, in non-optimized version it takes 13 hours on my hardware to invert WB AES with negligible memory requirements.
 
 \chapter{Whitebox context attack resistant AES implementation using dual AES}
     Scheme description \& attack\\
@@ -531,12 +557,12 @@ Introduction here
     also visible from the fact there no non-broken whitebox scheme of AES exists nowadays [CITE HERE]. 
     In literature was already proposed to design a new cipher with whitebox implementation issues in mind \citep{Billet:2004:CWB:2080787.2080809}. 
 
-    So we took inspiration from Twofish \cite{twofish} cipher which has key dependent S-boxes with rather
+    So we took inspiration from Twofish \cite{Schneier98twofish:a} cipher which has key dependent S-boxes with rather
     complicated algebraic representations. As I emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations more difficult for an attacker.
     Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
 
     \subsection{Twofish S-boxes}
-    Here observe Twofish S-boxes (from \cite{twofish} \citep{Schneier98twofish:a}) and their algebraic representation.
+    Here observe Twofish S-boxes (from \citep{Schneier98twofish:a}) and their algebraic representation.
     \begin{subequations}\label{eq:twofish_sbox}
     \begin{align}
 	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
@@ -561,10 +587,10 @@ Introduction here
     In order to avoid this reversing we also modify key schedule.
     In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as in BGE attack.
     
-    We suggest to use \emph{bcrypt} \cite{bcrypt} \citep{Provos99afuture-adaptable} or \emph{scrypt} \citep{Percival_strongerkey} as a hash function for generating hash chains. The main reason is high time complexity needed to evaluate 
+    We suggest to use \emph{bcrypt} \citep{Provos99afuture-adaptable} or \emph{scrypt} \citep{Percival_strongerkey} as a hash function for generating hash chains. The main reason is high time complexity needed to evaluate 
     such hash functions. This makes eventual bruteforcing even harder, because of low hashes per second ratio. We could
     use for example also \emph{SHA-256} hash function to generate hash chain, but nowadays there exists even special hardware for computing SHA digests 
-    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining} \cite{shamining_web}, bruteforcing with such device would be
+    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining_web}, bruteforcing with such device would be
     much faster. 
     
     In \cite{bcrypthash} M. Gosney used cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
@@ -638,6 +664,69 @@ Introduction here
     The equation \ref{eq:keyForSbox} is the same as \ref{eq:keySchedule} with only difference of concatenation of "magicConstant". This makes 
     two hash chains (1 for round keys, 1 for S-boxes) completely different and non-transformable one to another.
    
+    \subsection{Diffusion layer modification}\label{sec:cipher_invert_improvement}
+    In section \ref{sec:cipher_invertibility} was mentioned cipher invertibility. I suggest to extend input/output space of the round function
+    from 32-bits to 128-bits, raising complexity of mentioned inverting attack to $10\cdot4\cdot2^{128}$ operations. In AES one byte of state array depends
+    only on 4 bytes = one column of state array. Round function of AES acts independently on 4 columns, making it easy to invert it. 
+
+    Proposed improvement is in changing MDS (Maximum Distance Separable) matrix from $4 \times 4$ to $16 \times 16$. 
+    Then would one byte of state array depend on 16 bytes, making round function 128-bit wide.
+
+    MDS matrix acts as diffusion element in the cipher, since our cipher is of type substitution-permutation cipher, our MDS matrix 
+    is represents invertible linear mapping. The important metric for its security is \emph{branch number} \citep{daemenBranch}, it gives measure on
+    worst case diffusion. If the diffusion matrix has a maximal possible branch number, it is \emph{optimal}. 
+    AES \citep{2002-daemen}, Twofish \citep{Schneier98twofish:a} and SHARK \citep{shark96} ciphers are using MDS matrices optimizing branch number as 
+    main security measure of diffusion layer.
+    
+    For generating such MDS matrices is particularly interesting following proposition from SHARK cipher paper \citep{shark96} (for proof see
+    original paper).
+    
+    \begin{myprop}
+	Let C be a $(2n,\; n,\; n+1)$-code over the Galois field $\text{GF}(2^m)$. Let $G_e$  be the generator matrix of C in echelon form:
+	\begin{equation}
+	   Ge = \begin{bmatrix} I_{n \times n} & B_{n \times n}\end{bmatrix}
+	\end{equation}
+	Then C defines an optimal invertible linear mapping $\gamma$:
+	\begin{equation}
+	   \gamma \; : \; \text{GF}(2^m)^n \rightarrow \text{GF}(2^m)^n = X \mapsto Y = B \cdot X
+	\end{equation}
+    \end{myprop}
+    
+    Recall that $(2n,\; n,\; n+1)$-code is MDS \footnote{$(n,\;k,\;d)$-code is MDS iff $d=n-k+1$}. Reed-Solomon codes are subset of MDS codes, so their 
+    parity check matrix can be used as MDS matrix, in the cipher acting as a strong diffucion element. MDS matrices derived from Reed-Solomon codes are used by many 
+    ciphers, for example Twofish, Shark. 
+
+    In our case we would be interested in $(32,\;16,\;17)$-code, to obtain $16 \times 16$ MDS matrix with wanted properties.
+    
+    Another way how to generate MDS matrices with is described in \citep{Roth:1985:GMM:7030.7044} using Cauchy matrices. 
+
+    It is important to mention that ciphers using MDS matrix as diffusion element usually puts additional requirements on the MDS matrix, also optimizing
+    performance and simplicity in hardware implementation. In blackbox context it is usually security/performance trade off. In whitebox context we need
+    to have diffusion element very strong, so we can neglect performance point of view to increase security.
+    
+    Also article \cite{mds_aes} mentions AES diffusion layer modification from $4 \times 4$ to $16 \times 16$ MDS matrix, argumenting with 
+    stronger security within one round, what is particularly interesting in whitebox context. They are constructing MDS matrix using Cauchy matrices. Cauchy matrices
+    depends on the first row only, this increases possible diversity of $16 \times 16$ MDS matrices helping the following idea - key dependent diffusion.
+
+    \begin{figure*}
+    \begin{center}
+    \leavevmode
+    \centerline{\scalebox{1.2}{\includegraphics{AES_MDS.pdf}}}
+    %\centerline{{\includegraphics{AES_MDS.pdf}}
+    \end{center}
+    \caption{\text{Computational diagrams of AES and MDS-AES (taken from \cite{mds_aes})}}
+    \label{fig:aes_mds}
+    \end{figure*}
+    
+    Consider also idea to have key-dependent MDS matrices. If we can generate set $S_{MDS}$ of MDS matrices representing optimal linear mapping, their selection 
+    can be based on key-dependent criteria. Set $S_{MDS}$ can be also extended using following proposition from \citep{journals/iacr/MalikN11}.
+
+    \begin{myprop}
+	Let $B = \left[b_{i,j} \right]_{n \times n},\; b_{i,j} \in \mathbb{F}_q$ an MDS matrix, for an element $e \in \mathbb{F}_q, \; e \neq 0$, $e \cdot B$ is an MDS matrix.
+    \end{myprop}
+    
+    Having key-dependent diffusion layer also complicates whitebox attacks, namely Billet's \citep{Billet:2004:CWB:2080787.2080809} and 
+    Generic attack by Michiels \citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients (thus key-independent).    
     
     \subsection{Analysis}
     In this chapter we try to analyze suggested scheme improvement from whitebox point of view, particularly we try to mount BGE attack to this modified variant. 
@@ -701,18 +790,35 @@ Introduction here
     Also as long as are SHA-256 and bcrypt uncracked, key extraction should be unfeasible, since it is not possible
     to invert hash function easily. 
 
-    Cipher modification only affects S-boxes and round keys, so other parts of the BGE attack are not affected, namely transforming non-linear parts
+    Cipher modification that affects only S-boxes and round keys, so other parts of the BGE attack are not affected, namely transforming non-linear parts
     to affine, propositions 1 and 2 work as before. 
 
     Cipher modification don't increase table sizes, because modifications made are only in S-box definitions and key schedule - both 
     parts of the cipher are already evaluated and stored in the lookup tables. Our modifications also don't affect encryption/decryption performance since the only
     difference is made during particular whitebox instance (lookup tables) generation. Encryption/decryption algorithm itself is not affected.
     
+    \subsection{Analysis of diffusion layer}
+    Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger lookup tables. All table types are affected, in particular type 2, previously 
+    it was mapping $2^8 \rightarrow 2^{32}$, with cascade of XOR tables to sum $4 \; \times\; 32$-bit values to obtain one column of state array. Now type 2 tables are
+    $2^8 \rightarrow 2^{128}$, with cascade of XORs to obtain whole state column vector. XOR tables takes 128-bit arguments, plus 3 additional 128-bit XOR tables 
+    are needed (to sum $4 \; \times\; 128$-bit results from columns).
+    
+    From security point of view this modiffication also prevents inverting attack mentioned in section \ref{sec:cipher_invertibility}. Function is now too wide to be
+    inverted by running over $GF(2^8)^{16}$. 
+    
+    Key-dependent MDS matrix also prevents mounting Billet's attack. In particular we don't know MixColumn matrix coefficients so we are not able to construct set $\beta$
+    from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so proposition 2 and 3 won't work anymore. This also makes recovering 
+    affine parts of I/O encodings unfeasible, using this attack. But proposition 1 still works, random I/O bijections can be converted fo affine ones quite easilly.
+
+    As noted above, also  Generic attack by Michiels \citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients.
+    
     \subsection*{Drawbacks}
     By modification of AES design we are comming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
     context and being relatively secure. Designing a new cipher may help with increasing security in whitebox context but there also may be weaknesess in blackbox context. 
     It would be needed to analyze the new cipher from this point of view, for example for resistance to linear or differential cryptanalysis. There is no guarantee that 
     proposed cipher modifications are strong enough to resist clasical blackbox context cryptanalysis.
+    
+    But when designing scheme improvements we tried to follow standard principles in designing secure block cipher, inspired by AES, Twofish, Shark and others.
     
     \section{Discussion}
     Few words about field, discussion about WB cryptography.
@@ -774,11 +880,11 @@ Introduction here
     \bibliography{thesis}
     
 
-\begin{thebibliography}{9}
-	\bibitem{twofish} \uppercase{SCHNEIRER, B. KELSEY, J., Whiting, D., Wagner, D., Hall, C., Ferguson, N.} , Twofish: A 128-Bit Block Cipher \textless\url{http://www.schneier.com/paper-twofish-paper.pdf}, cited~14.05.2012.
-	\bibitem{bcrypt} \uppercase{Provos, N., Talan Jason Sutton, T. J.} {\it A Future-Adaptable Password Scheme.} Proceedings of 1999 USENIX Annual Technical Conference: 81--92.
-	\bibitem{shamining} Butterfly labs \textless\url{https://products.butterflylabs.com} cited~14.05.2012.
-	\bibitem{bcrypthash} \uppercase{Gosney, J. M.} Password Cracking HPC , Passwords\^12 Security Conference, 2012. Available at \textless\url{http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
+%\begin{thebibliography}{9}
+%	\bibitem{twofish} \uppercase{SCHNEIRER, B. KELSEY, J., Whiting, D., Wagner, D., Hall, C., Ferguson, N.} , Twofish: A 128-Bit Block Cipher \textless\url{http://www.schneier.com/paper-twofish-paper.pdf}, cited~14.05.2012.
+%	\bibitem{bcrypt} \uppercase{Provos, N., Talan Jason Sutton, T. J.} {\it A Future-Adaptable Password Scheme.} Proceedings of 1999 USENIX Annual Technical Conference: 81--92.
+%	\bibitem{shamining} Butterfly labs \textless\url{https://products.butterflylabs.com} cited~14.05.2012.
+%	\bibitem{bcrypthash} \uppercase{Gosney, J. M.} Password Cracking HPC , Passwords\^12 Security Conference, 2012. Available at \textless\url{http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
 %	\bibitem{wsn} AGHAVENDRA, C., SIVALINGAN, KRISHNA M. {\it Wireless Sensor Networks}. Springer, 2004. ISBN~978-0-387-35269-5.
 %	\bibitem{abat} HARTER, A., et al. {\it The anatomy of a~context-aware application.} Proceedings of the 5th Annual ACM/IEEE International Conference on Mobile Computing and Networking (Mobicom '99), Seattle, Washington, USA, August 15-20 1999. New York, NY, USA: ACM, 1999. str.~59--68. ISBN~1-58113-142-9. doi:~10.1145/313451.313476.
 %	\bibitem{cricket} PRIYANTHHA, N., CHAKRABORTY, A., BALAKRISHNAN, H. {\it The Cricket Location-Support System.} Proceedings of the 6th annual international conference on Mobile computing and networking (ACM MOBICOM), Boston, MA, August 2000. New York, NY, USA: ACM, 1999. str.~32--43. ISBN~1-58113-197-6. doi:~10.1145/345910.345917.
@@ -837,9 +943,8 @@ Introduction here
 	%\bibitem{nesc} nesC: {\it A Programming Language for Deeply Networked Systems.} \textless\url{http://nescc.sourceforge.net/}\textgreater.
 	%\bibitem{multilat} FERRARRI, G. {\it Sensor Networks: Where Theory Meets Practice}. Springer, 2010. str.~260--264. ISBN~3-64201-340-6.
 	%\bibitem{knear} ABRAHAM, A., LIANG, Y. {\it Computational intelligence in medical informatics}. Springer, 2008. str.~190--191. ISBN~3-54075-767-8.
-	%\bibitem{channels} IEEE P802.15 Working Group {\it IEEE Std 802.15.4-2006: Part 15.4: Wireless Medium Access Control (MAC) and Physical Layer (PHY) Specifications for Low-Rate Wireless Personal Area Networks (WPANs).} New York, NY, USA: IEEE, 2006. str.~45--50. ISBN~0-7381-4996-9.
-	
-\end{thebibliography}
+	%\bibitem{channels} IEEE P802.15 Working Group {\it IEEE Std 802.15.4-2006: Part 15.4: Wireless Medium Access Control (MAC) and Physical Layer (PHY) Specifications for Low-Rate Wireless Personal Area Networks (WPANs).} New York, NY, USA: IEEE, 2006. str.~45--50. ISBN~0-7381-4996-9.	
+%\end{thebibliography}
 \end{document}
 
 % % % % % 

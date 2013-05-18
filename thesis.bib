@@ -1,3 +1,5 @@
+
+% AES
 @book{2002-daemen,
     title={{The design of Rijndael: AES---the advanced encryption standard}},
     booktitle={{The design of Rijndael: AES---the advanced encryption standard}},
@@ -8,13 +10,15 @@
     year={2002}
 }
 
-@misc{AES-FIPS, 
+% AES - NIST
+@misc{AES-FIPS,
    title = "Specification for the Advanced Encryption Standard (AES)",
    howpublished = "Federal Information Processing Standards Publication 197",
    year = "2001",
    url = " http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf"
 } 
 
+% AES
 @book{opac-b1098430,
    title = "The design of Rijndael : {AES}, the Advanced Encryption Standard",
    author = "Daemen, Joan and Rijmen, Vincent",
@@ -53,6 +57,25 @@
  publisher = {Springer-Verlag},
  address = {Berlin, Heidelberg},
  keywords = {AES, block ciphers, implementation, software piracy, tamper resistance, white box},
+} 
+
+% Michiels generic attack
+@inproceedings{Michiels:2007:MST:1314276.1314291,
+ author = {Michiels, W. and Gorissen, P.},
+ title = {Mechanism for software tamper resistance: an application of white-box cryptography},
+ booktitle = {Proceedings of the 2007 ACM workshop on Digital Rights Management},
+ series = {DRM '07},
+ year = {2007},
+ isbn = {978-1-59593-884-8},
+ location = {Alexandria, Virginia, USA},
+ pages = {82--89},
+ numpages = {8},
+ url = {http://doi.acm.org/10.1145/1314276.1314291},
+ doi = {10.1145/1314276.1314291},
+ acmid = {1314291},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {software protection, software tamper resistance, white-box cryptography},
 } 
 
 % WB dual AES
@@ -97,16 +120,29 @@
     author = {Colin Percival},
     title = {STRONGER KEY DERIVATION VIA SEQUENTIAL MEMORY-HARD FUNCTIONS},
     url = {http://www.daemonology.net/papers/scrypt.pdf},
-    year = {}
+    year = {2009}
 }
 
-%Tutorial on WBAES
+% Tutorial on WBAES
 @MISC{Muir_atutorial,
     author = {James A. Muir},
     title = {A Tutorial on White-box AES},
     url = {http://eprint.iacr.org/2013/104.pdf},
-    year = {}
+    year = {2011}
 }
+
+% hash cracking, gosney
+% \uppercase{Gosney, J. M.} Password Cracking HPC , Passwords\^12 Security Conference, 2012. Available at \textless\url{http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
+@CONFERENCE{bcrypthash,
+    author       = {Jeremi M.	 Gosney}, 
+    title        = {Password Cracking HPC},
+    month        = {December},
+    year         = {2012},
+    howpublished = {Passwords \^ 12 Security Conference},
+    url          = {http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
+}
+
+
 
 % http://link.springer.com/chapter/10.1007%2F978-3-540-30564-4_16
 @incollection{cryptanalysis_xiao,
@@ -134,5 +170,103 @@
   note = "[Online; accessed 15-May-2013]"
 }
 
+% On generator matrices of MDS codes
+% - how to systematically generate generator matrix of MDS code (using Cauchy matrix)
+%   available at: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1057113
+@article{Roth:1985:GMM:7030.7044,
+ author = {Roth, Ron M and Seroussi, Gadiel},
+ title = {On generator matrices of MDS codes},
+ journal = {IEEE Trans. Inf. Theor.},
+ issue_date = {Nov. 1985},
+ volume = {31},
+ number = {6},
+ month = {nov},
+ year = {1985},
+ issn = {0018-9448},
+ pages = {826--830},
+ numpages = {5},
+ url = {http://dx.doi.org/10.1109/TIT.1985.1057113},
+ doi = {10.1109/TIT.1985.1057113},
+ acmid = {7044},
+ publisher = {IEEE Press},
+ address = {Piscataway, NJ, USA},
+} 
+
+% Dynamic MDS Matrices for Substantial Cryptographic Strength
+% If A is MDS matrix, then also eA is MDS matrix (e \in GF(q))
+@article{journals/iacr/MalikN11,
+  added-at = {2012-01-13T00:00:00.000+0100},
+  author = {Malik, Muhammad Yasir and No, Jong-Seon},
+  biburl = {http://www.bibsonomy.org/bibtex/246b38ca0206964fb051607299c96a4a5/dblp},
+  ee = {http://eprint.iacr.org/2011/177},
+  interhash = {211856294834849bfbfab35435a80bac},
+  intrahash = {46b38ca0206964fb051607299c96a4a5},
+  journal = {IACR Cryptology ePrint Archive},
+  keywords = {dblp},
+  pages = 177,
+  timestamp = {2012-01-13T00:00:00.000+0100},
+  title = {Dynamic MDS Matrices for Substantial Cryptographic Strength.},
+  url = {http://dblp.uni-trier.de/db/journals/iacr/iacr2011.html#MalikN11},
+  volume = 2011,
+  year = 2011
+}
+
+% SHARK cipher 
+% available at: http://www.cosic.esat.kuleuven.be/publications/article-55.pdf
+%  - branch number of MDS, optimal invertible codes if generator matrix is [I|A] for code (2n,n,n+1), MDS
+% original cite id: conf/fse/RijmenDPBW96,
+@inproceedings{shark96, 
+  added-at = {2008-01-01T00:00:00.000+0100},
+  author = {Rijmen, Vincent and Daemen, Joan and Preneel, Bart and Bosselaers, Antoon and Win, Erik De},
+  biburl = {http://www.bibsonomy.org/bibtex/268104934306a7cfb3ceed67537180bcd/dblp},
+  booktitle = {FSE},
+  date = {2008-01-01},
+  description = {dblp},
+  editor = {Gollmann, Dieter},
+  interhash = {694c94d040b71044d7e392ffcad34337},
+  intrahash = {68104934306a7cfb3ceed67537180bcd},
+  isbn = {3-540-60865-6},
+  keywords = {dblp},
+  pages = {99-111},
+  publisher = {Springer},
+  series = {Lecture Notes in Computer Science},
+  timestamp = {2008-01-01T00:00:00.000+0100},
+  title = {The Cipher SHARK.},
+  url = {http://dblp.uni-trier.de/db/conf/fse/fse96.html#RijmenDPBW96},
+  volume = 1039,
+  year = 1996
+}
+
+% Branch number definition
+@phdthesis{daemenBranch,
+   type = {PhD. thesis},
+    title = {Cipher and hash function design. Strategies based on linear and differential cryptanalysis},
+    author = {Joan Daemen},
+    school = {Katholieke Universiteit Leuven},
+    url = {http://docserver.bis.uni-oldenburg.de/publikationen/dissertation/2001/aneacr01/aneacr01.html},
+    year = {1995}
+}
+
+% 16x16 AES MDS
+% A New Involutory MDS Matrix for the AES
+@article{mds_aes,
+  added-at = {2009-11-25T00:00:00.000+0100},
+  author = {Jr., Jorge Nakahara and Abrahao, Elcio},
+  biburl = {http://www.bibsonomy.org/bibtex/2de4326106472fd319b812ed40d3edb6c/dblp},
+  date = {2009-11-25},
+  description = {dblp},
+  ee = {http://ijns.femto.com.tw/contents/ijns-v9-n2/ijns-2009-v9-n2-p109-116.pdf},
+  interhash = {25f4f2be455830e11c03227b129855c9},
+  intrahash = {de4326106472fd319b812ed40d3edb6c},
+  journal = {I. J. Network Security},
+  keywords = {dblp},
+  number = 2,
+  pages = {109-116},
+  timestamp = {2009-11-25T00:00:00.000+0100},
+  title = {A New Involutory MDS Matrix for the AES.},
+  url = {http://dblp.uni-trier.de/db/journals/ijnsec/ijnsec9.html#JrA09},
+  volume = 9,
+  year = 2009
+}
 
 
