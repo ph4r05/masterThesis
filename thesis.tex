@@ -266,17 +266,17 @@ Introduction here
     and others against attacker in whitebox context.
     
     In this chapter I describe whitebox scheme proposed in \citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers. It is supposed 
-    that using dual AES, in each round different, will increase security of whitebox implementation of the cipher. Paper says that this modification
+    that using dual AES, different in each round, will increase security of whitebox implementation of the cipher. Paper says that this modification
     results in raising Billet's attack complexity to $2^{91}$ computational steps, making it unfeasible to perform it in practice.
     
     \section{Scheme}
 
-    In \citep{Karroumi:2010:PWA:2041036.2041060} is not explained how to obtain dual AES ciphers and how to construct mapping from one to another. This is
+    In defining paper \citep{Karroumi:2010:PWA:2041036.2041060} is not explained how to obtain dual AES ciphers and how to construct mapping from one to another. This is
     important part since it plays crucial role in proof that this scheme is vulnerable. At first is described generalization of AES and how to construct
     mappings between them. 
 
 	\subsection{Generic AES}
-	It is possible to generalize AES by changing its polynomial and generator to obtain generic form of AES.
+	It is possible to generalize AES by changing its irreducible polynomial and generator to obtain generic form of AES.
 
 	Generic AES can be represented as a $\{R(x), \beta \}$, where $R(x) \in \left(\mathbb{Z}/p\mathbb{Z}\right)[x]$ is 
 	irreducible polynomial of degree 8, $\beta \in GF(2^8)$ is a generator of the field $GF(2^8)$.
@@ -308,13 +308,21 @@ Introduction here
 	can be expressed in terms of the generator $\beta$, $\text{GF}(2^8) = \{\beta^i \; | \; i \in [0,254]\} = \{\beta^0, \beta^1, \dots, \beta^{254}\}$.
 
 	We can then construct $8 \times 8$ matrix $\Delta = \begin{bmatrix} \beta^0 & \beta^{25} & \beta^{50} & \beta^{75} & \beta^{100} & \beta^{125} & \beta^{150} & \beta^{175}  \end{bmatrix}$ where 
-	$\beta^i \in \text{GF}(2^8) \cong \text{GF}(2)^8$ is a column vector.  $\Delta$ is a base change matrix:
+	$\beta^i \in \text{GF}(2^8) \cong \text{GF}(2)^8$ is a column vector. Then $\Delta$ is a base change matrix:
+	\begin{subequations}
 	\begin{align}
 	    \Delta &: \{\{11B\}_x, \{03\}_x\}  \longrightarrow \{R(x), \beta \} \\
 	    \Delta^{-1} &: \{R(x), \beta \}  \longrightarrow \{\{11B\}_x, \{03\}_x\}
 	\end{align}
+	\end{subequations}
 
-	For default AES $\{\{11B\}_x, \{03\}_x\}$ holds $\Delta = \begin{bmatrix} 03^0 & 03^{25} & 03^{50} & 03^{75} & 03^{100} & 03^{125} & 03^{150} & 03^{175}  \end{bmatrix} = \begin{bmatrix} 01 & 02 & 04 & 08 & 16 & 32 & 64 & 128 \end{bmatrix} = I_8$ as expected.
+	For default AES $\{\{11B\}_x, \{03\}_x\}$ holds
+	\begin{align*}
+	    \Delta &= \begin{bmatrix} 03^0 & 03^{25} & 03^{50} & 03^{75} & 03^{100} & 03^{125} & 03^{150} & 03^{175}  \end{bmatrix} \\
+	           &= \begin{bmatrix} 01 & 02 & 04 & 08 & 16 & 32 & 64 & 128 \end{bmatrix} \\
+		   &= I_8
+	\end{align*}
+	as expected.
 
 	From this it is clear that following duality holds: $E \sim \{\{11B\}_x, \{03\}_x\}, \; E' \sim \{R(x), \beta \}$ then:
 	\begin{equation} 
@@ -328,10 +336,12 @@ Introduction here
 	At first recall two most important functions in AES round that we will then transform to generic form.
 
 	\subparagraph*{SubByte}
+	\begin{equation}
 	\begin{align}
 	S: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
 	x               & \longmapsto A \times x^{-1} \oplus c
 	\end{align}
+	\end{equation}
 	where $x^{-1}$ is element inverse in $\text{GF}(2^8)$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard.
 
 	Equation for Sbox:
@@ -414,10 +424,12 @@ Introduction here
 	In the generic AES operations \emph{ShiftRows}, \emph{AddRoundKey} work same as in default AES, they are not affected by base change operation.
 
 	\subparagraph*{SubByte}
+	\begin{equation}
 	\begin{align}
 	S_{dual}: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
-	x               & \longmapsto \Delta \times A \times \Delta^{-1} \left( x^{-1} \right) \oplus \Delta \left(c\right)
+	x                        & \longmapsto \Delta \times A \times \Delta^{-1} \left( x^{-1} \right) \oplus \Delta \left(c\right)
 	\end{align}
+	\end{equation}
 
 	\subparagraph*{MixColumn}
 	MixColumn matrix coefficients are expressed in terms of generator $\beta = 03$.
@@ -456,12 +468,14 @@ Introduction here
 	To make it clear here are equations for the first column of state array:
 
 	{\footnotesize
+	\begin{subequations}
 	\begin{align}
 	y_{0,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 02 \cdot T_{0,0}(x_{0,0}) \oplus 03 \cdot T_{1,0}(x_{1,0})\oplus 01 \cdot T_{2,0}(x_{2,0})\oplus 01 \cdot T_{3,0}(x_{3,0})\\
 	y_{1,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 01 \cdot T_{0,0}(x_{0,0}) \oplus 02 \cdot T_{1,0}(x_{1,0})\oplus 03 \cdot T_{2,0}(x_{2,0})\oplus 01 \cdot T_{3,0}(x_{3,0})\\
 	y_{2,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 01 \cdot T_{0,0}(x_{0,0}) \oplus 01 \cdot T_{1,0}(x_{1,0})\oplus 02 \cdot T_{2,0}(x_{2,0})\oplus 03 \cdot T_{3,0}(x_{3,0})\\
 	y_{3,0}\left(x_{0,0}, x_{1,0}, x_{2,0}, x_{3,0}\right) &= 03 \cdot T_{0,0}(x_{0,0}) \oplus 01 \cdot T_{1,0}(x_{1,0})\oplus 01 \cdot T_{2,0}(x_{2,0})\oplus 02 \cdot T_{3,0}(x_{3,0})
-	\end{align}}
+	\end{align}
+	\end{subequations}}
 	where $T_{i,j}(x) = S\left(x \oplus k_{i,j}\right)$.
 
 	\paragraph*{Round function - generic AES}
@@ -496,10 +510,12 @@ Introduction here
 	\end{itemize}
 
 	Since transformation $L$, $L^{-1}$ is performed byte-wise on state array, we can compose them with corresponding internal encodings bijections
+	\begin{subequations}
 	\begin{align}
 	    Q^{r \; \prime}_{i,j} &= Q^{r}_{i,j} \circ L^{r+1}_{j} \label{eq:ioencoding_abstract_q}\\
 	    P^{r \; \prime}_{i,j} &= (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
 	\end{align}
+	\end{subequations}
 
 	We again obtain non-linear random bijections with embedded L transformation in it, without loss of generality. This abstraction is done in Billet's attack.
 
@@ -589,11 +605,13 @@ Introduction here
 	two transformations, non-linear and linear to non-linear transformation, with equation \ref{eq:wb_dual_aes_r_prooffinal}. 
 
 	We can thus define:
+	\begin{subequations}
 	\begin{align}
 	    Q^{r \; \prime\prime}_{i,j} &= Q^{r \; \prime}_{i,j} = Q^{r}_{i,j} \circ \Delta = Q^{r}_{i,j} \circ L^{r+1}_{j} \circ \Delta \\
 	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}       \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \\
 	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime\prime}_{i,j} \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_dual_aes_round}
 	\end{align}
+	\end{subequations}
 
 	Now it is evident that equations for whitebox AES \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_round} are the same, the only difference is only in non-linear 
 	transformations $Q$, but it is important they are both non-linear. 
