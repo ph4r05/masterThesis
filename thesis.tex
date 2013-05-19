@@ -666,32 +666,31 @@ Introduction here
 	\begin{equation}
 	    P^{r \; \prime\prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ P^{r \; \prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
 	\end{equation}
+	Also we have to distinguish in which dual AES is element encoded, so define $x^{\Delta}$ as a element of the dual AES which base change matrix is $\Delta$ from standard AES field. 
+	The same holds for inversion operation $^{-1}$. Denote $^{-1^{\Delta}}$ inversion in field of dual AES which has base change matrix $\Delta$.
 	
 	For simplicity assume that $\Delta = \Delta^r$ for round $r$ if it is obvious from context and is not defined otherwise.
 	According to figure \ref{fig:wbaesdual} the equation for one round is:
 	\begin{subequations} \label{eq:wb_dual_aes_r_proof}
 	\begin{align} 
 	& y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \nonumber \\
-	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(               \left(\Delta \circ P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \nonumber \\ 
-	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left( \Delta \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}\right) \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof1} \\ 
-	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \Delta        \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof2} \\
-	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times             \left(               \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \nonumber\\
-	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(               \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right) \oplus              c        \right) \right) \nonumber\\
+	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(               \left(\Delta \circ P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1^{\Delta}\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \nonumber \\ 
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times \Delta^{-1} \left(               \left(\Delta \circ P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1^{\Delta}\; \gfe} \right) \oplus              c        \right) \right) \nonumber \\ 
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times \Delta^{-1} \left( \left( \Delta \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}\right) \right)^{-1^{\Delta}\; \gfe} \right) \oplus              c        \right) \right) \label{eq:wb_dual_aes_r_proof1} \\ 
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times \Delta^{-1} \left( \Delta        \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right)          \oplus              c        \right) \right) \label{eq:wb_dual_aes_r_proof2} \\
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(               \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right)          \oplus              c        \right) \right) \nonumber\\
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(               \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right)          \oplus              c        \right) \right) \nonumber\\
 	&= Q^{r \; \prime}_{i,j} \circ \Delta \circ R_{i,j}^{\prime}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:wb_dual_aes_r_prooffinal}
 	\end{align}
 	\end{subequations}
 
 	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking whitebox AES breaks whitebox dual AES scheme. 
 
-	Transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible due to base change matrix properties and fields we are computing with.
-	
-
-
-	since it holds:
+	Transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible due to base change matrix properties and fields we are computing in.
 	\begin{align}
-	    \forall x,y \in \gfe \; : \; y = x^{-1} \Rightarrow \Delta \left(y\right) = \Delta \left( x^{-1} \right)
+	    \forall x,y \in \gfe \; : \; y = x^{-1} \Rightarrow  \Delta y = \left( \Delta x \right)^{-1^{\Delta}}
 	\end{align}
-	due to properties of generator and base change matrix.
+	Note that element inversion $\gfe$ has changed from one field to another.
 
 	Now if we compare equations \ref{eq:whitebox_aes_roud} and \ref{eq:wb_dual_aes_r_prooffinal}, they are very similar, 
 	the only difference here is the application of base change matrix $\Delta$.
