@@ -172,8 +172,16 @@ Introduction here
 
     \section{Mobile cryptography}
     Motivation for white box cryptography
+    \begin{itemize}
+     \item computation with encrypted data
+     \item computation with encrypted function
+    \end{itemize}
+
 
     \section{Homomorphic encryption}
+    Homomorphic encryption follows computation with encrypted data function.
+    Motivation: cloud computation. Short history, recent state of the art...
+    
     \begin{enumerate}
      \item security point of view - optimal
      \item short description, computing with encrypted data - use slides from OwnTalk
@@ -186,10 +194,11 @@ Introduction here
     \section{Introduction}    
 % Whitebox def
     In this part of cryptography we are studying cryptographic algorithms with a much stronger attacker model, saying it is executed in a 
-    whitebox context.
+    whitebox context. 
 
 % attacker def
-    \emph{Whitebox context} (also abbreviated as WBC) is itself defined by the attacker model. WBC attacker has full control over execution of particular 
+    \emph{Whitebox context} (also abbreviated as WBC) is itself defined by the attacker model, which was introduced by Chow \emph{et~al.} \citep{Chow02white-boxcryptography} in 2002.
+    WBC attacker has full control over execution of particular 
     algorithm. Namely attacker has the following abilities:
     
     \begin{itemize}
@@ -209,7 +218,7 @@ Introduction here
 	\end{itemize}
     \end{itemize}
     
-    In contrast to \emph{blackbox context} (also abreviated as BBC) that has only access to output of the cryptographic algorithm. In BBC the cryptographic algorithm is
+    In contrast to \emph{blackbox context} (also abreviated as BBC), standard cryptographic model, that has only access to output of the cryptographic algorithm. In BBC the cryptographic algorithm is
     considered as an oracle/blackbox performing some function (analogy to executing algorithm in secure environment).
     Depending on finer granularity of attacker model, one can have 
     access only to algorithm output (ciphertext), or attacker can also query oracle (chosen plain-text attack) and so on, but has no access to computation itself.
@@ -217,7 +226,7 @@ Introduction here
     Cryptographic algorithms (we are mainly interested in symmetric ciphers in this work) were extensively studied for attacks in BBC, 
     they were originaly designed to resist attacks considering only BBC. But if the context is wrong, it can be possible entry point for an attacker.
     Typical example is DRM \footnote{Digital rights management, \textless\url{http://en.wikipedia.org/wiki/Digital_rights_management}}, where software of a vendor
-    (representing the right owner) is executed in potentionaly hostile environment, where user can have motivation to extract protected content without
+    (representing the right owner) is executed in potentially hostile environment, where user can have motivation to extract protected content without
     restrictions added by DRM software. In this situation we cannot consider DRM software to be executed in BBC.
     
     Let's take some symmetric block cipher as an another example. Usually it is constructed as a keyed permutation (round function) that is repeated 
@@ -242,10 +251,10 @@ Introduction here
 
     \subsection{Cipher invertibility}\label{sec:cipher_invertibility}
     One of the requirements on whitebox cipher implementation is usually a \emph{non-invertibility}. It means that given a encryption part of the cipher 
-    with embedded key one should not be able to use it also for decryption and vice versa. This property is especially usefull if one want's to use symmetric
+    with embedded key one should not be able to use it also for decryption and vice versa. This property is especially useful if one want's to use symmetric
     cipher to simulate an asymmetric. But it is important to realize that this goal is difficult to achieve in whitebox context.
     
-    As an example take AES whitebox implementation. Inverting cipher is blackbox context is rather computationaly difficult. Using brute-force one would
+    As an example take AES whitebox implementation. Inverting cipher is blackbox context is rather computationally difficult. Using brute-force one would
     need $2^{128}$ operations to invert the cipher. The whitebox context is in contrast to blackbox rather in advantage. One of the problems here is 
     that ShiftRows operation can be very easily canceled in whitebox context and that attacker can execute only particular round of the cipher. 
     I propose some improvement addressing this problem in section \ref{sec:cipher_invert_improvement}.
@@ -337,10 +346,10 @@ Introduction here
 
 	\subparagraph*{SubByte}
 	\begin{equation}
-	\begin{align}
+	\begin{aligned}
 	S: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
 	x               & \longmapsto A \times x^{-1} \oplus c
-	\end{align}
+	\end{aligned}
 	\end{equation}
 	where $x^{-1}$ is element inverse in $\text{GF}(2^8)$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard.
 
@@ -425,10 +434,10 @@ Introduction here
 
 	\subparagraph*{SubByte}
 	\begin{equation}
-	\begin{align}
+	\begin{aligned}
 	S_{dual}: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
 	x                        & \longmapsto \Delta \times A \times \Delta^{-1} \left( x^{-1} \right) \oplus \Delta \left(c\right)
-	\end{align}
+	\end{aligned}
 	\end{equation}
 
 	\subparagraph*{MixColumn}
@@ -496,8 +505,8 @@ Introduction here
 	\label{fig:wbaes}
 	\end{figure*}
 
-	Whitebox AES is AES implementation based on table lookups, functions used in AES are stored as lookup tables. Figure \ref{fig:wbaes} shows one round of whitebox AES
-	implementation using lookup tables, protected with whitebox techniques like Mixing Bijections and internal encodings.
+	Whitebox AES is AES implementation based on table lookups, functions used in AES are stored as look-up tables. Figure \ref{fig:wbaes} shows one round of whitebox AES
+	implementation using look-up tables, protected with whitebox techniques like Mixing Bijections and internal encodings.
 
 	On the diagram in figure \ref{fig:wbaes} are following whitebox functions:
 	\begin{itemize}
@@ -578,7 +587,7 @@ Introduction here
 	\end{subequations}
 
 	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking whitebox AES breaks whitebox dual AES scheme. From figure \ref{fig:wbaesdual}
-	observe how rounds are connected to each other with respect to dual AESes. It is cearly visible in the case of the first round, where the inverse base change matrix $\Delta^{-1}$ is identity, because
+	observe how rounds are connected to each other with respect to dual AESes. It is clearly visible in the case of the first round, where the inverse base change matrix $\Delta^{-1}$ is identity, because
 	there is no previous dual AES encoding transformation in first round.
 
 	Therefore the first round function is:
@@ -616,7 +625,7 @@ Introduction here
 	Now it is evident that equations for whitebox AES \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_round} are the same, the only difference is only in non-linear 
 	transformations $Q$, but it is important they are both non-linear. 
 
-	Conslusion is if attack can break whitebox AES scheme with round function \ref{eq:whitebox_aes_roud} it can also break whitebox dual AES cheme. During the attack is transformation $Q$ 
+	Conclusion is if attack can break whitebox AES scheme with round function \ref{eq:whitebox_aes_roud} it can also break whitebox dual AES scheme. During the attack is transformation $Q$ 
 	fully determined, we verified that if Dual AES scheme is used, transformation $Q$ is the exact form as described above.
 	\end{proof}
 
@@ -638,7 +647,7 @@ Introduction here
     quite easy to construct algebraic equations for 1 round - as we seen in BGE attack, what makes AES vulnerable to algebraic attacks in whitebox context.\\
     
     In whitebox implementation of cipher we have two contrary goals - to minimize table size and to prevent attack in whitebox context. Table size is what puts quite limitations
-    in implementation and on security boundaries. In one extreme case we would build lookup table for whole AES for every possible input of size 
+    in implementation and on security boundaries. In one extreme case we would build look-up table for whole AES for every possible input of size 
     $\left(2^{128} \cdot 16\right) > 10^{39}$ bytes. This 
     scheme is no weaker than AES in blackbox context, so perfectly secure in whitebox context, but rather unfeasible in practice.
 
@@ -680,13 +689,13 @@ Introduction here
     In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as in BGE attack.
     
     We suggest to use \emph{bcrypt} \citep{Provos99afuture-adaptable} or \emph{scrypt} \citep{Percival_strongerkey} as a hash function for generating hash chains. The main reason is high time complexity needed to evaluate 
-    such hash functions. This makes eventual bruteforcing even harder, because of low hashes per second ratio. We could
+    such hash functions. This makes eventual brute-forcing even harder, because of low hashes per second ratio. We could
     use for example also \emph{SHA-256} hash function to generate hash chain, but nowadays there exists even special hardware for computing SHA digests 
-    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining_web}, bruteforcing with such device would be
+    (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining_web}, brute-forcing with such device would be
     much faster. 
     
     In \cite{bcrypthash} M. Gosney used cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
-    details see table \ref{tbl:hash_performance}. \emph{bcrypt} is by orders of magnitude slower than SHA1, almost by factor $10^6$. This makes bruteforce
+    details see table \ref{tbl:hash_performance}. \emph{bcrypt} is by orders of magnitude slower than SHA1, almost by factor $10^6$. This makes brute-force
     unfeasible on general purpose hardware. 
 
     \begin{table}
@@ -733,14 +742,14 @@ Introduction here
     Equation for $k_i^r$ is chosen with two primary goals in mind, attacker is not able to:
     \begin{enumerate}
      \item derive encryption key from two (or more) consecutive round keys. This results from infeasability of reversing hash chain. 
-	We are also using computational intensive hash function so even bruteforcing is unfeasible.
+	We are also using computational intensive hash function so even brute-forcing is unfeasible.
      \item derive round key for $r_1-1$ or $r_2+1$ if he already have round keys for rounds $[r_1, r_2]$. Unavailability of deriving 
 	round key for $r_1-1$ results from the previous argument, but here is also important that from already derived round keys we are not able to derive 	
 	next ones (compared AES schedule case) since it also depends on encryption key directly.
     \end{enumerate}
     
     \section{Key bytes for S boxes}
-    In order to increase strength of proposed scheme we don't use round key bytes for S-box computation directly. If someone succeds in determining 
+    In order to increase strength of proposed scheme we don't use round key bytes for S-box computation directly. If someone succeeds in determining 
     this round key bytes by computing proposition 3 from BGE attack for all key bytes possibilities it could help to derive the round keys.
     
     From this reason we use completely different keys for key-dependent S-boxes that in rest of the cipher.
@@ -785,7 +794,7 @@ Introduction here
     \end{myprop}
     
     Recall that $(2n,\; n,\; n+1)$-code is MDS \footnote{$(n,\;k,\;d)$-code is MDS iff $d=n-k+1$}. Reed-Solomon codes are subset of MDS codes, so their 
-    parity check matrix can be used as MDS matrix, in the cipher acting as a strong diffucion element. MDS matrices derived from Reed-Solomon codes are used by many 
+    parity check matrix can be used as MDS matrix, in the cipher acting as a strong diffusion element. MDS matrices derived from Reed-Solomon codes are used by many 
     ciphers, for example Twofish, Shark. 
 
     In our case we would be interested in $(32,\;16,\;17)$-code, to obtain $16 \times 16$ MDS matrix with wanted properties.
@@ -840,14 +849,14 @@ Introduction here
     Here is the place where we use public knowledge of AES S-Box definitions. One way how to mount BGE attack to this modified variant is to guess also particular S-box
     mapping for each $\widetilde{P}$ and to test for its affinity. 
     
-    Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mappings stored as lookup table takes $2^8$ bytes.
+    Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mappings stored as look-up table takes $2^8$ bytes.
     Thus pre-computed $s_0$ s-box for all possible key bytes would take $2^8 \cdot 2^{16} = 2^{24} > 10^7$ bytes. 
     
     Even if attacker determines round keys for S-boxes it will be completely useless for further extraction of cipher key since hash chains are different. 
     
     Twofish S-boxes thus increase complexity of proposition 3 from BGE from $2^{24}$ to $2^{40}$. This is still not strong enough, it is highly parallelizable problem.
     In order to increase work needed to mount proposition 3 attack one could redefine key-dependent S-boxes to increase attack complexity to level $2^{128}$ what is larger
-    than best known attack on AES. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear Sboxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand 
+    than best known attack on AES. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear S-boxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand 
     S-box space. 
     
     \begin{equation}\label{eq:complex_sbox}
@@ -865,7 +874,7 @@ Introduction here
     \end{equation}
     
     Where $q^{\prime}_{j,l}$ is one of two fixed Twofish 8-bit permutations. Particular sequence of nested permutations would require deeper analysis, to avoid possible weaknesess 
-    induced by composing inapropriate permutations together, but we can choose for example:
+    induced by composing inappropriate permutations together, but we can choose for example:
     \setcounter{MaxMatrixCols}{13}
     \begin{subequations}
     \begin{align}
@@ -886,29 +895,29 @@ Introduction here
     to affine, propositions 1 and 2 work as before. 
 
     Cipher modification don't increase table sizes, because modifications made are only in S-box definitions and key schedule - both 
-    parts of the cipher are already evaluated and stored in the lookup tables. Our modifications also don't affect encryption/decryption performance since the only
-    difference is made during particular whitebox instance (lookup tables) generation. Encryption/decryption algorithm itself is not affected.
+    parts of the cipher are already evaluated and stored in the look-up tables. Our modifications also don't affect encryption/decryption performance since the only
+    difference is made during particular whitebox instance (look-up tables) generation. Encryption/decryption algorithm itself is not affected.
     
     \section{Analysis of diffusion layer}
-    Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger lookup tables. All table types are affected, in particular type 2, previously 
+    Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger look-up tables. All table types are affected, in particular type 2, previously 
     it was mapping $2^8 \rightarrow 2^{32}$, with cascade of XOR tables to sum $4 \; \times\; 32$-bit values to obtain one column of state array. Now type 2 tables are
     $2^8 \rightarrow 2^{128}$, with cascade of XORs to obtain whole state column vector. XOR tables takes 128-bit arguments, plus 3 additional 128-bit XOR tables 
     are needed (to sum $4 \; \times\; 128$-bit results from columns).
     
-    From security point of view this modiffication also prevents inverting attack mentioned in section \ref{sec:cipher_invertibility}. Function is now too wide to be
+    From security point of view this modifications also prevents inverting attack mentioned in section \ref{sec:cipher_invertibility}. Function is now too wide to be
     inverted by running over $GF(2^8)^{16}$. 
     
     Key-dependent MDS matrix also prevents mounting Billet's attack. In particular we don't know MixColumn matrix coefficients so we are not able to construct set $\beta$
     from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so proposition 2 and 3 won't work anymore. This also makes recovering 
-    affine parts of I/O encodings unfeasible, using this attack. But proposition 1 still works, random I/O bijections can be converted fo affine ones quite easilly.
+    affine parts of I/O encodings unfeasible, using this attack. But proposition 1 still works, random I/O bijections can be converted of affine ones quite easily.
 
     As noted above, also  Generic attack by Michiels \citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients.
     
     \section*{Drawbacks}
-    By modification of AES design we are comming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
-    context and being relatively secure. Designing a new cipher may help with increasing security in whitebox context but there also may be weaknesess in blackbox context. 
+    By modification of AES design we are coming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
+    context and being relatively secure. Designing a new cipher may help with increasing security in whitebox context but there also may be weaknesses in blackbox context. 
     It would be needed to analyze the new cipher from this point of view, for example for resistance to linear or differential cryptanalysis. There is no guarantee that 
-    proposed cipher modifications are strong enough to resist clasical blackbox context cryptanalysis.
+    proposed cipher modifications are strong enough to resist classical blackbox context cryptanalysis.
     
     But when designing scheme improvements we tried to follow standard principles in designing secure block cipher, inspired by AES, Twofish, Shark and others.
     
@@ -933,12 +942,12 @@ Introduction here
 
 \chapter{Appendix A}
     \subsection{Affinity check}\label{appendix:affcheck}
-    In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a lookup table
+    In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a look-up table
     and the task is to test it for affinity. If $\widetilde{P}$ is affine it must hold:
     \begin{equation}
 	\widetilde{P}\left(x\right) = M \times x \oplus c
     \end{equation}
-    For some square matrix $M$ with coefficients from $\text{GF}(2)$ and constant $c \in \text{GF}(2^8)$ (or equivalently $8\times1$ vector with coeficients from $\text{GF}(2)$).\\
+    For some square matrix $M$ with coefficients from $\text{GF}(2)$ and constant $c \in \text{GF}(2^8)$ (or equivalently $8\times1$ vector with coefficients from $\text{GF}(2)$).\\
     
     By evaluating $\widetilde{P}\left(0\right) = c$ we obtain affine constant $c$ so we derive new mapping $\widetilde{P^\prime}$,
     reducing the problem to test $\widetilde{P^\prime}$ for being linear.
