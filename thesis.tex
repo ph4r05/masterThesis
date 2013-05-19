@@ -18,6 +18,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{amsmath}
+\usepackage{enumitem}
 %\usepackage{titlesec}
 
 % floating for figures H
@@ -68,7 +69,7 @@
 \newcommand{\comproto}[1]{\emph{#1}}
 \newcommand{\protocommand}[1]{\emph{\uppercase{#1}}}
 \newcommand{\protoparam}[1]{\emph{#1}}
-% \underset{x}{\operatorname{argmin}}
+%\underset{x}{\operatorname{argmin}}
 
 % some math & modulo
 \newtheorem{mydef}{Definition}
@@ -76,6 +77,9 @@
 \makeatletter
 \def\imod#1{\allowbreak\mkern10mu({\operator@font mod}\,\,#1)}
 \makeatother
+
+\newcommand{\gfe}{\ensuremath{\text{GF}\left(2^8\right)}}
+\newcommand{\gf}{\ensuremath{\text{GF}\left(2\right)}}
 
 % bibtex
 % Czech bibtex citation norms
@@ -280,7 +284,7 @@ Introduction here
     
     \section{Scheme}
 
-    In defining paper \citep{Karroumi:2010:PWA:2041036.2041060} is not explained how to obtain dual AES ciphers and how to construct mapping from one to another. This is
+    In the defining paper \citep{Karroumi:2010:PWA:2041036.2041060} is not explained how to obtain dual AES ciphers and how to construct mapping from one to another. This is
     important part since it plays crucial role in proof that this scheme is vulnerable. At first is described generalization of AES and how to construct
     mappings between them. 
 
@@ -288,18 +292,18 @@ Introduction here
 	It is possible to generalize AES by changing its irreducible polynomial and generator to obtain generic form of AES.
 
 	Generic AES can be represented as a $\{R(x), \beta \}$, where $R(x) \in \left(\mathbb{Z}/p\mathbb{Z}\right)[x]$ is 
-	irreducible polynomial of degree 8, $\beta \in GF(2^8)$ is a generator of the field $GF(2^8)$.
+	irreducible polynomial of degree 8, $\beta \in \gfe$ is a generator of the field $\gfe$.
 
 	Default AES (as in NIST standard) in this notation is represented as $\{\{11B\}_x, \{03\}_x\}$. Polynomial is expressed
 	in hexadecimal notation, each bit corresponds to polynomial coefficient, LSB corresponds to constant term.\\
 	Thus $0x11B_{16} = 1 \; 0001 \; 1011_{2} \; \Rightarrow \{11B\}_x \sim x^8+x^4+x^3+x+1$.
 
-	It is known that there are $30$ irreducible polynomials over $\text{GF}(2^8)$. For each of them there are $8$ possible
+	It is known that there are $30$ irreducible polynomials over $\gfe$. For each of them there are $8$ possible
 	generators that can be used to generate field and to preserve duality mentioned in the next section.
 
 	\subsection{AES duality}
 
-	\begin{mydef}
+	\begin{mydef}\label{def:dual_cipher}
 	Two ciphers $E$ and $E'$ are called Dual Ciphers, if they are
 	isomorphic, i.e., if there exist invertible transformations $f()$, $g()$ and $h()$ such
 	that
@@ -313,11 +317,11 @@ Introduction here
 	\subsection{Generic AES duality}
 	Let's assume we have some arbitrary generic AES $\{R(x), \beta \}$. 
 
-	All elements of the field $\text{GF}(2^8) = \{01, 02, \dots, FF\}$
-	can be expressed in terms of the generator $\beta$, $\text{GF}(2^8) = \{\beta^i \; | \; i \in [0,254]\} = \{\beta^0, \beta^1, \dots, \beta^{254}\}$.
+	All elements of the field $\gfe = \{01, 02, \dots, FF\}$
+	can be expressed in terms of the generator $\beta$, $\gfe = \{\beta^i \; | \; i \in [0,254]\} = \{\beta^0, \beta^1, \dots, \beta^{254}\}$.
 
 	We can then construct $8 \times 8$ matrix $\Delta = \begin{bmatrix} \beta^0 & \beta^{25} & \beta^{50} & \beta^{75} & \beta^{100} & \beta^{125} & \beta^{150} & \beta^{175}  \end{bmatrix}$ where 
-	$\beta^i \in \text{GF}(2^8) \cong \text{GF}(2)^8$ is a column vector. Then $\Delta$ is a base change matrix:
+	$\beta^i \in \gfe \cong \text{GF}(2)^8$ is a column vector. Then $\Delta$ is a base change matrix:
 	\begin{subequations}
 	\begin{align}
 	    \Delta &: \{\{11B\}_x, \{03\}_x\}  \longrightarrow \{R(x), \beta \} \\
@@ -344,14 +348,14 @@ Introduction here
 	\paragraph*{Default AES}
 	At first recall two most important functions in AES round that we will then transform to generic form.
 
-	\subparagraph*{SubByte}
+	\subparagraph*{SubByte}\label{sec:aes_subbyte}
 	\begin{equation}
 	\begin{aligned}
-	S: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
+	S: \gfe         & \longrightarrow  \gfe\\
 	x               & \longmapsto A \times x^{-1} \oplus c
 	\end{aligned}
 	\end{equation}
-	where $x^{-1}$ is element inverse in $\text{GF}(2^8)$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard.
+	where $x^{-1}$ is element inverse in $\gfe$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard.
 
 	Equation for Sbox:
 	\begin{align}
@@ -402,7 +406,7 @@ Introduction here
 
 	\subparagraph*{MixColumn}
 	    \begin{itemize}
-	    \item columns considered as polynomials over $GF(2^8)$
+	    \item columns considered as polynomials over $\gfe$
 	    \item $p(x) \cdot c(x) \imod{x^4+1}$\\
 	    where $c(x)$ is fixed polynomial $c(x) = 03x^3+01x^2 + 01x + 02$
 	    \end{itemize}
@@ -427,15 +431,15 @@ Introduction here
 		    x_3\\
 		\end{bmatrix}
 	    \end{align}
-	where $x_i, y_i \in \text{GF}(2^8)$.
+	where $x_i, y_i \in \gfe$.
 	
 	\paragraph*{Generic AES}
 	In the generic AES operations \emph{ShiftRows}, \emph{AddRoundKey} work same as in default AES, they are not affected by base change operation.
 
-	\subparagraph*{SubByte}
+	\subparagraph*{SubByte}\label{sec:aes_generic_subbyte}
 	\begin{equation}
 	\begin{aligned}
-	S_{dual}: \text{GF}(2^8) & \longrightarrow  \text{GF}(2^8)\\
+	S_{dual}: \gfe           & \longrightarrow  \gfe\\
 	x                        & \longmapsto \Delta \times A \times \Delta^{-1} \left( x^{-1} \right) \oplus \Delta \left(c\right)
 	\end{aligned}
 	\end{equation}
@@ -469,7 +473,7 @@ Introduction here
 	\end{bmatrix} 
 	\]
 
-	From this we define $y_{i,j}$ as a function with 4 arguments from $\text{GF}(2^8)$:
+	From this we define $y_{i,j}$ as a function with 4 arguments from $\gfe$:
 	\begin{equation}
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \bigoplus^3_{l=0} \alpha_{l,j} \cdot S(x_{i,l} \oplus k_{i,l})
 	\end{equation}
@@ -489,7 +493,7 @@ Introduction here
 
 	\paragraph*{Round function - generic AES}
 	Using aforementioned generic form of \emph{SubByte} and \emph{MixColumn} functions we can define round function also for generic AES in the same way, using base change transformation.
-	From this we define $y_{i,j}$ as a function with 4 arguments from $\text{GF}(2^8)$:
+	From this we define $y_{i,j}$ as a function with 4 arguments from $\gfe$:
 	\begin{equation}
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left(x_{i,l} \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right)
 	\end{equation}
@@ -505,7 +509,7 @@ Introduction here
 	\label{fig:wbaes}
 	\end{figure*}
 
-	Whitebox AES is AES implementation based on table lookups, functions used in AES are stored as look-up tables. Figure \ref{fig:wbaes} shows one round of whitebox AES
+	Whitebox AES is AES implementation based on table look-ups, functions used in AES are stored as look-up tables. Figure \ref{fig:wbaes} shows one round of whitebox AES
 	implementation using look-up tables, protected with whitebox techniques like Mixing Bijections and internal encodings.
 
 	On the diagram in figure \ref{fig:wbaes} are following whitebox functions:
@@ -515,27 +519,26 @@ Introduction here
 	This transformation is not interesting since it cancels out within one round. We are interested in round function R, this transformation has no effect on it.
 	\item L stands also for Mixing Bijection but in this case it is $8 \times 8$ matrix over $\text{GF}(2)$ representing linear transformation over $\text{GF}(2)$. 
 	Original purpose of it was to protect output of round $r$ connected to the input of round $r+1$ in table representation. 
-	\item Q,P. These are random non-linear bijections in $\text{GF}(2^8)$, called internal encodings. It holds that $P^{r+1}_{i,j} \circ Q^{r}_{i,j} = id$
+	\item Q,P. These are random non-linear bijections in $\gfe$, called internal encodings. It holds that $P^{r+1}_{i,j} \circ Q^{r}_{i,j} = id$
 	\end{itemize}
 
 	Since transformation $L$, $L^{-1}$ is performed byte-wise on state array, we can compose them with corresponding internal encodings bijections
-	\begin{subequations}
+	\begin{subequations} \label{eq:ioencoding_abstract_q}
 	\begin{align}
-	    Q^{r \; \prime}_{i,j} &= Q^{r}_{i,j} \circ L^{r+1}_{j} \label{eq:ioencoding_abstract_q}\\
-	    P^{r \; \prime}_{i,j} &= (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
+	    Q^{r \; \prime}_{i,j} &= Q^{r}_{i,j} \circ L^{r+1}_{j} \\
+	    P^{r \; \prime}_{i,j} &= (L^{r}_{j})^{-1} \circ P^{r}_{i,j}
 	\end{align}
 	\end{subequations}
 
 	We again obtain non-linear random bijections with embedded L transformation in it, without loss of generality. This abstraction is done in Billet's attack.
-
-
+	
 	\subsection{Whitebox Dual AES}
 	There was published a paper describing AES whitebox implementation with use of dual AES. It claimed that this implementation should be harder (in terms of time complexity)
 	to break using Billet's attack on whitebox AES. On the figure \ref{fig:wbaesdual} is scheme for one round, one column of state array, whitebox dual AES implementation for round 2.
 	According to the original paper, in each
 	column is used different generic AES. This implementation is compatible with default AES, so after computing in dual AES we have to transform the result to default AES
-	with base change transformation $\Delta$.\\	
-    
+	with base change transformation $\Delta$.\\
+
 	% scheme for one round of WB Dual AES
 	\begin{figure*}
 	\begin{center}
@@ -545,8 +548,85 @@ Introduction here
 	\caption{Whitebox Dual AES implementation - round \#2}
 	\label{fig:wbaesdual}
 	\end{figure*}
+	
+	By changing irreducible polynomial and generator we obtain $30 \cdot 8 = 240$ different generic AES ciphers. The bigger is set of possible ciphers to use, the harder is
+	for attacker to break the dual scheme, since he has to try all possible combinations, according to \citep{Karroumi:2010:PWA:2041036.2041060}. But in 
+	\citep{Karroumi:2010:PWA:2041036.2041060} is assumed there are $61200$ different generic AES ciphers but it is not said how they are constructed and how 
+	such construction influences whitebox implementation.
+	
+	In order to generate $61200$ different AES representations it is needed to study AES S-Box affine self-equivalences \citep{Biryukov:2003:TCL:1766171.1766175}. 
+	
+	\begin{mydef}
+	Linear mapping is mapping $L\left(x\right)$ over $\text{GF}(2)^n$ that satisfies $\forall \; x,y \in \text{GF}(2)^n \; : \; L(x+y) = L(x) + L(y).$
+	\end{mydef}
+	
+	\begin{mydef}
+	Affine mapping is mapping $A(x)$ over $\text{GF}(2)^n$ such that $A(x) = L(x) + c, c \in \text{GF}(2)^n$ and $L(x)$ is linear mapping
+	\end{mydef}
+	
+	\begin{mydef}
+	$n \times n$-bit mapping $S$ is affine self-equivalent if there exist $n \times n$ affine relations $A_1,\;A_2$ such that: 
+	\begin{equation}\label{eq:selfeq}
+	A_2 \circ S \circ A_1 = S 
+	\end{equation}
+	\end{mydef}
+	
+	In \citep{Biryukov:2003:TCL:1766171.1766175} are published effective algorithms for finding linear and affine equivalences for permutations (S-boxes). I have implemented
+	them \footnote{LinearAffineEq.\{h,cpp\}} to verify number of self-equivalences for AES S-Boxes for encryption and decryption algorithm. 
+	This algorithm can be further used to study modified S-boxed or basic building blocks of the cipher (see chapter \ref{sec:twofish_sbox}) for equivalences, what can lead
+	to revealing potential weaknesses.
+	
+	Algorithm found $2040$ affine self-equivalences, together with $30$ possible irreducible polynomials there are $61200$ dual ciphers.
+	Biryukov \emph{et~al.} derived general expressions for $A_1,\;A_2$:
+	\begin{subequations}
+	\begin{align}
+	    A_1(x) &= \left[a\right] \cdot Q^i \cdot x\\
+	    A_2(x) &= A\left( Q^{-i} \cdot \left[a\right] \cdot A^{-1}\left(x\right) \right)
+	\end{align}
+	\end{subequations}
+	
+	Where
+	\begin{itemize}[leftmargin=5em]
+	 \item[{$A$}] is fixed affine mapping from AES S-box definition (see section \ref{sec:aes_subbyte}), $A^{-1}$ it's inverse.
+	 \item[{$[a]$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing \emph{multiplication} by $a \in \gfe \setminus \{0\}$ in $\gfe$. 
+	    From the fact $\gf^8 \simeq \gfe$ (all finite fields with same number of elements are isomorphic), multiplication is
+	    linear transformation in $\gfe$, it can be expressed in matrix form. Refer to \ref{appendix:mult_matrix} to see how to construct such matrix.
+	 \item[{$Q$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing \emph{squaring} in $\gfe$. Squaring is \emph{linear} operation
+	    in $\gfe$ so it is possible to represent it as a matrix. Refer to \ref{appendix:sqr_matrix} for construction and proof. Note that 
+	    $Q^8 = I \Rightarrow Q^{-i} = Q^{8-i}$. Thus there are 8 different powers of Q, $Q^{i}, \; i \in [0,7]$.
+	\end{itemize}
+	
+	It is visible that with general expressions we can obtain $\underbrace{8}_{i} \cdot \underbrace{255}_{a} = 2040$ different 
+	$A_1,\;A_2$ relations confirming output of the algorithm. 
+	
+	Observe that by inserting $A_1,\;A_2$ before and after S-Box the cipher is not affected. Note that $A_1$ is linear, this can be used to 
+	push input mapping $A_1$ through the mixing layer and combine it with $A_2$ from previous round, then we obtain $2040$ different AES 
+	tables evaluating the same function. Note that they are not dual according to definition \ref{def:dual_cipher}, it is just different 
+	table implementation of AES, thus $\Delta = I$. This is potential flaw of whitebox scheme using dual ciphers, since it does not increase
+	security against known attacks at all. This construction is neglected in the original paper \citep{Karroumi:2010:PWA:2041036.2041060}.
+	
+	Layers of mixing bijections (L, MB) cancel between rounds so they can be neglected in pushing $A_1$ to previous round. 
+	%At first consider that in previous and current round we have standard AES, further it will be extended for generic case. 
+	Recall $A_2\left(S\left(A_1\left(x\right)\right)\right) = S(x)$. Input to S-box is output of previous round, so apply $A_1$ on previous round.
+	It is shown only for one column (equation \ref{eq:a1_application}), others are analogical. It is easy to verify that 
+	$\left[a\right] \cdot Q^i \cdot \left[c\right] = \left[c^{2^{i}}\right] \cdot \left[c\right] \cdot Q^i$. 
+	Redefine $T_r(x) = A_2^r(S(x \oplus k))$ to take affine relations into account, where $k$ is particular round key byte. Then we can write:
 
-
+	% A_1^{r+1, i}(x) &= [l] \cdot Q^k (x)
+	
+	{%\footnotesize
+	\begin{subequations}\label{eq:a1_application}
+	\begin{align}
+	       A_1^{r+1} \cdot &\begin{bmatrix}           02 \cdot T_r(x)        &           01 \cdot T_r(x)        &           01 \cdot T_r(x)        &           03 \cdot T_r(x)        \end{bmatrix}^T \label{eq:a1_application_1} \\
+	    =                  &\begin{bmatrix} A_1^{r+1}(02 \cdot T_r(x))       & A_1^{r+1}(01 \cdot T_r(x))       & A_1^{r+1}(01 \cdot T_r(x))       & A_1^{r+1}(03 \cdot T_r(x))       \end{bmatrix}^T \nonumber\\
+	    =                  &\begin{bmatrix} 02^{2^i} \cdot A_1^{r+1}(T_r(x)) & 01^{2^i} \cdot A_1^{r+1}(T_r(x)) & 01^{2^i} \cdot A_1^{r+1}(T_r(x)) & 03^{2^i} \cdot A_1^{r+1}(T_r(x)) \end{bmatrix}^T \nonumber\\
+	    =                  &\begin{bmatrix} 02^{2^i} \cdot A_1^{r+1}(T_r(x)) & 01 \cdot A_1^{r+1}(T_r(x))       & 01 \cdot A_1^{r+1}(T_r(x))       & 03^{2^i} \cdot A_1^{r+1}(T_r(x)) \end{bmatrix}^T
+	\end{align}
+	\end{subequations}}
+	
+	This gives us different tables for AES round function when using different $A_1,\;A_2$ relations. Note that table of type 2 with $A_1$ pushed from next round 
+	is still the same, no matter which form of equation \ref{eq:a1_application} is used, due to linearity of $A_1$. 
+	For simplicity in further proofs and description we can assume form \ref{eq:a1_application_1}.
 
     \section{Implementation of the cipher}
     Cipher implementation description, generalization of oorschot design. Mixing bijections.
@@ -566,44 +646,50 @@ Introduction here
 	\end{myprop}
 
 	\begin{proof}
-	Let's define round function for whitebox AES and for whitebox dual AES and compare it.
+	Let's define round function for whitebox AES and for whitebox dual AES and compare it. 
+	Note that MB mixing bijections are left out since their effect is canceled within one round. If we also assume use of $A_1, \; A_2$ affine relations,
+	they can be merged together with L mixing bijection to input/output encodings. Thus for simplicity $A_1, \; A_2$ is omitted from the proof (it is clearly visible 
+	it does not increase resistance against BGE attack - input/output encodings are fully determined in the attack).
 
 	\subsubsection*{Round function - whitebox AES}
 	There are additional $Q' ,P' $ functions, input and output bijections, for details see \citep{Chow02white-boxcryptography} \citep{Billet:2004:CWB:2080787.2080809}.
 	\begin{subequations}
 	\begin{align} 
-	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) & = Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot S \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \right) \right) \\
-								& = Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot \left( A \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus k_{i,l} \right)^{-1} \right) \oplus c \right) \right) \\
-								& = Q^{r \; \prime}_{i,j} \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_aes_roud}
+	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right)  &= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot S \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \right) \right) \\
+								&= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot \left( A \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus k_{i,l} \right)^{-1} \right) \oplus c \right) \right) \\
+								&= Q^{r \; \prime}_{i,j} \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_aes_roud}
 	\end{align}
 	\end{subequations}
 
 	\subsubsection*{Round function - whitebox dual AES}
-	\begin{subequations}
-	\begin{align} \label{eq:whitebox_dual_aes_r}
-	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \Delta \left(\alpha_{l,j}\right) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \\
-								&= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \Delta \left(\alpha_{l,j}        \cdot \left(               A \times \Delta^{-1} \left( \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus c \right) \right) \right)
-	\end{align}
-	\end{subequations}
-
-	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking whitebox AES breaks whitebox dual AES scheme. From figure \ref{fig:wbaesdual}
-	observe how rounds are connected to each other with respect to dual AESes. It is clearly visible in the case of the first round, where the inverse base change matrix $\Delta^{-1}$ is identity, because
-	there is no previous dual AES encoding transformation in first round.
-
-	Therefore the first round function is:
+	For simplicity define:
+	\begin{equation}
+	    P^{r \; \prime\prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ P^{r \; \prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
+	\end{equation}
+	
+	For simplicity assume that $\Delta = \Delta^r$ for round $r$ if it is obvious from context and is not defined otherwise.
+	According to figure \ref{fig:wbaesdual} the equation for one round is:
 	\begin{subequations} \label{eq:wb_dual_aes_r_proof}
 	\begin{align} 
-	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(         \left(\Delta \circ P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof1} \\ 
-								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \Delta  \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof2} \\
-								&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times             \left(         \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus \Delta \left(c\right) \right) \right)\\
-								&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(         \left(             P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1} \right) \oplus              c        \right) \right)\\
-								&= Q^{r \; \prime}_{i,j} \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:wb_dual_aes_r_prooffinal}
+	& y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \nonumber \\
+	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left(               \left(\Delta \circ P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus \Delta\left(k_{i,l}\right) \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \nonumber \\ 
+	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left( \Delta \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}\right) \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof1} \\ 
+	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \Delta        \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \label{eq:wb_dual_aes_r_proof2} \\
+	&= Q^{r \; \prime}_{i,j}              \left( \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times             \left(               \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right) \oplus \Delta \left(c\right) \right) \right) \nonumber\\
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \left( \bigoplus^3_{l=0}        \alpha_{l,j}  \cdot \left(               A \times             \left(               \left(             P^{r \; \prime\prime}_{i,l}\left(x_{i,l}\right) \oplus             k_{i,l}        \right)^{-1\; \gfe} \right) \oplus              c        \right) \right) \nonumber\\
+	&= Q^{r \; \prime}_{i,j} \circ \Delta \circ R_{i,j}^{\prime}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:wb_dual_aes_r_prooffinal}
 	\end{align}
 	\end{subequations}
 
-	Transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible since it holds:
+	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking whitebox AES breaks whitebox dual AES scheme. 
+
+	Transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible due to base change matrix properties and fields we are computing with.
+	
+
+
+	since it holds:
 	\begin{align}
-	    \forall x,y \in \text{GF}(2^8) \; : \; y = x^{-1} \Rightarrow \Delta \left(y\right) = \Delta \left( x^{-1} \right)
+	    \forall x,y \in \gfe \; : \; y = x^{-1} \Rightarrow \Delta \left(y\right) = \Delta \left( x^{-1} \right)
 	\end{align}
 	due to properties of generator and base change matrix.
 
@@ -662,7 +748,7 @@ Introduction here
     complicated algebraic representations. As I emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations more difficult for an attacker.
     Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
 
-    \section{Twofish S-boxes}
+    \section{Twofish S-boxes}\label{sec:twofish_sbox}
     Here observe Twofish S-boxes (from \citep{Schneier98twofish:a}) and their algebraic representation.
     \begin{subequations}\label{eq:twofish_sbox}
     \begin{align}
@@ -842,7 +928,7 @@ Introduction here
     \end{align}
     \end{subequations}
     
-    In our implementation of the BGE attack we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \text{GF}(2^8)\times\text{GF}(2^8)$ what gives complexity $2^{16}$ for one mapping.
+    In our implementation of the BGE attack we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \gfe \times \gfe$ what gives complexity $2^{16}$ for one mapping.
     In each step is mapping checked for affinity in $2^8$ steps (for affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
     $2^{26}$ steps.
     
@@ -905,7 +991,7 @@ Introduction here
     are needed (to sum $4 \; \times\; 128$-bit results from columns).
     
     From security point of view this modifications also prevents inverting attack mentioned in section \ref{sec:cipher_invertibility}. Function is now too wide to be
-    inverted by running over $GF(2^8)^{16}$. 
+    inverted by running over $\gfe^{16}$. 
     
     Key-dependent MDS matrix also prevents mounting Billet's attack. In particular we don't know MixColumn matrix coefficients so we are not able to construct set $\beta$
     from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so proposition 2 and 3 won't work anymore. This also makes recovering 
@@ -941,13 +1027,19 @@ Introduction here
 \appendix
 
 \chapter{Appendix A}
-    \subsection{Affinity check}\label{appendix:affcheck}
+    \section{Multiplication matrix}\label{appendix:mult_matrix}
+    mult [a]
+	
+    \section{Squaring matrix}\label{appendix:sqr_matrix}
+    squaring Q
+    
+    \section{Affinity check}\label{appendix:affcheck}
     In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a look-up table
     and the task is to test it for affinity. If $\widetilde{P}$ is affine it must hold:
     \begin{equation}
 	\widetilde{P}\left(x\right) = M \times x \oplus c
     \end{equation}
-    For some square matrix $M$ with coefficients from $\text{GF}(2)$ and constant $c \in \text{GF}(2^8)$ (or equivalently $8\times1$ vector with coefficients from $\text{GF}(2)$).\\
+    For some square matrix $M$ with coefficients from $\text{GF}(2)$ and constant $c \in \gfe$ (or equivalently $8\times1$ vector with coefficients from $\text{GF}(2)$).\\
     
     By evaluating $\widetilde{P}\left(0\right) = c$ we obtain affine constant $c$ so we derive new mapping $\widetilde{P^\prime}$,
     reducing the problem to test $\widetilde{P^\prime}$ for being linear.
@@ -957,7 +1049,7 @@ Introduction here
    
     And from linearity the following formula must hold:
     \begin{equation}
-	\forall x \in \text{GF}(2^8), \; \exists! \; k_j \in \{0,1\}, \; j \in [0,7] \; : \; x = \sum_{j=0}^{7} k_j \cdot \widetilde{P^\prime} \left(e_j\right) \; 
+	\forall x \in \gfe, \; \exists! \; k_j \in \{0,1\}, \; j \in [0,7] \; : \; x = \sum_{j=0}^{7} k_j \cdot \widetilde{P^\prime} \left(e_j\right) \; 
     \end{equation}
     It says that each element from the field has to be unique sum of its basis vectors. Assuming that $\widetilde{P^\prime}$ is linear,
     we can obtain mapped base vectors for this transformation easily as $g_j = \widetilde{P^\prime}\left(e_j\right)$. Now it is visible that time complexity is $2^8$.
@@ -965,7 +1057,7 @@ Introduction here
     \begin{algorithm}
        \caption{Algorithm for testing given mapping for being affine}
 	\begin{algorithmic}[1]
-	    \Function{isAffine}{$\widetilde{P} : \text{GF}(2^8) \mapsto \text{GF}(2^8)$}\Comment{Determine if P is affine mapping}
+	    \Function{isAffine}{$\widetilde{P} : \gfe \mapsto \gfe$}\Comment{Determine if P is affine mapping}
 	    \State $c \gets \widetilde{P}[0]$\Comment{$c$ is affine constant}
 	    \State $\widetilde{P^{\prime}}[x] \gets \widetilde{P}[x] + c$\Comment{$2^8$ time complexity}
 	    \State $isAffine \gets true$
