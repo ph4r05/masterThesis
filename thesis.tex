@@ -532,7 +532,7 @@ Introduction here
 
 	We again obtain non-linear random bijections with embedded L transformation in it, without loss of generality. This abstraction is done in Billet's attack.
 	
-	\subsection{Whitebox Dual AES}
+	\subsection{Whitebox Dual AES}\label{sec:wb_dual_aes}
 	There was published a paper describing AES whitebox implementation with use of dual AES. It claimed that this implementation should be harder (in terms of time complexity)
 	to break using Billet's attack on whitebox AES. On the figure \ref{fig:wbaesdual} is scheme for one round, one column of state array, whitebox dual AES implementation for round 2.
 	According to the original paper, in each
@@ -1026,14 +1026,89 @@ Introduction here
 \appendix
 
 \chapter{Appendix A}
-    \section{Multiplication matrix}\label{appendix:mult_matrix}
-    mult [a]
-	
     \section{Squaring matrix}\label{appendix:sqr_matrix}
-    squaring Q
+    Here is shown how to compute matrix $Q$ from section \ref{sec:wb_dual_aes} that represents squaring operation.
     
+    \begin{myprop}\label{prop:squaring_is_linear}
+     $\forall a,b \in \gfe \; : \; \left(a + b\right)^2 = a^2 + b^2$. 
+    \end{myprop}
+    \begin{proof}
+    From binomial theorem, assume general case, $a,b \in \text{GF}(p^m)$, where $p$ is prime.
+    \begin{equation*}
+     (a+b)^p = a^p + \sum_{k=1}^{p-1} \binom{p}{k} a^{p-k}b^{k} + b^p = a^p + b^p
+    \end{equation*}
+    since $\binom{p}{k}$ is multiple of $p$ for $0 < k < p$ (from binomial coefficient definition) and multiples of $p$ are $0$ in $\text{GF}(p^m)$. (
+    $\binom{p}{k} \notin \text{GF}(p^m)$ is coefficient, so it is reduced mod $p$). To finish proof let $p=2$.
+    \end{proof}
+
+    \begin{myprop}
+    $\forall a,b \in \gfe \; : \; \left(a + b\right)^2 = a^2 + b^2 \Rightarrow $ squaring in $\gfe$ is linear operation which is 
+    equivalent to matrix multiplication with coefficients from $\gf$.
+    \end{myprop}
+    \begin{proof}
+    Let's have elements $a \in \gfe$. Elements from this field are represented as
+    polynomials, in polynomial basis $\begin{bmatrix} x^0 & x^{1} & x^{2} & x^{3} & x^{4} & x^{5} & x^{6} & x^{7}\end{bmatrix}$. 
+    Thus we can write: $a = \sum_{i=0}^7 a_i \cdot x^i$ where $a_i \in \gf$. Also note that
+    $a_i = a_i^2$, because $\gf = \left(\{0,1\}, +, \cdot\right)$, so $0=0^2 \wedge 1=1^2$.
+
+    Thus we can write
+    \begin{align*}
+	a^2 &= \left(\sum_{i=0}^7 a_i   \cdot x^i\right)^2 
+	    =       \sum_{i=0}^7 a_i^2 \cdot x^{i^2} 
+	    =       \sum_{i=0}^7 a_i \cdot x^{i^2} 
+	    =       \sum_{i=0}^7 x^{i^2} \cdot a_i
+	    = \left(\sum_{i=0}^7 x^{i^2}\right) \cdot a
+	    = Q \cdot a
+    \end{align*}
+    \end{proof}
+    Thus the squaring matrix is $Q$. It holds that $\gfe \simeq \gf^8$ since finite fields with the same number of elements are isomorphic. 
+    We use this isomorphism to obtain matrix $Q$. It is enough to transform polynomial base in $\gfe$ to vector base in $\gf^8$. It is easy to see that:
+    \begin{equation*}
+     \begin{bmatrix} x^0 & x^{1} & x^{2} & x^{3} & x^{4} & x^{5} & x^{6} & x^{7}\end{bmatrix}_{\gfe} \mapsto \begin{bmatrix} e_1 & e_2 & e_3 & e_4 & e_5 & e_6 & e_7 & e_8\end{bmatrix}_{\gf^8} = I_{8,\;\gf^8}
+    \end{equation*}
+    Where $e_i$ is $i$-th base vector from standard base.
+    
+    Now it is obvious how to construct matrix $Q$:
+    \begin{equation*}
+     Q = \begin{bmatrix} 
+	    1 & 0 & 0 & 0 & 1 & 0 & 1 & 0\\
+	    0 & 0 & 0 & 0 & 1 & 0 & 1 & 1\\
+	    0 & 1 & 0 & 0 & 0 & 1 & 0 & 0\\
+	    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1\\
+	    0 & 0 & 1 & 0 & 1 & 0 & 0 & 1\\
+	    0 & 0 & 0 & 0 & 0 & 1 & 1 & 0\\
+	    0 & 0 & 0 & 1 & 0 & 1 & 0 & 0\\
+	    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1
+         \end{bmatrix}_{\gf^8}
+    \end{equation*}
+
+    \section{Multiplication matrix}\label{appendix:mult_matrix}
+    In this section is described how to construct a $8 \times 8$ matrix $[a]$ with coefficients from $\gf$ that represents multiplication by 
+    constant $a \in \gfe$ in $\gfe$. It uses the same technique as in section \ref{appendix:sqr_matrix}, using isomorphism.
+    
+    Recall $u_{\gfe} = \sum_{i=0}^{7} u_i \cdot x^i \mapsto \begin{bmatrix} u_0 & \cdots & u_7\end{bmatrix}^T_{\gf^8} = \sum_{i=1}^8 u_{i-1} \cdot e_i$
+    where $u_i \in \gf$. Multiplication is linear transformation, so let's denote multiplication by $a$ as $L_a \; : \gf^8 \rightarrow \gf^8\; $.
+    Now from linearity: 
+    
+    \begin{align*}
+	L_a(u) &= L\left(\sum_{i=1}^8 u_{i-1} \cdot e_i\right) = \sum_{i=1}^8 u_{i-1} \cdot L_a(e_i) \\
+	       &= \sum_{i=1}^8 L_a(e_i) \cdot u_{i-1} 
+	        = \begin{bmatrix} L_a\left(e_1\right) & \dots & L_a\left(e_8\right) \end{bmatrix} \cdot 
+		  \begin{bmatrix} 
+		    u_0\\
+		    \vdots\\
+		    u_7
+		  \end{bmatrix} 
+    \end{align*}
+    
+    Thus matrix $[a]$ has form:
+    \begin{equation*}
+     [a] = \begin{bmatrix} L_a\left(e_1\right) & \dots & L_a\left(e_8\right) \end{bmatrix}_{\gf^8}
+    \end{equation*}
+
+
     \section{Affinity check}\label{appendix:affcheck}
-    In this section we describe affininity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a look-up table
+    In this section we describe affinity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a look-up table
     and the task is to test it for affinity. If $\widetilde{P}$ is affine it must hold:
     \begin{equation}
 	\widetilde{P}\left(x\right) = M \times x \oplus c
