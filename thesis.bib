@@ -45,6 +45,18 @@
    year = 2002
 }
 
+
+@INPROCEEDINGS{XiaoLai, 
+    author={Xiao, Yaying and Xuejia Lai}, 
+    booktitle={Computer Science and its Applications, 2009. CSA '09. 2nd International Conference on}, 
+    title={A Secure Implementation of White-Box AES}, 
+    year={2009}, 
+    pages={1-6}, 
+    keywords={Billets;Cryptography;Encoding;Information analysis;Manipulator dynamics;Protection;Resists;Security;Software algorithms;Table lookup}, 
+    doi={10.1109/CSA.2009.5404239},
+    url={http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=05404239}
+}
+
 % AES attack, AES-128 with 2126.1 work
 @misc{cryptoeprint:2011:449,
     author = {Andrey Bogdanov and Dmitry Khovratovich and Christian Rechberger},
@@ -80,6 +92,16 @@
     year = {2002},
     pages = {250--270},
     publisher = {Springer-Verlag}
+}
+
+% WB DES
+@INPROCEEDINGS{Chow02awhite-box,
+    author = {S. Chow and P. Eisen and H. Johnson and P. C. Van Oorschot},
+    title = {A White-Box DES Implementation for DRM Applications},
+    booktitle = {In Proceedings of ACM CCS-9 Workshop DRM},
+    year = {2002},
+    pages = {1--15},
+    publisher = {Springer}
 }
 
 % Mixing bijection matrices
@@ -399,3 +421,61 @@
   volume = 9,
   year = 2009
 }
+
+% WB DES cryptanalysis - naked variant, injecting faults
+@inproceedings{conf/ccs/JacobBF02,
+  added-at = {2011-07-05T00:00:00.000+0200},
+  author = {Jacob, Matthias and Boneh, Dan and Felten, Edward W.},
+  biburl = {http://www.bibsonomy.org/bibtex/2a37083956b1255ede19ef9ba68db8e80/dblp},
+  booktitle = {Digital Rights Management Workshop},
+  editor = {Feigenbaum, Joan},
+  ee = {http://dx.doi.org/10.1007/978-3-540-44993-5_2},
+  interhash = {1a8155e6c9376addcaffc8671656fb85},
+  intrahash = {a37083956b1255ede19ef9ba68db8e80},
+  isbn = {3-540-40410-4},
+  keywords = {dblp},
+  pages = {16-31},
+  publisher = {Springer},
+  series = {Lecture Notes in Computer Science},
+  timestamp = {2011-07-05T00:00:00.000+0200},
+  title = {Attacking an Obfuscated Cipher by Injecting Faults.},
+  url = {http://dblp.uni-trier.de/db/conf/ccs/ccsdrm2002.html#JacobBF02},
+  volume = 2696,
+  year = 2002
+}
+
+% WB DES cryptanalysis - naked variant, statistical analysis
+@inproceedings{Link:2005:COI:1058430.1059147,
+ author = {Link, Hamilton E. and Neumann, William D.},
+ title = {Clarifying Obfuscation: Improving the Security of White-Box DES},
+ booktitle = {Proceedings of the International Conference on Information Technology: Coding and Computing (ITCC'05) - Volume I - Volume 01},
+ series = {ITCC '05},
+ year = {2005},
+ isbn = {0-7695-2315-3},
+ pages = {679--684},
+ numpages = {6},
+ url = {http://dx.doi.org/10.1109/ITCC.2005.100},
+ doi = {10.1109/ITCC.2005.100},
+ acmid = {1059147},
+ publisher = {IEEE Computer Society},
+ address = {Washington, DC, USA},
+} 
+
+% WB DES - Wyseur cryptanalysis
+@inproceedings{Wyseur:2007:CWD:1784881.1784898,
+ author = {Wyseur, Brecht and Michiels, Wil and Gorissen, Paul and Preneel, Bart},
+ title = {Cryptanalysis of white-box DES implementations with arbitrary external encodings},
+ booktitle = {Proceedings of the 14th international conference on Selected areas in cryptography},
+ series = {SAC'07},
+ year = {2007},
+ isbn = {3-540-77359-2, 978-3-540-77359-7},
+ location = {Ottawa, Canada},
+ pages = {264--277},
+ numpages = {14},
+ url = {http://eprint.iacr.org/2007/104.pdf‎},
+ acmid = {1784898},
+ publisher = {Springer-Verlag},
+ address = {Berlin, Heidelberg},
+ keywords = {DES, cryptanalysis, data encryption standard, obfuscation, white-box cryptography},
+} 
+
