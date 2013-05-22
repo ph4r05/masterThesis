@@ -265,13 +265,15 @@ Introduction here
     with embedded key one should not be able to use it also for decryption and vice versa. This property is especially useful if one want's to use symmetric
     cipher to simulate an asymmetric. But it is important to realize that this goal is difficult to achieve in whitebox context.
     
-    As an example take AES whitebox implementation. Inverting cipher is blackbox context is rather computationally difficult. Using brute-force one would
+    As an example take AES whitebox implementation
+    Inverting the cipher in blackbox context is rather computationally difficult. Using brute-force one would
     need $2^{128}$ operations to invert the cipher. The whitebox context is in contrast to blackbox advantageous for an attacker. One of the problems here is 
     that ShiftRows operation can be very easily canceled in whitebox context and that attacker can execute only particular round of the cipher. 
-    I propose some improvement addressing this problem in section \ref{sec:cipher_invert_improvement}.
+    We propose some improvement addressing this problem in section \ref{sec:cipher_invert_improvement}.
 
     There are 4 columns of state array within one round independent on each other.
-    Thus cipher can be easily inverted running the cipher backwards and finding inversion for each column separately. Thus the main task is to find 
+    Thus cipher can be easily inverted running the cipher backwards and finding inversion for each column separately, assuming $128\times128$ external mixing bijections
+    are $I_{128}$. Thus the task is to find 
     inversion of 32-bit wide function representing one round of the cipher on one column of the state array by running through the space $\text{GF}\left(2^8\right)^4$,
     evaluating the round function and comparing with wanted result.
     
@@ -283,7 +285,7 @@ Introduction here
     to invert WB AES with negligible memory requirements.
 
 \chapter{WBCAR AES using dual ciphers}
-    WBCAR stands for whitebox context attack resistant, meaning cipher implementation should resist attacks like key-extraction, cipher-invertion
+    WBCAR stands for whitebox context attack resistant, meaning cipher implementation should resist attacks like key-extraction, cipher inversion
     and others against attacker in whitebox context.
     
     In this chapter I describe whitebox scheme proposed in \citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers. It is supposed 
@@ -746,7 +748,7 @@ Introduction here
     In whitebox implementation of cipher we have two contrary goals - to minimize table size and to prevent attack in whitebox context. Table size is what puts quite limitations
     in implementation and on security boundaries. In one extreme case we would build look-up table for whole AES for every possible input with total size 
     $\left(2^{128} \cdot 16\right) > 10^{39}$ bytes. This 
-    scheme is no weaker than AES in blackbox context, therefore with same level of security in whitebox context, but rather unfeasible in practice.
+    scheme is no weaker than AES in blackbox context, therefore with the same level of security in whitebox context, but rather unfeasible in practice.
 
     As we seen in BGE attack it is easy to turn random non-linear bijections (input/output encodings), protecting table contents, to affine transformations between rounds of
     cipher, what helps further algebraic analysis, so constructing more complicated non-linear bijections is probably not the way how to solve this problem. Whitebox construction
@@ -1033,7 +1035,9 @@ Introduction here
     \section{Analysis of diffusion layer modification}
     Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger look-up tables. Mainly type 2 tables are affected, previously 
     it was mapping $2^8 \rightarrow 2^{32}$, with cascade of XOR tables to sum $4 \; \times\; 32$-bit values to obtain one column of state array. Now type 2 tables are
-    $2^8 \rightarrow 2^{128}$, with cascade of XORs to obtain whole state column vector. XOR tables to sum result from type 2 tables are now same as used with type 1 tables. 
+    $2^8 \rightarrow 2^{128}$, with cascade of XOR tables to obtain whole state column vector. Cipher with modified structure uses type 1 tables instead of type 2 tables
+    and cascade of XOR tables is working in the same manner as in external encodings in the first and the last round.
+
     Table \ref{tbl:table_sizes} summarizes changes in table sizes of WB AES. From this is visible that
     they come at a substantial price ($215\%$) compared to the original whitebox AES implementation.
     
@@ -1042,15 +1046,15 @@ Introduction here
     \begin{tabular}{ | c | c | c | c | c | c | c | }
 	\hline
 	\multirow{2}{*}{Type}       & \multicolumn{3}{c|}{original}                                       & \multicolumn{3}{c|}{modified}                                           \\ \cline{2-7}
-		                    & \# of tables                  & bit-width         & total size      & \# of tables                    & bit-width             & total size    \\ \hline
-	I			    & $4\cdot4\cdot2=32$            & $8\rightarrow128$ & 131072~B        & $4\cdot4\cdot2=32$              & $8\rightarrow128$     & 131072 B      \\
-	II			    & $4\cdot4\cdot9=144$           & $8\rightarrow32$  & 147456~B        & $4\cdot4\cdot9=144$             & $8\rightarrow128$\clg & 589824~B\clg  \\
-	III			    & $4\cdot4\cdot9=144$           & $8\rightarrow32$  & 147456~B        & $4\cdot4\cdot9=144$             & $8\rightarrow32$      & 147456~B      \\
-	\multirow{2}{*}{IV}	    & $8\cdot6\cdot4\cdot9=1728$    & $8\rightarrow4$   & 221184~B        & $8\cdot3\cdot4\cdot9=864$  \clg & $8\rightarrow4$       & 110592~B\clg  \\ 
+	                            & \# of tables                  & bit-width         & total size      & \# of tables                    & bit-width             & total size    \\ \hline
+	I                           & $4\cdot4\cdot2=32$            & $8\rightarrow128$ & 131072~B        & $4\cdot4\cdot2=32$              & $8\rightarrow128$     & 131072 B      \\
+	II                          & $4\cdot4\cdot9=144$           & $8\rightarrow32$  & 147456~B        & $4\cdot4\cdot9=144$             & $8\rightarrow128$\clg & 589824~B\clg  \\
+	III                         & $4\cdot4\cdot9=144$           & $8\rightarrow32$  & 147456~B        & $4\cdot4\cdot9=144$             & $8\rightarrow32$      & 147456~B      \\
+	\multirow{2}{*}{IV}         & $8\cdot6\cdot4\cdot9=1728$    & $8\rightarrow4$   & 221184~B        & $8\cdot3\cdot4\cdot9=864$  \clg & $8\rightarrow4$       & 110592~B\clg  \\ 
 	                            & $8\cdot4\cdot15\cdot2=960$    & $8\rightarrow4$   & 122880~B        & $8\cdot4\cdot15\cdot2=960$      & $8\rightarrow4$       & 122880~B      \\ 
 	IV                          &                               &                   &                 & $8\cdot4\cdot15\cdot9=4320$\clg & $8\rightarrow4$ \clg  & 552960~B\clg  \\ \hline\hline
 	\multirow{2}{*}{Total}      &                               &                   & 770048~B        &                                 &                       & 1654784~B\clg \\ 
-				    &                               &                   & 752~kB          &                                 &                       & 1616~k  B\clg \\ \hline
+                                    &                               &                   & 752~kB          &                                 &                       & 1616~k  B\clg \\ \hline
     \end{tabular}
     \caption{Whitebox implementation size with/without our modifications}\label{tbl:table_sizes}
     \end{table}
@@ -1109,10 +1113,10 @@ Introduction here
 	Component & Specifications & Additional information \\
 	\hline
 	\hline
-	\multirow{2}{*}{CPU}       & Intel\textsuperscript{\textregistered} Core\textsuperscript{\texttrademark} i5 M 560 @ 2.67GHz & 64-bit, 4~thread cores  \\
-				   & \url{http://ark.intel.com/products/49653}                                                      & 3~MB cache              \\ \hline
-	\multirow{2}{*}{RAM}	   & 2 x 4~GiB SODIMM DDR3 Synchronous 1067 MHz                                                     & \multirow{2}{*}{width: 64 bits}    \\
-				   & Kinston 9905428-005.A02LF									    & 	                      \\ \hline
+	\multirow{2}{*}{CPU} & Intel\textsuperscript{\textregistered} Core\textsuperscript{\texttrademark} i5 M 560 @ 2.67GHz & 64-bit, 4~thread cores  \\
+	                     & \url{http://ark.intel.com/products/49653}                                                      & 3~MB cache              \\ \hline
+	\multirow{2}{*}{RAM} & 2 x 4~GiB SODIMM DDR3 Synchronous 1067 MHz                                                     & \multirow{2}{*}{width: 64 bits}    \\
+	                     & Kinston 9905428-005.A02LF                                                                      &    \\ \hline
     \end{tabular}
     \end{table}
     \end{center}
