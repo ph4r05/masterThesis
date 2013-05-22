@@ -101,6 +101,7 @@
 
 \definecolor{Gray}{gray}{0.85}
 \newcommand{\clg}{\cellcolor{Gray}}
+\newcommand{\eal}{\emph{et~al.}}
 
 % \fancyhead[LE,RO]{\slshape \rightmark}
 % \fancyhead[LO,RE]{\slshape \leftmark}
@@ -249,6 +250,9 @@ Introduction here
     is used by Twofish \citep{Schneier98twofish:a} and in modified version (only adding the key material in the last round) also AES \citep{2002-daemen}. In Key Whitening Attack
     cipher's binary is modified (we are in whitebox context) in such a way that the output of the cipher will be the key material itself. 
     
+    The main goals of a whitebox attack is to extract a key material (usually the symmetric key) or to build inverse of a cipher i.e. perform decryption 
+    with tables for encryption with a embedded key.
+    
     The definition of whitebox cryptography could be:
     ``The challenge that white-box cryptography aims to address is to implement a cryptographic algorithm in 
     software in such a way that cryptographic assets remain secure even when subject to white-box attacks.
@@ -258,10 +262,251 @@ Introduction here
     History overview, oorschot, billet, imposibility of obfuscation, generic attacks on AES, DES
 
     \section{Description of schemes}
-    Schemes used with AES, DES. Some techniques used in whiteboxing the cipher (input output encodings, mixing bijections - diffusion layers).
+    {\footnotesize Schemes used with AES, DES. Some techniques used in whiteboxing the cipher (input output encodings, mixing bijections - diffusion layers).}
+
+    The first whitebox AES implementation, published by Chow~\eal~\citep{Chow02white-boxcryptography} is based on look-up tables implementation, that was 
+    mentioned in original AES paper \citep{2002-daemen}. Note that it is easy to transform AES cipher with embedded encryption key 
+    to a network of look-up tables and to use these computed tables for encryption (or decryption). But this implementation is vulnerable in whitebox context,
+    since it is possible to extract encryption key with algebraic analysis of the look-up tables, recall all building blocks (except key schedule) of AES are key-independent 
+    and publicly available. Thus this look-up tables has to be further protected to resist algebraic attacks. 
+    
+    We are mainly focused on AES-128, for simplicity. The same strategy can be applied also to AES-256.
+
+    For further explanation we will need following definitions:
+
+    \begin{mydef}\label{def:linear_mapping}
+    Linear mapping is mapping $L\left(x\right)$ over $\text{GF}(2)^n$ that satisfies $\forall \; x,y \in \text{GF}(2)^n \; : \; L(x+y) = L(x) + L(y).$
+    \end{mydef}
+    
+    \begin{mydef}\label{def:affine_mapping}
+    Affine mapping is mapping $A(x)$ over $\text{GF}(2)^n$ such that $A(x) = L(x) + c, c \in \text{GF}(2)^n$ and $L(x)$ is linear mapping.
+    \end{mydef}
+
+    \subsection{AES-128}
+    The brief introduction of AES is required for further understanding of whitebox implementation and implementation based on dual AES in section \ref{sec:wb_dual_aes_sec}.
+    
+    AES-128 is a symmetric, iterated, block cipher that maps $128 \rightarrow 128$ bits (block length) using 128-bit encryption key. It has 10 rounds and operates
+    over $4\times4$ byte array. AES works with $\gfe$ and operations used in AES have quite algebraic nature. For each round is generated key material called round keys
+    by key-schedule routine from encryption key. 
+    
+    Key-schedule is not important operation from our perspective and can be abstracted in further descriptions. Important fact about key-schedule is it is reversible i.e. 
+    if we have round keys from 2 consecutive rounds it is possible to derive all other round keys, even encryption key (encryption key is used as round key in the first round).
+    
+    Besides key-schedule there are 4 operations used in main AES body:
+    \begin{itemize}
+     \item \emph{AddRoundKey} adds round keys to the state array. It is simple XOR of two $4\times4$ byte arrays.
+     \item \emph{ShiftRows} performs simple shift of each row of state array to the left, by the row index (indexing from 0).
+     \item \emph{SubByte} is $8 \rightarrow 8$ bijection, the only non-linear operation, realizing 
+	\emph{confusion}\footnote{\emph{Confusion} is a property of secure cipher defined by Shannon \citep{shannon-otp}, it should make relation between ciphertext and symmetric encryption
+	    key complex.}. It uses inversion in $\gfe$.
+     \item \emph{MixColum} is the main \emph{diffusion}\footnote{\emph{Diffusion} is a property of secure cipher defined by Shannon \citep{shannon-otp}, it should make relation between
+	    ciphertext and plaintext complex, dissipating small change into large range. Diffusion contributes to the avalanche effect. } operation. It corresponds to matrix multiplication in $\gfe$. State array column is multiplied 
+	    from left by MixColumn $4 \times 4$ matrix (also denoted as MC). Due to this operation after one round of the cipher, one byte of state array depends on 4 bytes of input state array.
+    \end{itemize}
+    
+    \subsection{AES table implementation}\label{sec:aes_table}
+    Algorithm \ref{alg:AESalg} is AES in a form suitable for whitebox implementation, i.e. some operations were regrouped in such a way that round keys addition 
+    is right before \emph{SubByte} operation. This enables to merge these two operations to one $8\times8$ look-up table as is described in equation \ref{eq:tboxes}.
+    Resulting tables by this construction are called T-boxes.
+    
+    \begin{subequations} \label{eq:tboxes}
+    \begin{align}
+	T^r_{i,j}(x)    &= S\left(x \oplus k^r_{i,j}\right)\\
+	T^{9}_{i,j}(x)  &= S\left(x \oplus k^{9}_{i,j}\right) \oplus k^{10}_{i,j}
+    \end{align}
+    \end{subequations}
+
+    \begin{algorithm}
+        \caption{AES algorithm, form suitable for whitebox implementation}
+	\begin{algorithmic}[1]
+	    \Function{AES}{$plaintext, k$}  \Comment{k is array of round keys}
+	    \State $state \gets plaintext$          \Comment{state is $4 \times 4$ byte array}
+	    \For{$r\gets 0, $ to $8$}
+		\State $\text{ShiftRows}(state)$
+		\State $\text{AddRoundKey}(state, k_{r})$
+		\State $\text{SubByte}(state)$
+		\State $\text{MixColumn}(state)$
+	    \EndFor
+	    \State $\text{ShiftRows}(state)$
+	    \State $\text{AddRoundKey}(state, k_{9})$
+	    \State $\text{SubByte}(state)$
+	    \State $\text{AddRoundKey}(state, k_{10})$
+	    \State \textbf{return} $state$
+	    \EndFunction
+	\end{algorithmic}
+	\label{alg:AESalg}
+    \end{algorithm}
+
+    \emph{ShiftRows} has no counter-part in
+    table implementation, it is the way how tables between rounds are connected together (taking \emph{ShiftRows} into account). 
+    
+    The \emph{MixColumn} is problematic to transform into look-up table
+    since it is $32 \rightarrow 32$ mapping. Naive transformation would take $2^{32}\cdot4 = 16~GB$. Thus linearity of matrix multiplication is used, as
+    illustrates equation \ref{eq:mmul_linearity}. 
+    
+    Let 
+    \begin{equation}
+        MC = \begin{bmatrix} 
+	a_{0,0} & a_{0,1} & a_{0,2} & a_{0,3}  \\
+	a_{1,0} & a_{1,1} & a_{1,2} & a_{1,3}  \\
+	a_{2,0} & a_{2,1} & a_{2,2} & a_{2,3}  \\
+	a_{3,0} & a_{3,1} & a_{3,2} & a_{3,3}
+     \end{bmatrix} 
+     \end{equation}
+
+    Then from linearity holds:
+    \begin{equation} \label{eq:mmul_linearity}
+    \begin{aligned}
+    MC \cdot \begin{bmatrix}
+	x_0\\
+	x_1\\
+	x_2\\
+	x_3
+    \end{bmatrix} &= MC \cdot \begin{bmatrix} x_0 \\ 0   \\ 0    \\ 0   \end{bmatrix} \oplus 
+		     MC \cdot \begin{bmatrix} 0   \\ x_1 \\ 0    \\ 0   \end{bmatrix} \oplus 
+		     MC \cdot \begin{bmatrix} 0   \\ 0   \\ x_2  \\ 0   \end{bmatrix} \oplus
+		     MC \cdot \begin{bmatrix} 0   \\ 0   \\ 0    \\ x_3 \end{bmatrix} \\ 
+                 &= x_0 \cdot \begin{bmatrix} a_{0,0} \\ a_{1,0} \\ a_{2,0} \\ a_{3,0} \end{bmatrix} \oplus
+		    x_1 \cdot \begin{bmatrix} a_{0,1} \\ a_{1,1} \\ a_{2,1} \\ a_{3,1} \end{bmatrix} \oplus
+		    x_2 \cdot \begin{bmatrix} a_{0,2} \\ a_{1,2} \\ a_{2,2} \\ a_{3,2} \end{bmatrix} \oplus
+		    x_3 \cdot \begin{bmatrix} a_{0,3} \\ a_{1,3} \\ a_{2,3} \\ a_{3,3} \end{bmatrix} \\
+		 &= x_0 \cdot MC_0 \oplus x_1 \cdot MC_1 \oplus x_2 \cdot MC_2 \oplus x_3 \cdot MC_3
+    \end{aligned}
+    \end{equation}
+    
+    Thus the $32\rightarrow32$ linear mapping represented by a matrix multiplication is decomposed to 4 $8\rightarrow32$ look-up tables
+    connected by 3 32-bit XOR tables. In further text are tables performing this operation denoted as $T_y$ tables.
+
+    Figure \ref{fig:table_aes} illustrates evaluation of the AES round function using look-up tables for one column of state array.
+
+    \begin{figure*}[!htb]
+    \begin{center}
+    \leavevmode
+    \centerline{\scalebox{1.0}{\includegraphics{AES_table.pdf}}}
+    \end{center}
+    \caption{Table AES implementation - rounds 2--8, taken from \citep{Muir_atutorial}}
+    \label{fig:table_aes}
+    \end{figure*}
+    
+    \subsection{Whitebox AES}
+    As mentioned before, another techniques are needed to protect look-up tables from algebraic attacks. 
+    
+    \paragraph*{Input/output bijections.}
+    One of the techniques used in whitebox implementation is use of \emph{input/output bijections} (also abbreviated as IO bijections).
+    According to Chow~\eal~\citep{Chow02white-boxcryptography} IO bijection is a random $n\rightarrow n$ bijection\footnote{usually $n=4$}. 
+    Consider $n\rightarrow n$ IO~bijections $F_1,\dots,F_k$, they can be \emph{concatenated} to form a $kn \rightarrow kn$ bijection 
+    $F_1||\dots || F_k$. This concatenation enables to build a large bijections with small look-up tables, in a further explanations the size of basic 
+    IO~bijection is $4 \rightarrow 4$.
+    
+    Consider the table implementation of AES as mentioned in the section \ref{sec:aes_table}. To protect tables, each table is wrapped by
+    concatenated IO bijections in such a way the composition of two connected tables cancels the effect of IO bijections as illustrated in an 
+    equation \ref{eq:ioenc_network}.
+    
+    \begin{subequations}\label{eq:ioenc_network}
+    \begin{align}
+        T' &= g \circ T \circ f^{-1} \\
+        R' &= h \circ R \circ g^{-1} \\
+        R' \circ T' &= \left(h \circ R \circ g^{-1}\right) \circ \left(g \circ T \circ f^{-1}\right) = h \circ (R \circ T) \circ f^{-1}
+    \end{align}
+    \end{subequations}
+    
+    Where $T,\; R$ are look-up tables and $g,\; h$ IO bijections realizing confusion step and make analysis of a single table harder.
+    
+    \paragraph*{Mixing bijections.}
+    Another whitebox building block is a \emph{mixing bijection}. It is a linear transformation (represented as a multiplication by a non-singluar mixing bijection matrix)
+    that realizes the diffusion. It is used together with the IO~bijections to increase a security level of the concatenated bijections, since it diffuses a single change
+    in the one sub-bijection to the whole range of the concatenated bijection. In order to fulfill this purpose properly, the mixing bijections has to be constructed
+    in a special way. Zhou~\eal describes in \citep{journals/iacr/XiaoZ02} the algorithm that generates large random non-singular matrices with blocks of a full-rank.
+    The size of the sub-blocks is $4$ what matches size of basic IO bijection what gives good diffusion properties for concatenated bijections. 
+    
+    Note that full-rank property of matrix blocks provides good level of diffusion. It lies somewhere between two extreme cases, random non-singular matrices without any
+    requirements on diffusion power and parity-check matrices of MDS\footnote{$(n, k, d)$-code is Maximum Distance Separable if $d=n-k+1$, \url{http://www.mth.msu.edu/~jhall/classes/codenotes/Linear.pdf}} 
+    codes that has optimal diffusion power (for a linear transformation), but it is harder to generate them systematically. Note that MDS matrices are often uses 
+    as a diffusion element in ciphers.
+    
+    \paragraph*{External input/output encoding.}
+    Consider AES protected with aforementioned whitebox techniques. The possible place where to attack is input and output of the algorithm, since it is not protected 
+    from a whitebox attack. To mitigate this weakness Chow~\eal also introduces \emph{external} encoding that wraps the whole AES. Usually the cipher is not standalone element,
+    but part of a system. This technique helps to tie AES to its context and to prevent from using the cipher separately as an oracle.
+
+    Whitebox implementation computes:
+    \begin{equation}
+	H \circ AES \circ G^{-1}
+    \end{equation}
+    
+    If AES is used as a part of a system, a previous element has to apply $G$ transformation on data before passing them to the WB AES. Similarly, the next element has to apply
+    $H^{-1}$ to cancel effect of the previous transformation. 
+    
+    Usually $G, H$ are defined as a multiplication by $128\times128$-bit matrix followed by the $128 \rightarrow 128$ concatenated bijection. 
+
+    
+    \paragraph*{Table types.} To fully transform AES to WB AES the following 4 table types are needed.
+    As mentioned above, external encoding uses $128\times128$ matrix multiplication to protect input and output of the cipher. 
+    Matrix decomposition technique introduced in section \ref{sec:aes_table} is used to make table implementation feasible. Figure \ref{fig:aes_t1} depicts
+    $8\rightarrow128$ table used in the first and the last round for external encodings.
+
+    \begin{figure*}[!htb]
+    \begin{center}
+    \leavevmode
+    \centerline{\scalebox{1.0}{\includegraphics{AES_T1.pdf}}}
+    \end{center}
+    \caption{Table type I, $8\rightarrow128$ mapping, used for external encoding, taken from \citep{wyseurPhd}}
+    \label{fig:aes_t1}
+    \end{figure*}
+    
+    Recall already mentioned T-boxes in section \ref{sec:aes_table} that performs \emph{SubByte}, \emph{AddRoundKey}. The \emph{MixColumn} operation 
+    is implemented by matrix multiplication decomposition, these $8\times32$ tables are called $T_y$ boxes. In order to save space
+    $T$ and $T_y$ boxes are composed to resulting type II box as illustrates figure \ref{fig:aes_t2}.
+
+    \begin{figure*}[!htb]
+    \begin{center}
+    \leavevmode
+    \centerline{\scalebox{1.0}{\includegraphics{AES_T2.pdf}}}
+    \end{center}
+    \caption{Table type II, $8\rightarrow32$ mapping, taken from \citep{wyseurPhd}}
+    \label{fig:aes_t2}
+    \end{figure*}
+
+    Note $32\times32$ mixing bijection added after the \emph{MixColumn} operation to increase diffusion. To cancel this transformation the table 
+    type 3 is used as illustrates figure \ref{fig:aes_t3_t4}. Also recall matrix multiplication decomposition requires addition operation, this is done
+    by XOR operation, cascade of table type 4 is used for this purpose. Note that performing XOR by table look-up is rather ineffective, but it is required to 
+    protect look-up tables by IO bijections and mixing bijections (to form protected network of look-up tables without revealing true values on 
+    table boundaries).
+    
+    \begin{figure*}[!htb]
+    \begin{center}
+    \leavevmode
+    \centerline{\scalebox{1.0}{\includegraphics{AES_T3_T4.pdf}}}
+    \end{center}
+    \caption{Table type III and IV, taken from \citep{wyseurPhd}}
+    \label{fig:aes_t3_t4}
+    \end{figure*}
+        
+
+    \paragraph*{Overall scheme.}
+    
+    Figure \ref{fig:wbaes} illustrates how looks round function of whitebox AES implementation, for one column, using aforementioned tables.
+    \begin{figure*}
+    \begin{center}
+    \leavevmode
+    \centerline{\scalebox{1.0}{\includegraphics{WBAES_PQ.pdf}}}
+    \end{center}
+    \caption{Whitebox AES implementation - round \#2, based on diagram from \citep{Muir_atutorial}}
+    \label{fig:wbaes}
+    \end{figure*}
+
+    On the diagram on figure \ref{fig:wbaes} are following whitebox functions:
+    \begin{itemize}
+    \item MB stands for Mixing Bijection. It is $32 \times 32$ matrix over $\text{GF}(2)$ representing linear transformation over $\text{GF}(2)$. 
+    $\text{MB}^{-1}_{\{0,1,2,3\}}$ are then column stripes of corresponding MB inverse matrix (the matrix multiplication decomposition).
+    This transformation cancels out within one round. 
+    \item L stands also for Mixing Bijection but in this case it is $8 \times 8$ matrix.
+    \item Q,P. These are random IO bijections. It holds that $P^{r+1}_{i,j} \circ Q^{r}_{i,j} = id$
+    \end{itemize}
+    
 
     \subsection{Cipher invertibility}\label{sec:cipher_invertibility}
-    One of the requirements on whitebox cipher implementation is usually a \emph{non-invertibility}. It means that given a encryption part of the cipher 
+    One of the requirements on the whitebox cipher implementation is usually a \emph{non-invertibility}. It means that given an encryption part of the cipher 
     with embedded key one should not be able to use it also for decryption and vice versa. This property is especially useful if one want's to use symmetric
     cipher to simulate an asymmetric. But it is important to realize that this goal is difficult to achieve in whitebox context.
     
@@ -284,7 +529,7 @@ Introduction here
     We have implemented inversion of WB AES. In non-optimized version it takes 13 hours on my hardware\footnote{For hardware specifications see \ref{appendix:hw_spec}} 
     to invert WB AES with negligible memory requirements.
 
-\chapter{WBCAR AES using dual ciphers}
+\chapter{WBCAR AES using dual ciphers}\label{sec:wb_dual_aes_sec}
     WBCAR stands for whitebox context attack resistant, meaning cipher implementation should resist attacks like key-extraction, cipher inversion
     and others against attacker in whitebox context.
     
@@ -514,15 +759,6 @@ Introduction here
 
 	\subsection{Whitebox AES}
 
-	\begin{figure*}
-	\begin{center}
-	\leavevmode
-	\centerline{\scalebox{1.0}{\includegraphics{WBAES_PQ.pdf}}}
-	\end{center}
-	\caption{Whitebox AES implementation - round \#2, based on diagram from \citep{Muir_atutorial}}
-	\label{fig:wbaes}
-	\end{figure*}
-
 	Whitebox AES is AES implementation based on table look-ups, functions used in AES are stored as look-up tables. Figure \ref{fig:wbaes} shows one round of whitebox AES
 	implementation using look-up tables, protected with whitebox techniques like Mixing Bijections and internal encodings.
 
@@ -569,15 +805,7 @@ Introduction here
 	such construction influences whitebox implementation.
 	
 	In order to generate $61200$ different AES representations it is needed to study AES S-Box affine self-equivalences \citep{Biryukov:2003:TCL:1766171.1766175}. 
-	
-	\begin{mydef}
-	Linear mapping is mapping $L\left(x\right)$ over $\text{GF}(2)^n$ that satisfies $\forall \; x,y \in \text{GF}(2)^n \; : \; L(x+y) = L(x) + L(y).$
-	\end{mydef}
-	
-	\begin{mydef}
-	Affine mapping is mapping $A(x)$ over $\text{GF}(2)^n$ such that $A(x) = L(x) + c, c \in \text{GF}(2)^n$ and $L(x)$ is linear mapping.
-	\end{mydef}
-	
+		
 	\begin{mydef}
 	$n \times n$-bit mapping $S$ is affine self-equivalent if there exist $n \times n$ affine relations $A_1,\;A_2$ such that: 
 	\begin{equation}\label{eq:selfeq}
@@ -665,7 +893,7 @@ Introduction here
 	they can be merged together with L mixing bijection to input/output encodings. Thus for simplicity $A_1, \; A_2$ is omitted from the proof (it is clearly visible 
 	it does not increase resistance against BGE attack - input/output encodings are fully determined in the attack).
 
-	\subsubsection*{Round function - whitebox AES}
+	\paragraph*{Round function - whitebox AES.}
 	There are additional $Q' ,P' $ functions, input and output bijections, for details see \citep{Chow02white-boxcryptography} \citep{Billet:2004:CWB:2080787.2080809}.
 	\begin{subequations}
 	\begin{align} 
@@ -675,7 +903,7 @@ Introduction here
 	\end{align}
 	\end{subequations}
 
-	\subsubsection*{Round function - whitebox dual AES}
+	\paragraph*{Round function - whitebox dual AES.}
 	For simplicity define:
 	\begin{equation}
 	    P^{r \; \prime\prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ P^{r \; \prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
@@ -773,7 +1001,7 @@ Introduction here
     As the AES in standard form is not suitable for WBC implementation, we are proposing to break the backward compatibility with AES (or any other well known cipher)- as it does not have proper structure for whitebox implementation, what is 
     also visible from the fact there are no non-broken whitebox scheme of AES exists nowadays, as far as we know. Whitebox schemes using new techniques to protect cipher implementation
     (but still preserving backward compatibility with the cipher) were successfully cryptanalyzed effectively \citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291, conf/indocrypt/MulderWP10, conf/sacrypt/MulderRP12}.    
-    In literature was already proposed to design a new cipher with whitebox implementation issues in mind \citep{Billet:2004:CWB:2080787.2080809}. 
+    In literature was already proposed to design a new cipher with whitebox implementation issues in mind \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd}. 
     
     In our proposal of a new cipher suitable for WBC implementation we are addressing aforementioned weaknesses. The base of our cipher is AES since it uses widely accepted
     cipher building blocks and structure, it was extensively analyzed and is in general considered as a secure cipher.
