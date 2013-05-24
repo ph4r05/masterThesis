@@ -179,28 +179,67 @@ white box attack resistant cryptography, look up tables form, AES
 
 \chapter{Introduction}
     [TODO] Introduction here
+    Classic ciphers, authentication protocols. Now study of computing in untrusted environment.
 
 \chapter{Area overview}\label{sec:theory}
     
     \section{Overview}
-    [TODO] Overview, setting picture in cryptographic world
-
-    \section{Mobile cryptography}
-    [TODO] Motivation for white box cryptography
-    \begin{itemize}
-     \item computation with encrypted data
-     \item computation with encrypted function
-    \end{itemize}
-
-    \section{Homomorphic encryption}
-    [TODO] Homomorphic encryption follows computation with encrypted data function.
-    Motivation: cloud computation. Short history, recent state of the art...
-    
+    %[TODO] Overview, setting picture in cryptographic world
+    Computing in an untrusted environment is closely related to the notion of \emph{mobile cryptography} \citep{mobile_cryptography} which was established 2 decades ago.
+    It analyzes the security problems raised by the concept of mobility of the executable code. The executable code that acts autonomously on behalf a user in collecting 
+    and processing information is denoted as a \emph{mobile agent}. Mobile cryptography mainly studies the two security threats.
     \begin{enumerate}
-     \item security point of view - optimal
-     \item short description, computing with encrypted data - use slides from OwnTalk
-     \item practical usability
-     \item state of the art practical results
+     \item protection of the host from malicious mobile code
+     \item protection mobile code from the malicious host
+    \end{enumerate}
+    
+    The former threat can be mitigated to a acceptable level with countermeasures like sandboxing/virtualization and code signing. The latter is much difficult to address 
+    and even after 20 years there are no satisfactory techniques to achieve acceptable protection of the code executed on malicious host for a reasonable price.
+    
+    The problem can be solved by using tamper resistant hardware such as cryptographic smart cards. With a device that acts as an oracle it is possible to achieve some
+    level of protection but assumption that such hardware is widely available is false in general, what leads to ideas based on cryptographic primitives.
+    
+    \emph{Obfuscation} is another technique addressing the same problem. Roughly speaking, the major principle is the transformation of the code to a form that is very difficult 
+    to analyze and to modify. The potential attacker should not be able to gain any knowledge from the running program, in the ideal case, while the same functionality 
+    of the program is preserved. Barak~\eal~formalized the notion of obfuscation in \citep{Barak:2012:POP:2160158.2160159}, providing result that it is impossible 
+    to create a generic obfuscator by showing family of functions that are unobfuscatable, i.e. the family of functions always leaking some information. On the other hand
+    later was published first positive result \citep{Lynn04positiveresults} claiming it is possible to construct some provably secure obfuscators for point functions.
+    It was used to obfuscate complex access control functionalities.
+    
+    In practice the obfuscators are used widely as a software protection technique that provides some level of protection from attackers but it lacks some 
+    security proof so it is preferable to use some cryptographic primitives that has been proven secure. 
+    
+ %   \section{Computing with encrypted data/functions}
+\section{Homomorphic encryption}
+    \begin{enumerate}
+     \item cloud motivation
+     \item computing with encrypted data / functions
+     \item multiparty schemes using interaction
+     \item converting arbitrary function to network of boolean functions (or addition/multiplication)
+	\begin{enumerate}
+	 \item depth of the circuit
+	 \item universality vs. depth restriction
+	\end{enumerate}
+    
+%     \section{Mobile cryptography}
+%     [TODO] Motivation for white box cryptography
+%     \begin{itemize}
+%      \item computation with encrypted data
+%      \item computation with encrypted function
+%     \end{itemize}
+%
+%    \section{Homomorphic encryption}
+%     [TODO] Homomorphic encryption follows computation with encrypted data function.
+%    Motivation: cloud computation. Short history, recent state of the art...
+    
+    
+     \item simple schemes - GCD, somewhat homomorphic scheme, bootstraping, noise
+     \item summarize 3 different approaches (integer lattice, approximate GCD, learning with errors)
+     \item special somewhat schemes (unlimited addition, limited multiplication, uses)
+     \item new advances in 2010--2012, noise reduction techniques, modulus switching
+     \item SIMD execution with Chineese Remainder Theorem, slots of plaintext in ciphertext, cyclotomic ring of polynomials
+     \item practical usability, homomorhpic AES implementation
+     \item state of the art practical results - numbers, key, running time
     \end{enumerate}
 
 \chapter{Whitebox cryptography}
@@ -261,8 +300,8 @@ white box attack resistant cryptography, look up tables form, AES
     \section{History}
     % History overview, oorschot, billet, imposibility of obfuscation, generic attacks on AES, DES
     
-    The whitebox cryptography is quite new field of a cryptography. The study of the whitebox implementation of the ciphers started by first 
-    whitebox implementation of the AES \citep{Chow02white-boxcryptography} and DES \citep{Chow02awhite-box} in 2002 by Chow~\eal. 
+    The whitebox cryptography is a quite new field of cryptography. The study of the whitebox implementation of the ciphers started by first 
+    whitebox implementation of AES \citep{Chow02white-boxcryptography} and DES \citep{Chow02awhite-box} by Chow~\eal~in~2002. 
     
     At first the cryptanalysis of DES focused on simplified variant of DES. The first published in 2002 by Jacob~\eal
     uses fault injection \citep{conf/ccs/JacobBF02}, another one published in 2005 by Link\eal. uses statistical analysis \citep{Link:2005:COI:1058430.1059147}.
@@ -1645,7 +1684,7 @@ white box attack resistant cryptography, look up tables form, AES
     \end{center}
     
     \section{Squaring matrix}\label{appendix:sqr_matrix}
-    Here is shown how to compute matrix $Q$ from section \ref{sec:wb_dual_aes} that represents squaring operation.
+    Here is shown how to compute matrix $Q$ from section \ref{sec:wb_dual_aes} that represents squaring operation in $\gfe$. Consider the following proposition:
     
     \begin{myprop}\label{prop:squaring_is_linear}
      $\forall a,b \in \gfe \; : \; \left(a + b\right)^2 = a^2 + b^2$. 
@@ -1679,7 +1718,7 @@ white box attack resistant cryptography, look up tables form, AES
 	    = Q \cdot a
     \end{align*}
     \end{proof}
-    Thus the squaring matrix is $Q$. It holds that $\gfe \simeq \gf^8$ since finite fields with the same number of elements are isomorphic. 
+    Thus the squaring matrix is $Q$ from the proof. It holds that $\gfe \simeq \gf^8$ since finite fields with the same number of elements are isomorphic. 
     We use this isomorphism to obtain matrix $Q$. It is enough to transform polynomial base in $\gfe$ to vector base in $\gf^8$. It is easy to see that:
     \begin{equation*}
      \begin{bmatrix} x^0 & x^{1} & x^{2} & x^{3} & x^{4} & x^{5} & x^{6} & x^{7}\end{bmatrix}_{\gfe} \mapsto \begin{bmatrix} e_1 & e_2 & e_3 & e_4 & e_5 & e_6 & e_7 & e_8\end{bmatrix}_{\gf^8} = I_{8,\;\gf^8}
