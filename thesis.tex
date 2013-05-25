@@ -189,49 +189,49 @@ white box attack resistant cryptography, look up tables form, AES
 
     %The classical cryptography address
     The classical goals the cryptography addresses~are confidentiality, data integrity, authentication~and non-repundation~\citep{Menezes:1996:HAC:548089}.
-    From the data confidentiality perspective the typical scenario is two remote parties, Alice and Bob, want to communicate via untrusted channel, while the 
-    computations on both sides are considered as trusted, an potential attacker resides in a communication link.
+    From the data confidentiality perspective, the typical scenario is two remote parties, Alice and Bob, want to communicate via untrusted channel, while the 
+    computations on both sides are considered as trusted. A potential attacker resides in a communication link.
     A bunch of cryptography primitives addressing security issues in this scenario
     was invented, analyzed and widely used, like symmetric and asymmetric cryptosystems, digital signatures, authentication protocols, etc...
     
     But with the expansion of out-sourced computations and storage we are getting to a situation that Alice does not trust even to Bob, but wants 
-    to use Bob's resources for her purpose. Such outsourcing rises concerns about the loss of a privacy of private data what poses the potential
+    to use Bob's resources for her own purpose. Such outsourcing rises concerns about the loss of privacy of private data what poses the potential
     barrier in adopting cloud services widely. To ensure the privacy, data is encrypted. The major problem with this model 
-    is that in order to evaluate a function over data, e.g. searching in an encrypted database, data has to be decrypted first. This poses another additional 
-    overhead. \emph{Fully homomorhpic encryption} provides a solution for these issues.
+    is that in order to evaluate a function over data, e.g. searching in an encrypted database, data has to be decrypted first. This poses an another additional 
+    overhead. The \emph{Fully homomorphic encryption} provides a solution for these issues.
     
-    Another major part of uses cases is the protecting a private function computed in an untrusted environment. Typical example
-    of the function to be protected is the license code verification embedded in software or it is a software that provides access 
+    Another major part of use cases is the protecting a private function computed in an untrusted environment. A typical example
+    of the function to be protected is the license code verification embedded in a software or it is a software that provides access 
     to some protected material.  The major goal is to protect these
-    functions from analysis, tampering or extraction of a cryptographic material. Software protection techniques like \emph{obfuscation}
+    functions from analysis, tampering or extraction of a cryptographic material. Software protection techniques like an \emph{obfuscation}
     addressing these issues are used in practice. This thesis is devoted to a \emph{whitebox cryptography}, the field of 
-    cryptography that studies the level of security of cryptographic algorithms executed in untrusted environment.
+    cryptography that studies the level of security of cryptographic algorithms executed in an untrusted environment.
 
-    This thesis studies in particular transformation of the AES cipher \citep{2002-daemen} implementation in a such way they provide some
-    level of security when executed in untrusted environment. This transformed implementation has embedded symmetric key inside
-    and the main goal of the transformation is to resist practical attacks attempting its extraction. Thesis covers introduction
-    to whitebox cryptography, describes first such transformation published together with cryptanalysis. It also analyzes the new 
-    proposed transformation that should resist key extraction. The thesis states also a proof that this scheme can be broken 
-    using already existing attack. In the end some improvements are suggested.
+    This thesis studies in particular a transformation of the AES cipher~\citep{2002-daemen} implementation in such a way that they provide some
+    level of security when executed in an untrusted environment. This transformed implementation has embedded a symmetric key inside
+    and the main goal of the transformation is to resist practical attacks attempting its extraction. The thesis covers an introduction
+    to whitebox cryptography, describes a first such transformation published together with cryptanalysis. It also analyzes a new 
+    proposed transformation that should resist a key extraction. The thesis states also a proof that this scheme can be broken 
+    using an already existing attack. In the end, some improvements are suggested.
 
-    Chapter 2 describes mobile cryptography concepts and current state of the art in this field mainly with focus on obfuscation and homomorphic encryption.
-    In chapter 3 the whitebox cryptography is introduced, explaining the basic building blocks used for transformations. The first proposed scheme 
+    Chapter 2 describes mobile cryptography concepts and state of the art in this field mainly with focus on the obfuscation and the homomorphic encryption.
+    In chapter 3 the whitebox cryptography is introduced, followed by an explanation of basic building blocks used for transformations. The first proposed scheme 
     by Chow~\eal~\citep{Chow02white-boxcryptography} is described in detail together with the following cryptanalysis by Billet~\eal~\citep{Billet:2004:CWB:2080787.2080809}.
-    Chapter 4 covers new whitebox scheme for AES by Karroumi~\citep{Karroumi:2010:PWA:2041036.2041060} in a detail. 
-    Description of the schemes and attack implementation follows. 
-    In chapter 5 improvements for whitebox schemes are proposed together with their analysis. The last two chapters are devoted to possible further 
+    Chapter 4 covers a new whitebox scheme for AES by Karroumi~\citep{Karroumi:2010:PWA:2041036.2041060} in a detail. 
+    A description of the schemes and the attack implementation follow. 
+    In chapter 5, improvements for whitebox schemes are proposed with their analysis. The last two chapters are devoted to possible further 
     research directions and conclusion.
 
-    I declare this thesis is my own work, but I consulted the problems and proposed solutions together with people from laboratory of security, 
-    faculty of Informatics form Masaryk University, and from this reason is personal pronoun ``we'' used instead of ``I''.
+    I declare this thesis is my own work, but I consulted the problems and proposed solutions together with people from the Laboratory of Security of
+    Faculty of Informatics of Masaryk University, and from this reason is a personal pronoun ``we'' used instead of ``I''.
 
 \chapter{Area overview}\label{sec:theory}
     
     \section{Overview}
     %[TODO] Overview, setting picture in cryptographic world
-    Computing in an untrusted environment is closely related to the notion of \emph{mobile cryptography} \citep{mobile_cryptography} which was established 2 decades ago.
+    Computing in an untrusted environment is closely related to the notion of \emph{mobile cryptography}~\citep{mobile_cryptography} which was established 2 decades ago.
     It analyzes the security problems raised by the concept of mobility of the executable code. The executable code that acts autonomously on behalf a user in collecting 
-    and processing information is denoted as a \emph{mobile agent}. Mobile cryptography mainly studies the two security threats.
+    and processing information is denoted as a \emph{mobile agent}. Mobile cryptography mainly studies the two security threats:
     \begin{enumerate}
      \item protection of the host from malicious mobile code
      \item protection mobile code from the malicious host
@@ -246,14 +246,15 @@ white box attack resistant cryptography, look up tables form, AES
     \section{Obfuscation}
     
     \emph{Obfuscation} is another technique addressing the same problem. Roughly speaking, the major principle is the transformation of the code to a form that is very difficult 
-    to analyze and to modify. The potential attacker should not be able to gain any knowledge from the running program, in the ideal case, while the same functionality 
-    of the program is preserved. Barak~\eal~formalized the notion of obfuscation in \citep{Barak:2012:POP:2160158.2160159}, providing result that it is impossible 
-    to create a generic obfuscator by showing family of functions that are unobfuscatable, i.e. the family of functions always leaking some information. On the other hand
-    later was published first positive result \citep{Lynn04positiveresults} claiming it is possible to construct some provably secure obfuscators for point functions.
+    to analyze and eventually to modify. The potential attacker should not be able to gain any knowledge from the running program, in the ideal case, while the original functionality 
+    of the program is preserved. Barak~\eal~formalized the notion of obfuscation in~\citep{Barak:2012:POP:2160158.2160159}, providing significant theoretical result
+    that it is impossible 
+    to create a generic obfuscator. They did so by showing the existence of a family of functions that are unobfuscatable, i.e. the family of functions always leaking some information. On the other hand
+    later was published first positive result~\citep{Lynn04positiveresults} claiming it is possible to construct some provably secure obfuscators for point functions.
     It was used to obfuscate complex access control functionalities.
     
-    In practice the obfuscators are used widely as a software protection technique that provides some level of protection from attackers but it lacks some 
-    security proof so it is preferable to use some cryptographic primitives that has been proven secure. 
+    In practice the obfuscators are used widely as a software protection technique that provides some level of a protection from attackers but it lacks some 
+    proof of security so it is preferable to use some cryptographic primitives that has been proven secure under whitebox attacker model.
     
  %   \section{Computing with encrypted data/functions}
 \section{Homomorphic encryption}
@@ -287,7 +288,7 @@ white box attack resistant cryptography, look up tables form, AES
      \item special somewhat schemes (unlimited addition, limited multiplication, uses)
      \item new advances in 2010--2012, noise reduction techniques, modulus switching
      \item SIMD execution with Chineese Remainder Theorem, slots of plaintext in ciphertext, cyclotomic ring of polynomials
-     \item practical usability, homomorhpic AES implementation
+     \item practical usability, homomorphic AES implementation
      \item state of the art practical results - numbers, key, running time
     \end{enumerate}
 
@@ -298,7 +299,7 @@ white box attack resistant cryptography, look up tables form, AES
     In this part of a cryptography we are studying the cryptographic algorithms with a~much stronger attacker model, saying it is executed in a~whitebox context. 
 
 % attacker def
-    \emph{Whitebox context} (also abbreviated as WBC) is itself defined by the attacker model, which was introduced by Chow \emph{et~al.} \citep{Chow02white-boxcryptography} in 2002.
+    \emph{Whitebox context} (also abbreviated as WBC) is itself defined by the attacker model, which was introduced by Chow \emph{et~al.}~\citep{Chow02white-boxcryptography} in 2002.
     An WBC attacker has full control over execution of the particular algorithm. Namely attacker has the following abilities:
     
     \begin{itemize}
@@ -335,7 +336,7 @@ white box attack resistant cryptography, look up tables form, AES
     
     One such whitebox attack is \emph{Key Whitening Attack} \cite{Kerins06acautionary}. Key whitening is technique intended to increase the security of the iterated block cipher.
     It is typically implemented as adding a~key material to the data (usually by simple operation, such as XOR) in the first and the last round. Such key whitening 
-    is used by Twofish \citep{Schneier98twofish:a} and in modified version (only adding the key material in the last round) also AES \citep{2002-daemen}. In Key Whitening Attack
+    is used by Twofish~\citep{Schneier98twofish:a} and in modified version (only adding the key material in the last round) also AES~\citep{2002-daemen}. In Key Whitening Attack
     cipher's binary is modified (we are in whitebox context) in such a~way that the output of the cipher will be the key material itself. 
     
     The main goals of a~whitebox attack is to extract a~key material (usually the symmetric key) or to build an inverse cipher i.e. perform decryption 
@@ -350,25 +351,25 @@ white box attack resistant cryptography, look up tables form, AES
     % History overview, oorschot, billet, imposibility of obfuscation, generic attacks on AES, DES
     
     The whitebox cryptography is a quite new field of cryptography. The study of the whitebox implementation of the ciphers started by first 
-    whitebox implementation of AES \citep{Chow02white-boxcryptography} and DES \citep{Chow02awhite-box} by Chow~\eal~in~2002. 
+    whitebox implementation of AES~\citep{Chow02white-boxcryptography} and DES~\citep{Chow02awhite-box} by Chow~\eal~in~2002. 
     
     At first the cryptanalysis of DES focused on simplified variant of DES. The first published in 2002 by Jacob~\eal
-    uses fault injection \citep{conf/ccs/JacobBF02}, another one published in 2005 by Link\eal. uses statistical analysis \citep{Link:2005:COI:1058430.1059147}.
+    uses fault injection~\citep{conf/ccs/JacobBF02}, another one published in 2005 by Link\eal. uses statistical analysis~\citep{Link:2005:COI:1058430.1059147}.
     Later cryptanalysis of fully encoded variant of DES was published by Wyseur~\eal~in~2007 using truncated differentials.
    
-    The similar case is AES. Two years after publishing whitebox AES scheme the successful cryptanalysis \citep{Billet:2004:CWB:2080787.2080809} was
+    The similar case is AES. Two years after publishing whitebox AES scheme the successful cryptanalysis~\citep{Billet:2004:CWB:2080787.2080809} was
     published by Billet~\eal~that enabled to recover embedded symmetric 
     key in less that $2^{30}$ steps. Later in 2008 the generalized version of the previous attack
-    was published \citep{Michiels:2007:MST:1314276.1314291} by Michiels~\eal~affecting the larger family of ciphers using the same structure as AES.   
+    was published~\citep{Michiels:2007:MST:1314276.1314291} by Michiels~\eal~affecting the larger family of ciphers using the same structure as AES.   
    
-    There were also attempts to fix whitebox AES scheme by adding additional linear mappings and increasing size of the implementation in \citep{XiaoLai}
+    There were also attempts to fix whitebox AES scheme by adding additional linear mappings and increasing size of the implementation in~\citep{XiaoLai}
     as a~response to the Billet's attack.
     The attack using linear equivalence algorithm was published in 2012 \cite{conf/sacrypt/MulderRP12}.
     
-    The another attempt how to fix whitebox AES was introducing random perturbations \citep{journals/iacr/BringerCD06a}, 
-    complicating algebraic cryptanalysis but the effective attack was published by Mulder~\eal \citep{conf/indocrypt/MulderWP10}.
+    The another attempt how to fix whitebox AES was introducing random perturbations~\citep{journals/iacr/BringerCD06a}, 
+    complicating algebraic cryptanalysis but the effective attack was published by Mulder~\eal~\citep{conf/indocrypt/MulderWP10}.
     
-    Last not least a whitebox AES scheme using dual ciphers \citep{Karroumi:2010:PWA:2041036.2041060} was published in 2011. The paper claimed 
+    Last not least a whitebox AES scheme using dual ciphers~\citep{Karroumi:2010:PWA:2041036.2041060} was published in 2011. The paper claimed 
     the scheme is robust enough to resist practical attacks on the implementation what we proved is false. 
     Thesis is mainly focused on this scheme, what is generalization of the first whitebox AES scheme. 
     
@@ -377,7 +378,7 @@ white box attack resistant cryptography, look up tables form, AES
     % Schemes used with AES, DES. Some techniques used in whiteboxing the cipher (input output encodings, mixing bijections - diffusion layers)
 
     The first whitebox AES implementation, published by Chow~\eal~\citep{Chow02white-boxcryptography} is based on the look-up tables implementation, that was also
-    mentioned in original AES paper \citep{2002-daemen}. Note that it is easy to transform AES cipher with embedded encryption key 
+    mentioned in original AES paper~\citep{2002-daemen}. Note that it is easy to transform AES cipher with embedded encryption key 
     to a~network of look-up tables and to use these computed tables for encryption (or decryption). But this implementation is vulnerable in whitebox context,
     since it is possible to extract encryption key with algebraic analysis of the look-up tables, recall all building blocks (except key schedule) of AES are key-independent 
     and publicly available. Thus these look-up tables has to be further protected to resist algebraic attacks. 
@@ -409,9 +410,9 @@ white box attack resistant cryptography, look up tables form, AES
      \item \emph{AddRoundKey} adds round keys to the state array. It is simple XOR of two $4\times4$ byte arrays.
      \item \emph{ShiftRows} performs a simple shift of each row of the state array to the left, by the row index (indexing from 0).
      \item \emph{SubByte} is $8 \rightarrow 8$ bijection, the only non-linear operation, performing 
-	\emph{confusion}\footnote{\emph{Confusion} is a~property of secure cipher defined by Shannon \citep{shannon-otp}, it should make relation between ciphertext and symmetric encryption
+	\emph{confusion}\footnote{\emph{Confusion} is a~property of secure cipher defined by Shannon~\citep{shannon-otp}, it should make relation between ciphertext and symmetric encryption
 	    key complex.}. It uses inversion in $\gfe$.
-     \item \emph{MixColum} is the main \emph{diffusion}\footnote{\emph{Diffusion} is a~property of secure cipher defined by Shannon \citep{shannon-otp}, it should make relation between
+     \item \emph{MixColum} is the main \emph{diffusion}\footnote{\emph{Diffusion} is a~property of secure cipher defined by Shannon~\citep{shannon-otp}, it should make relation between
 	    ciphertext and plaintext complex, dissipating small change into large range. Diffusion contributes to the avalanche effect. } operation. It corresponds to a matrix multiplication in $\gfe$. 
 	    State array column is multiplied from left by MixColumn $4 \times 4$ matrix (also denoted as MC). Due to this operation after one round of the cipher, 
 	    one byte of the state array depends on 4 bytes of the input state array.
@@ -497,7 +498,7 @@ white box attack resistant cryptography, look up tables form, AES
     \leavevmode
     \centerline{\scalebox{1.0}{\includegraphics{AES_table.pdf}}}
     \end{center}
-    \caption{Table AES implementation - rounds 2--8, taken from \citep{Muir_atutorial}}
+    \caption{Table AES implementation - rounds 2--8, taken from~\citep{Muir_atutorial}}
     \label{fig:table_aes}
     \end{figure*}
     
@@ -530,7 +531,7 @@ white box attack resistant cryptography, look up tables form, AES
     Another whitebox building block is a~\emph{mixing bijection}. It is a~linear transformation (represented as a~multiplication by a~non-singluar mixing bijection matrix)
     that realizes the diffusion. It is used together with the the IO~bijections to increase a~security level of the concatenated bijections, since it diffuses a~single change
     in the one sub-bijection to the whole range of the concatenated bijection. In order to fulfill this purpose properly, the mixing bijections has to be constructed
-    in a~special way. Zhou~\eal describes in \citep{journals/iacr/XiaoZ02} the algorithm that generates large random non-singular matrices with blocks of a~full-rank.
+    in a~special way. Zhou~\eal describes in~\citep{journals/iacr/XiaoZ02} the algorithm that generates large random non-singular matrices with blocks of a~full-rank.
     The size of the sub-blocks is $4$ what matches the size of basic IO bijection what gives good diffusion properties for concatenated bijections. 
     
     Note that full-rank property of matrix blocks provides good level of diffusion. It lies somewhere between two extreme cases, random non-singular matrices without any
@@ -564,7 +565,7 @@ white box attack resistant cryptography, look up tables form, AES
     \leavevmode
     \centerline{\scalebox{1.0}{\includegraphics{AES_T1.pdf}}}
     \end{center}
-    \caption{Table type I, $8\rightarrow128$ mapping, used for external encoding, taken from \citep{wyseurPhd}}
+    \caption{Table type I, $8\rightarrow128$ mapping, used for external encoding, taken from~\citep{wyseurPhd}}
     \label{fig:aes_t1}
     \end{figure*}
     
@@ -577,7 +578,7 @@ white box attack resistant cryptography, look up tables form, AES
     \leavevmode
     \centerline{\scalebox{1.0}{\includegraphics{AES_T2.pdf}}}
     \end{center}
-    \caption{Table type II, $8\rightarrow32$ mapping, taken from \citep{wyseurPhd}}
+    \caption{Table type II, $8\rightarrow32$ mapping, taken from~\citep{wyseurPhd}}
     \label{fig:aes_t2}
     \end{figure*}
 
@@ -592,7 +593,7 @@ white box attack resistant cryptography, look up tables form, AES
     \leavevmode
     \centerline{\scalebox{1.0}{\includegraphics{AES_T3_T4.pdf}}}
     \end{center}
-    \caption{Table type III and IV, taken from \citep{wyseurPhd}}
+    \caption{Table type III and IV, taken from~\citep{wyseurPhd}}
     \label{fig:aes_t3_t4}
     \end{figure*}
         
@@ -605,7 +606,7 @@ white box attack resistant cryptography, look up tables form, AES
     \leavevmode
     \centerline{\scalebox{1.0}{\includegraphics{WBAES_PQ.pdf}}}
     \end{center}
-    \caption{Whitebox AES implementation - round \#2, based on diagram from \citep{Muir_atutorial}}
+    \caption{Whitebox AES implementation - round \#2, based on diagram from~\citep{Muir_atutorial}}
     \label{fig:wbaes}
     \end{figure*}
 
@@ -643,7 +644,7 @@ white box attack resistant cryptography, look up tables form, AES
     to invert WB AES with negligible memory requirements.
 
     \section{The BGE attack}\label{sec:bge_attack}
-    The paper \citep{Billet:2004:CWB:2080787.2080809} by Billet~\eal~demonstrated that whitebox AES implementation as described in the previous section is vulnerable
+    The paper~\citep{Billet:2004:CWB:2080787.2080809} by Billet~\eal~demonstrated that whitebox AES implementation as described in the previous section is vulnerable
     to an algebraic attack. The attack is named after initials of authors, the BGE attack. It recovers the symmetric key from whitebox AES implementation and
     negligible memory requirements in $2^{30}$ computational steps.
     
@@ -662,7 +663,7 @@ white box attack resistant cryptography, look up tables form, AES
     \leavevmode
     \centerline{\scalebox{1.0}{\includegraphics{BGE_round.pdf}}}
     \end{center}
-    \caption{AES round function from the BGE attack perspective, taken from \citep{Billet:2004:CWB:2080787.2080809}}
+    \caption{AES round function from the BGE attack perspective, taken from~\citep{Billet:2004:CWB:2080787.2080809}}
     \label{fig:aes_round_bge}
     \end{figure*} 
 
@@ -722,7 +723,7 @@ white box attack resistant cryptography, look up tables form, AES
      solution $\widetilde{Q}$ such that there exists an affine mapping $A$ so that $\widetilde{Q} = Q \circ A$.
     \end{mytheorem}
     
-    For the proof see the original paper \citep{Billet:2004:CWB:2080787.2080809}. In order to recover non-linear part of the IO bijection it is needed to generate
+    For the proof see the original paper~\citep{Billet:2004:CWB:2080787.2080809}. In order to recover non-linear part of the IO bijection it is needed to generate
     the set $\mathcal{S}$ (by evaluating $y_0$ functions) and to apply the theorem.
     
     Note that the set $\mathcal{S}$ contains $256$ functions, but only as look-up tables so the $\beta$ is unknown. One easily verifies the set
@@ -780,15 +781,15 @@ white box attack resistant cryptography, look up tables form, AES
     WBCAR stands for whitebox context attack resistant, meaning cipher implementation should resist attacks like key-extraction, cipher inversion
     and others against attacker in whitebox context.
     
-    In this chapter I describe whitebox scheme proposed in \citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers. It is supposed 
+    In this chapter we describe whitebox scheme proposed in~\citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers. It is supposed 
     that using dual AES, different in each round, will increase security of whitebox implementation of the cipher. Paper says that this modification
-    results in raising BGE attack \citep{Billet:2004:CWB:2080787.2080809} complexity to $2^{91}$ computational steps, making it unfeasible to perform it in practice. It is shown in section
+    results in raising BGE attack~\citep{Billet:2004:CWB:2080787.2080809} complexity to $2^{91}$ computational steps, making it unfeasible to perform it in practice. It is shown in section
     \ref{sec:attacking_dual_aes} that this assumption is false due to existence of an attack we performed.
     
     
     \section{Scheme}
 
-    In the original paper \citep{Karroumi:2010:PWA:2041036.2041060} the explanation how to obtain dual AES ciphers and how to construct mapping from one 
+    In the original paper~\citep{Karroumi:2010:PWA:2041036.2041060} the explanation how to obtain dual AES ciphers and how to construct mapping from one 
     to another is not given. This is
     important part since it plays crucial role in a~proof that this scheme is vulnerable. At first is described generalization of the AES and how to construct
     mappings between them. 
@@ -1007,7 +1008,7 @@ white box attack resistant cryptography, look up tables form, AES
 	\end{equation}
 
 	\subsection{Whitebox Dual AES}\label{sec:wb_dual_aes}
-	The paper describing AES whitebox implementation with use of dual AES \citep{Karroumi:2010:PWA:2041036.2041060}, claimed that this implementation should be harder (in terms of time complexity)
+	The paper describing AES whitebox implementation with use of dual AES~\citep{Karroumi:2010:PWA:2041036.2041060}, claimed that this implementation should be harder (in terms of time complexity)
 	to break using the BGE attack on whitebox AES. On the figure \ref{fig:wbaesdual} is scheme for one round, one column of state array, whitebox dual AES implementation for round 2.
 	According to the original paper, in each
 	column is used different generic AES. This implementation is compatible with default AES, so after computing in dual AES we have to transform the result to default AES
@@ -1019,16 +1020,16 @@ white box attack resistant cryptography, look up tables form, AES
 	\leavevmode
 	\centerline{\scalebox{0.9}{\includegraphics{WBAES_PQ_DUAL.pdf}}}
 	\end{center}
-	\caption{Whitebox Dual AES implementation - round \#2, based on diagram from \citep{Muir_atutorial}}
+	\caption{Whitebox Dual AES implementation - round \#2, based on diagram from~\citep{Muir_atutorial}}
 	\label{fig:wbaesdual}
 	\end{figure*}
 	
 	By changing irreducible polynomial and generator we obtain $30 \cdot 8 = 240$ different generic AES ciphers. The bigger is set of possible ciphers to use, the harder is
-	for attacker to break the dual scheme, since he has to try all possible combinations, according to \citep{Karroumi:2010:PWA:2041036.2041060}. But in 
+	for attacker to break the dual scheme, since he has to try all possible combinations, according to~\citep{Karroumi:2010:PWA:2041036.2041060}. But in 
 	\citep{Karroumi:2010:PWA:2041036.2041060} is assumed there are $61200$ different generic AES ciphers but it is not said how they are constructed and how 
 	such construction influences whitebox implementation.
 	
-	In order to generate $61200$ different AES representations it is needed to study AES S-Box affine self-equivalences \citep{Biryukov:2003:TCL:1766171.1766175}. 
+	In order to generate $61200$ different AES representations it is needed to study AES S-Box affine self-equivalences~\citep{Biryukov:2003:TCL:1766171.1766175}. 
 		
 	\begin{mydef}
 	$n \times n$-bit mapping $S$ is affine self-equivalent if there exist $n \times n$ affine relations $A_1,\;A_2$ such that: 
@@ -1037,7 +1038,7 @@ white box attack resistant cryptography, look up tables form, AES
 	\end{equation}
 	\end{mydef}
 	
-	In \citep{Biryukov:2003:TCL:1766171.1766175} are published effective algorithms for finding linear and affine equivalences for permutations (S-boxes). I have implemented
+	In~\citep{Biryukov:2003:TCL:1766171.1766175} are published effective algorithms for finding linear and affine equivalences for permutations (S-boxes). I have implemented
 	them \footnote{path: implementation/LinearAffineEq.\{h,cpp\}} to verify number of self-equivalences for AES S-Boxes for encryption and decryption algorithm. 
 	This algorithm can be further used to study modified S-boxed or basic building blocks of the cipher (see chapter \ref{sec:twofish_sbox}) for equivalences, what can lead
 	to revealing potential weaknesses.
@@ -1069,7 +1070,7 @@ white box attack resistant cryptography, look up tables form, AES
 	push input mapping $A_1$ through the mixing layer and combine it with $A_2$ from previous round, then we obtain $2040$ different AES 
 	tables evaluating the same function. Note that they are not dual according to definition \ref{def:dual_cipher}, it is just different 
 	table implementation of AES, thus $\Delta = I$. This is potential flaw of whitebox scheme using dual ciphers, since it does not increase
-	security against known attacks at all. This construction is neglected in the original paper \citep{Karroumi:2010:PWA:2041036.2041060}.
+	security against known attacks at all. This construction is neglected in the original paper~\citep{Karroumi:2010:PWA:2041036.2041060}.
 	
 	Layers of mixing bijections (L, MB) cancel between rounds so they can be neglected in pushing $A_1$ to previous round. 
 	%At first consider that in previous and current round we have standard AES, further it will be extended for generic case. 
@@ -1095,8 +1096,8 @@ white box attack resistant cryptography, look up tables form, AES
 	For simplicity in further proofs and description we can assume form \ref{eq:a1_application_1}.
 
     \section{Attacking Dual AES scheme}\label{sec:attacking_dual_aes}
-	According to \citep{Karroumi:2010:PWA:2041036.2041060} whitebox scheme using Dual AES is considered to be more difficult to crack with BGE attack and thus it is consider
-	safer than original scheme proposed in \citep{Chow02white-boxcryptography}. But we show that it is not true. This result was not published yet.
+	According to~\citep{Karroumi:2010:PWA:2041036.2041060} whitebox scheme using Dual AES is considered to be more difficult to crack with BGE attack and thus it is consider
+	safer than original scheme proposed in~\citep{Chow02white-boxcryptography}. But we show that it is not true. This result was not published yet.
 	
 	\begin{myprop}
 	Whitebox Dual AES scheme can be broken with the BGE attack with the same time complexity as Whitebox AES scheme.
@@ -1109,7 +1110,7 @@ white box attack resistant cryptography, look up tables form, AES
 	it does not increase resistance against BGE attack - input/output encodings are fully determined in the attack).
 
 	\paragraph*{Round function - whitebox AES.}
-	There are additional $Q' ,P' $ functions, input and output bijections, for details see \citep{Chow02white-boxcryptography} \citep{Billet:2004:CWB:2080787.2080809}.
+	There are additional $Q' ,P' $ functions, input and output bijections, for details see~\citep{Chow02white-boxcryptography, Billet:2004:CWB:2080787.2080809}.
 	\begin{subequations}
 	\begin{align} 
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right)  &= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot S \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \right) \right) \\
@@ -1199,7 +1200,7 @@ white box attack resistant cryptography, look up tables form, AES
     
     \subsection{Mixing Bijections}
     As described in section \ref{sec:whitebox_aes_scheme_chow} the mixing bijection matrices has to have special form in order to provide sufficient 
-    level of protection. The algorithm described by Zhou~\eal in \citep{journals/iacr/XiaoZ02} to generate matrices with desired properties was implemented.
+    level of protection. The algorithm described by Zhou~\eal in~\citep{journals/iacr/XiaoZ02} to generate matrices with desired properties was implemented.
     
     This part of the implementation is independent on whitebox context and thus can be used separately, to generate matrices with good diffusion properties.
     
@@ -1244,14 +1245,14 @@ white box attack resistant cryptography, look up tables form, AES
     \end{table}
     
     \subsection{Linear and affine equivalences}
-    In order to generate $61200$ different dual AES ciphers, it is needed to study S-box affine self-equivalences, as mentioned in the \citep{Biryukov:2003:TCL:1766171.1766175}.
+    In order to generate $61200$ different dual AES ciphers, it is needed to study S-box affine self-equivalences, as mentioned in the~\citep{Biryukov:2003:TCL:1766171.1766175}.
     The paper also presents effective algorithms for finding linear and affine equivalences on arbitrary $n \rightarrow n$ permutations. 
     
     In order to verify the general form of affine relations for AES S-box (see section \ref{sec:wb_dual_aes}) the mentioned algorithm was implemented. It is independent 
     on the rest of the implementation so it can be used separately. 
     
-    Note the attack on perturbated whitebox AES scheme \citep{conf/indocrypt/MulderWP10} 
-    and the attack on Xiao~\eal~implementation \citep{conf/sacrypt/MulderRP12} uses this algorithm so it is particularly interesting and useful tool. It can be also used to analyze properties
+    Note the attack on perturbated whitebox AES scheme~\citep{conf/indocrypt/MulderWP10} 
+    and the attack on Xiao~\eal~implementation~\citep{conf/sacrypt/MulderRP12} uses this algorithm so it is particularly interesting and useful tool. It can be also used to analyze properties
     of new S-boxes proposed in sections \ref{sec:twofish_sbox} and \ref{sec:improvement_analysis} during a further research.
     
     \subsection{Whitebox AES}
@@ -1330,7 +1331,7 @@ white box attack resistant cryptography, look up tables form, AES
 
     \section{Implementation of the attack}
     The BGE attack as described in the section \ref{sec:bge_attack} was implemented. The implementation exactly follows the description. Since
-    the attack proceeds in steps, the implementation is quite straightforward. It has the same structure as described in the original paper \citep{Billet:2004:CWB:2080787.2080809}.
+    the attack proceeds in steps, the implementation is quite straightforward. It has the same structure as described in the original paper~\citep{Billet:2004:CWB:2080787.2080809}.
     
     The detailed description of the attack implementation is out of scope of the this thesis, for further details please refer to the implementation.
 
@@ -1347,7 +1348,7 @@ white box attack resistant cryptography, look up tables form, AES
     The benchmark of the attack is part of the implementation. The average time needed to break whitebox AES was~$46.8$~s (sample size = 10).
     
     \chapter{Scheme improvement}
-    The BGE attack \citep{Billet:2004:CWB:2080787.2080809} strongly relies on publicly known constants and building blocks used in the AES cipher (MixColumn constants, fixed S-box). 
+    The BGE attack~\citep{Billet:2004:CWB:2080787.2080809} strongly relies on publicly known constants and building blocks used in the AES cipher (MixColumn constants, fixed S-box). 
     This leads us to an idea of turning constant part of cipher into key dependent ones, according to Kerckhoffs's principle. 
 
     It should increase computational complexity of the attack since attacker would have to try
@@ -1364,7 +1365,7 @@ white box attack resistant cryptography, look up tables form, AES
 
     As we seen in BGE attack it is easy to turn random non-linear bijections (input/output encodings), protecting table contents, to affine transformations between rounds of
     cipher, what helps further algebraic analysis, so constructing more complicated non-linear bijections is probably not the way how to solve this problem. Whitebox construction
-    should not solely rely on non-linear bijections \citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291}.
+    should not solely rely on non-linear bijections~\citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291}.
     
     Widely used ciphers nowadays were designed also with the goal to be effectively implemented in a~hardware (one of the criterion in AES contest). 
     It influenced design of the cipher building blocks such as
@@ -1384,8 +1385,8 @@ white box attack resistant cryptography, look up tables form, AES
     
     As the AES in standard form is not suitable for WBC implementation, we are proposing to break the backward compatibility with AES (or any other well known cipher)- as it does not have proper structure for whitebox implementation, what is 
     also visible from the fact there are no non-broken whitebox scheme of AES exists nowadays, as far as we know. Whitebox schemes using new techniques to protect cipher implementation
-    (but still preserving backward compatibility with the cipher) were successfully cryptanalyzed effectively \citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291, conf/indocrypt/MulderWP10, conf/sacrypt/MulderRP12}.    
-    In literature was already proposed to design a~new cipher with whitebox implementation issues in mind \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd}. 
+    (but still preserving backward compatibility with the cipher) were successfully cryptanalyzed effectively~\citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291, conf/indocrypt/MulderWP10, conf/sacrypt/MulderRP12}.    
+    In literature was already proposed to design a~new cipher with whitebox implementation issues in mind~\citep{Billet:2004:CWB:2080787.2080809, wyseurPhd}. 
     
     In our proposal of a~new cipher suitable for WBC implementation we are addressing aforementioned weaknesses. The base of our cipher is AES since it uses widely accepted
     cipher building blocks and structure, it was extensively analyzed and is in general considered as a~secure cipher.
@@ -1398,11 +1399,11 @@ white box attack resistant cryptography, look up tables form, AES
     \end{itemize}
 
     In our proposal, we took inspiration from Twofish \cite{Schneier98twofish:a} cipher which has key dependent S-boxes with rather
-    complicated algebraic representations. As I emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations
+    complicated algebraic representations. As emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations
     more difficult for an attacker. Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
 
     \section{Twofish S-boxes}\label{sec:twofish_sbox}
-    Here observe Twofish S-boxes (from \citep{Schneier98twofish:a}) and their algebraic representation.
+    Here observe Twofish S-boxes (from~\citep{Schneier98twofish:a}) and their algebraic representation.
     \begin{subequations}\label{eq:twofish_sbox}
     \begin{align}
 	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
@@ -1427,7 +1428,7 @@ white box attack resistant cryptography, look up tables form, AES
     In order to avoid this reversing we propose to modify key schedule.
     In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as is done in the BGE attack.
     
-    We suggest to use \emph{bcrypt} \citep{Provos99afuture-adaptable} or \emph{scrypt} \citep{Percival_strongerkey} as a~hash function for generating hash chains. 
+    We suggest to use \emph{bcrypt}~\citep{Provos99afuture-adaptable} or \emph{scrypt}~\citep{Percival_strongerkey} as a~hash function for generating hash chains. 
     We could also use iterated SHA hash function for this purpose, but the main reason we are proposing bcrypt or scrypt is the fact SHA hash been
     very successfully implemented in hardware (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining_web}.
     Also the Bitcoin economy is based on SHA hash function, so there is motivation to build machines specialized on computing SHA hashes - making
@@ -1519,12 +1520,12 @@ white box attack resistant cryptography, look up tables form, AES
     Then would one byte of state array depend on 16 bytes, making round function 128-bit wide.
 
     MDS matrix acts as diffusion element in the cipher, since our cipher is of type substitution-permutation cipher, our MDS matrix 
-    represents invertible linear mapping. The important metric for its security is \emph{branch number} \citep{daemenBranch}, it gives measure on
+    represents invertible linear mapping. The important metric for its security is \emph{branch number}~\citep{daemenBranch}, it gives measure on
     worst case diffusion. If the diffusion matrix has a~maximal possible branch number, it is \emph{optimal}. 
-    AES \citep{2002-daemen}, Twofish \citep{Schneier98twofish:a} and SHARK \citep{shark96} ciphers are using MDS matrices optimizing branch number as 
+    AES~\citep{2002-daemen}, Twofish~\citep{Schneier98twofish:a} and SHARK~\citep{shark96} ciphers are using MDS matrices optimizing branch number as 
     main security measure of diffusion layer.
     
-    For generating such MDS matrices is particularly interesting following proposition from SHARK cipher paper \citep{shark96} (for proof see
+    For generating such MDS matrices is particularly interesting following proposition from SHARK cipher paper~\citep{shark96} (for proof see
     original paper).
     
     \begin{myprop}
@@ -1544,7 +1545,7 @@ white box attack resistant cryptography, look up tables form, AES
 
     In our case we would be interested in $(32,\;16,\;17)$-code, to obtain $16 \times 16$ MDS matrix with wanted properties.
     
-    Another way how to generate MDS matrices with is described in \citep{Roth:1985:GMM:7030.7044} using Cauchy matrices. 
+    Another way how to generate MDS matrices with is described in~\citep{Roth:1985:GMM:7030.7044} using Cauchy matrices. 
 
     It is important to mention that ciphers using MDS matrix as diffusion element usually puts additional requirements on the MDS matrix, also optimizing
     performance and simplicity in hardware implementation. In blackbox context it is usually security/performance trade off. In whitebox context we need
@@ -1565,14 +1566,14 @@ white box attack resistant cryptography, look up tables form, AES
     \end{figure*}
     
     Consider also idea to have key-dependent MDS matrices. If we can generate set $S_{MDS}$ of MDS matrices representing optimal linear mapping, their selection 
-    can be based on key-dependent criteria. Set $S_{MDS}$ can be also extended using following proposition from \citep{journals/iacr/MalikN11}.
+    can be based on key-dependent criteria. Set $S_{MDS}$ can be also extended using following proposition from~\citep{journals/iacr/MalikN11}.
 
     \begin{myprop}
 	Let $B = \left[b_{i,j} \right]_{n \times n},\; b_{i,j} \in \mathbb{F}_q$ an MDS matrix, for an element $e \in \mathbb{F}_q, \; e \neq 0$, $e \cdot B$ is an MDS matrix.
     \end{myprop}
     
-    Having key-dependent diffusion layer also complicates whitebox attacks, namely the BGE attack \citep{Billet:2004:CWB:2080787.2080809} and 
-    the Generic attack by Michiels \citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients (thus key-independent).    
+    Having key-dependent diffusion layer also complicates whitebox attacks, namely the BGE attack~\citep{Billet:2004:CWB:2080787.2080809} and 
+    the Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients (thus key-independent).    
     
     \section{Analysis}\label{sec:improvement_analysis}
     In this chapter we try to analyze suggested scheme improvement from whitebox point of view, particularly we try to mount BGE attack to this modified variant. 
@@ -1601,7 +1602,7 @@ white box attack resistant cryptography, look up tables form, AES
     
     Twofish S-boxes thus increase complexity of proposition 3 from BGE from $2^{24}$ to $2^{40}$. This is still not strong enough, it is highly parallelizable problem.
     In order to increase work needed to mount proposition 3 attack one could redefine key-dependent S-boxes to increase attack complexity to level $2^{128}$ what is larger
-    than best known attack on AES \citep{cryptoeprint:2011:449}. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear S-boxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand 
+    than best known attack on AES~\citep{cryptoeprint:2011:449}. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear S-boxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand 
     S-box space. 
     
     \begin{equation}\label{eq:complex_sbox}
@@ -1630,7 +1631,7 @@ white box attack resistant cryptography, look up tables form, AES
     \end{align}
     \end{subequations}
 
-    We suggest to study linear/affine self-equivalences \citep{Biryukov:2003:TCL:1766171.1766175} during analysis of S-boxes generated by this algorithm.
+    We suggest to study linear/affine self-equivalences~\citep{Biryukov:2003:TCL:1766171.1766175} during analysis of S-boxes generated by this algorithm.
 
     Proposed S-Boxes give us good security margin for the BGE attack, raising computational complexity to $2^{128}$. 
     Pre-computed $s_0$ S-box for all possible key bytes would take $2^8 \cdot 2^{8\cdot13} = 2^{112} > 10^{33}$ bytes. 
@@ -1679,7 +1680,7 @@ white box attack resistant cryptography, look up tables form, AES
     from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so proposition 2 and 3 won't work anymore. This also makes recovering 
     affine parts of I/O encodings unfeasible, using this attack. But proposition 1 still works, random I/O bijections can be converted of affine ones quite easily.
 
-    As noted above, also  Generic attack by Michiels \citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients.
+    As noted above, also  Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients.
     
     \section{Drawbacks}
     By modification of AES design we are coming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
@@ -1693,20 +1694,46 @@ white box attack resistant cryptography, look up tables form, AES
 %     Few words about field, discussion about WB cryptography.
     
 \chapter{Future work}\label{sec:futurework}
-    As a~future work I would like to study blackbox properties of suggested improved cipher. In particular it is worth to study S-box construction, to test
+    As a~future work we would like to study blackbox properties of suggested improved cipher. In particular it is worth to study S-box construction, to test
     it for possible weaknesses. It will be needed to model S-boxes as algebraic equations and to test it for fixed points, for example. One can also study this S-boxes
-    and their differential / linear probability coefficients (measuring resistance of an S-box to differential / linear cryptanalysis). One can test S-boxes 
-    for Square and linear approximation attacks. 
+    and their differential / linear probability coefficients (measuring resistance of an S-box to differential / linear cryptanalysis). Testing S-boxes 
+    for Square and linear approximation attacks are also possible research directions.
     
-    Resistance to the BGE attack results from dependence on 13 round key bytes. If one shows that S-box space is smaller than assumed, it can be vulnerability 
-    that can be exploited by whitebox attack. 
+    Resistance to the BGE attack results from dependence on 13 round key bytes. If one shows that S-box space is smaller than assumed, it can be a vulnerability 
+    that can be exploited by a whitebox attack. Possible, a deeper study of key-dependent S-boxes construction will be needed. One could also analyze key-dependent
+    S-boxes of another ciphers, e.g. Blowfish~\citep{Schneier:1993:DNV:647930.740558}. 
+    
+    We are proposing the systematic generation of MDS matrices in the previous chapter. It would be needed to analyze the size of MDS matrix space and
+    the contribution of the key-dependence to the increasing resistance to attacks.
+    
+    We would like to examine attacks on whitebox implementations, when each round of the cipher is considered as a~single mini-cipher with its own key. Whitebox
+    cipher implementation then would be a network of serially connected mini-ciphers. From this point of view, we would be interested in resistance of the mini-ciphers
+    to linear and differential cryptanalysis.
 
-    I would like to examine attacks on whitebox implementations, when each round of the cipher is considered as a~single mini-cipher with its own key. Whitebox
-    cipher implementation then would be network of serially connected mini-ciphers. From this point of view I would be interested in resistance of the mini-ciphers
-    to linear and differential cryptanalysis. 
+    From the fact the cryptanalysis uses algebraic approach to break the AES based scheme, it would be needed to study schemes with complex algebraic 
+    representation, in order to make the algebraic analysis more difficult. For example an IDEA \citep{Lai:1991:PNB:112331.112375} is a cipher 
+    with complex algebraic representation. 
+    
+    Since the basic building block, look-up tables with XOR function, is vulnerable to recovering non-linear bijections, what enables to mount 
+    a potential algebraic attack, it is needed to come up with new building blocks, resistant to this kind of attacks. Possibly adding some noise or working
+    with real numbers could help in constructing new, probabilistic building blocks.
+    
+    The important part of the further research should be devoted to an analysis of known hard problems and their possible use in whitebox cryptography.
+    Incorporating such hard problem to a cipher on one hand should not limit its proper use, on the another hand it should be difficult for an attacker to break
+    such scheme.     
 
 \chapter{Conclusion}\label{sec:conclusion}   
-    [TODO]
+    This thesis gives an introduction to a computing in an untrusted environment, summarizes current state of the art in this field, focusing 
+    mainly on fully homomorphic encryption and whitebox cryptography.
+    
+    Foundations and explanation of basic building blocks used in whitebox implementations were explained. The thesis further goes through 
+    construction of classical and new whitebox scheme using AES. The proof that scheme using dual ciphers is not more secure than the classical one 
+    was given. This result is new and was not found in the literature before. The thesis also describes implementation of those schemes and 
+    the attack. It also suggests some new improvements that should increase resistance to the algebraic attack, with following analysis of the improvements, but
+    there is still a work to be done toward making whitebox implementation secure. The current state of the art suggests new primitives must be discovered, since
+    to strong whitebox non-broken implementation was published. As the literature \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd} suggest, in order 
+    to design a strong scheme, new and innovative approaches has to be used. It is suggested to design a new cipher, with whitebox implementation pitfalls in mind.
+    This thesis attempted to make a such small step toward this target by modifying the design of AES, introducing key-dependent building blocks.
     
 \appendix
 
