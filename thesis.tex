@@ -229,7 +229,7 @@ white box attack resistant cryptography, look up tables form, AES
     
     \section{Overview}
     %[TODO] Overview, setting picture in cryptographic world
-    Computing in an untrusted environment is closely related to the notion of \emph{mobile cryptography}~\citep{mobile_cryptography} which was established 2 decades ago.
+    Computing in an untrusted environment is closely related to the notion of \emph{mobile cryptography}~\citep{mobile_cryptography} which was established two decades ago.
     It analyzes the security problems raised by the concept of mobility of the executable code. The executable code that acts autonomously on behalf a user in collecting 
     and processing information is denoted as a \emph{mobile agent}. Mobile cryptography mainly studies the two security threats:
     \begin{enumerate}
@@ -237,24 +237,60 @@ white box attack resistant cryptography, look up tables form, AES
      \item protection mobile code from the malicious host
     \end{enumerate}
     
-    The former threat can be mitigated to a acceptable level with countermeasures like sandboxing/virtualization and code signing. The latter is much difficult to address 
-    and even after 20 years there are no satisfactory techniques to achieve acceptable protection of the code executed on malicious host for a reasonable price.
+    The former threat can be mitigated to a acceptable level with countermeasures like sandboxing/virtualization and code signing,
+    what is widely adopted by current anti-virus protection software.
     
-    The problem can be solved by using tamper resistant hardware such as cryptographic smart cards. With a device that acts as an oracle it is possible to achieve some
-    level of protection but assumption that such hardware is widely available is false in general, what leads to ideas based on cryptographic primitives.
+    The latter is much difficult
+    to address. Existing techniques provide protection to some extent, making tampering the code on malicious host difficult for ordinary attacker,
+    but there are no guarantees of protection against very strong and determined attacker with enough resources to invest in the attack.
+    
+    In order to make tampering of the software very difficult, specialized, tamper-resistant hardware is often used.
+    It is designed with security concerns in-mind so that very advanced techniques and a large amount of resources is needed in order to attack such device,
+    making it practically impossible for an ordinary attacker. For an example hardware security modules used by banks or certification 
+    authorities protecting their secret cryptographic material. Another example is a cryptographic smart card, widely used in the use 
+    cases with high security requirements.    
+
+    However tamper resistant hardware is not suitable for many applications, due to it's cost physical nature, e.g. need to be distributed somehow, 
+    can be lost, forgotten, unintentionally damaged, etc...
+    Then it is preferable to use software-based protection techniques due to low cost and its flexibility. The downside of this approach is a limited strength.
     
     \section{Obfuscation}
-    
-    \emph{Obfuscation} is another technique addressing the same problem. Roughly speaking, the major principle is the transformation of the code to a form that is very difficult 
-    to analyze and eventually to modify. The potential attacker should not be able to gain any knowledge from the running program, in the ideal case, while the original functionality 
-    of the program is preserved. Barak~\eal~formalized the notion of obfuscation in~\citep{Barak:2012:POP:2160158.2160159}, providing significant theoretical result
-    that it is impossible 
-    to create a generic obfuscator. They did so by showing the existence of a family of functions that are unobfuscatable, i.e. the family of functions always leaking some information. On the other hand
-    later was published first positive result~\citep{Lynn04positiveresults} claiming it is possible to construct some provably secure obfuscators for point functions.
+    \emph{Obfuscation} is another technique addressing the same problem, protecting the software implementation. 
+    Roughly speaking, the major principle is the transformation of the code to a form that is very difficult 
+    to analyze and eventually to modify. The potential attacker should not be able to gain any knowledge from the running program, 
+    in the ideal case, while the original functionality of the program is preserved.
+
+    The program obfuscation received an attention when Barak~\eal~formalized the notion of obfuscation
+    in~\citep{Barak:2012:POP:2160158.2160159}, providing significant theoretical result
+    that it is impossible to create a generic obfuscator. They did so by showing the existence of a (contrived) family of functions that 
+    are unobfuscatable, i.e. the family of functions always leaking some information. They used assumption of existence of one-way functions.
+
+    On the other hand,
+    later was published first positive result~\citep{Lynn04positiveresults} claiming it is possible to construct some provably 
+    secure obfuscators for point functions, which accept a single input string and reject all other inputs. 
     It was used to obfuscate complex access control functionalities.
     
-    In practice the obfuscators are used widely as a software protection technique that provides some level of a protection from attackers but it lacks some 
-    proof of security so it is preferable to use some cryptographic primitives that has been proven secure under whitebox attacker model.
+    The first positive obfuscation result for a traditional cryptographic functionality (that is significantly more complicated that point functions)
+    was presented by Hohenberger~\eal~\citep{Hohenberger:2007:SOR:1760749.1760767}.
+    They used slightly modified definition of obfuscation in order to construct secure obfuscator for 
+    re-encryption\footnote{This functionality takes a ciphertext for message $m$ encrypted under Alice’s public key and transforms it into a 
+    ciphertext for the same message $m$ under Bob’s public key. \citep{Hohenberger:2007:SOR:1760749.1760767}}.
+
+    The question whether there exist family of potentially interesting functions for which exist provably secure obfuscators and how to construct them
+    is subject of ongoing research. But the work of Goldwasser~\eal~\citep{Goldwasser:2005:IOA:1097112.1097490} suggests it is unlikely. 
+    Namely they state that there exist many natural classes of functions that cannot be obfuscated w.r.t. auxiliary input.
+
+    An \emph{approximate obfuscation} defined by Barak~\eal~\citep{Barak:2012:POP:2160158.2160159} is the relaxation of the functionality
+    requirement of the obfuscated program. They presented impossibility result in the case obfuscated program is required to agree with the original one
+    with probability slightly more than $0.5$ and uniformly sampled input. Recently Bitansky~\eal~\citep{journals/iacr/BitanskyP12} improved
+    this impossibility result by hardening the requirements. Under their definition obfuscated program is allowed to return error on poly($n$)-many inputs,
+    what was the open problem till then.
+    
+    In a practice, the obfuscation is widely used as a software protection technique that provides some level of a protection from attackers but 
+    it often lacks some proof of security. In major cases it is collection of techniques that makes the static and/or run-time analysis of a program
+    significantly more difficult, but it does not rule out the probability of an successful attack by a strong and determined attacker. 
+    A rich collection of current obfuscation techniques, protecting from static and run-time analysis can be found in a dissertation thesis
+    of J. Cappaert \citep{codeObfuscation}. 
     
  %   \section{Computing with encrypted data/functions}
 \section{Homomorphic encryption}
@@ -1736,7 +1772,7 @@ white box attack resistant cryptography, look up tables form, AES
     there is still a work to be done toward making whitebox implementation secure. The current state of the art suggests new primitives must be discovered, since
     no strong whitebox non-broken implementation was published. As the literature \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd} suggest, in order 
     to design a strong scheme, new and innovative approaches has to be used. It is suggested to design a new cipher, with whitebox implementation pitfalls in mind.
-    This thesis attempted to make a such small step toward this target by modifying the design of AES, introducing key-dependent building blocks.
+    This thesis attempted to make such a small step toward this target by modifying the design of AES, introducing key-dependent building blocks.
     
 \appendix
 
