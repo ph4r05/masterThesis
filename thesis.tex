@@ -178,8 +178,52 @@ white box attack resistant cryptography, look up tables form, AES
 %\pagestyle{plain}
 
 \chapter{Introduction}
-    [TODO] Introduction here
-    Classic ciphers, authentication protocols. Now study of computing in untrusted environment.
+%     [TODO] Introduction here
+%     Classic ciphers, authentication protocols. Now study of computing in untrusted environment.
+    
+%     The development and recent advances in 
+    
+    In the last few decades we have been witnessing a development in a field of outsourced computations and storage.
+    The rising prevalence of this computing model slightly changes the classical attacker model 
+    that cryptography used to dealt with, what gave rise to a \emph{mobile cryptography}.
+
+    %The classical cryptography address
+    The classical goals the cryptography addresses~are confidentiality, data integrity, authentication~and non-repundation~\citep{Menezes:1996:HAC:548089}.
+    From the data confidentiality perspective the typical scenario is two remote parties, Alice and Bob, want to communicate via untrusted channel, while the 
+    computations on both sides are considered as trusted, an potential attacker resides in a communication link.
+    A bunch of cryptography primitives addressing security issues in this scenario
+    was invented, analyzed and widely used, like symmetric and asymmetric cryptosystems, digital signatures, authentication protocols, etc...
+    
+    But with the expansion of out-sourced computations and storage we are getting to a situation that Alice does not trust even to Bob, but wants 
+    to use Bob's resources for her purpose. Such outsourcing rises concerns about the loss of a privacy of private data what poses the potential
+    barrier in adopting cloud services widely. To ensure the privacy, data is encrypted. The major problem with this model 
+    is that in order to evaluate a function over data, e.g. searching in an encrypted database, data has to be decrypted first. This poses another additional 
+    overhead. \emph{Fully homomorhpic encryption} provides a solution for these issues.
+    
+    Another major part of uses cases is the protecting a private function computed in an untrusted environment. Typical example
+    of the function to be protected is the license code verification embedded in software or it is a software that provides access 
+    to some protected material.  The major goal is to protect these
+    functions from analysis, tampering or extraction of a cryptographic material. Software protection techniques like \emph{obfuscation}
+    addressing these issues are used in practice. This thesis is devoted to a \emph{whitebox cryptography}, the field of 
+    cryptography that studies the level of security of cryptographic algorithms executed in untrusted environment.
+
+    This thesis studies in particular transformation of the AES cipher \citep{2002-daemen} implementation in a such way they provide some
+    level of security when executed in untrusted environment. This transformed implementation has embedded symmetric key inside
+    and the main goal of the transformation is to resist practical attacks attempting its extraction. Thesis covers introduction
+    to whitebox cryptography, describes first such transformation published together with cryptanalysis. It also analyzes the new 
+    proposed transformation that should resist key extraction. The thesis states also a proof that this scheme can be broken 
+    using already existing attack. In the end some improvements are suggested.
+
+    Chapter 2 describes mobile cryptography concepts and current state of the art in this field mainly with focus on obfuscation and homomorphic encryption.
+    In chapter 3 the whitebox cryptography is introduced, explaining the basic building blocks used for transformations. The first proposed scheme 
+    by Chow~\eal~\citep{Chow02white-boxcryptography} is described in detail together with the following cryptanalysis by Billet~\eal~\citep{Billet:2004:CWB:2080787.2080809}.
+    Chapter 4 covers new whitebox scheme for AES by Karroumi~\citep{Karroumi:2010:PWA:2041036.2041060} in a detail. 
+    Description of the schemes and attack implementation follows. 
+    In chapter 5 improvements for whitebox schemes are proposed together with their analysis. The last two chapters are devoted to possible further 
+    research directions and conclusion.
+
+    I declare this thesis is my own work, but I consulted the problems and proposed solutions together with people from laboratory of security, 
+    faculty of Informatics form Masaryk University, and from this reason is personal pronoun ``we'' used instead of ``I''.
 
 \chapter{Area overview}\label{sec:theory}
     
@@ -199,6 +243,8 @@ white box attack resistant cryptography, look up tables form, AES
     The problem can be solved by using tamper resistant hardware such as cryptographic smart cards. With a device that acts as an oracle it is possible to achieve some
     level of protection but assumption that such hardware is widely available is false in general, what leads to ideas based on cryptographic primitives.
     
+    \section{Obfuscation}
+    
     \emph{Obfuscation} is another technique addressing the same problem. Roughly speaking, the major principle is the transformation of the code to a form that is very difficult 
     to analyze and to modify. The potential attacker should not be able to gain any knowledge from the running program, in the ideal case, while the same functionality 
     of the program is preserved. Barak~\eal~formalized the notion of obfuscation in \citep{Barak:2012:POP:2160158.2160159}, providing result that it is impossible 
@@ -211,6 +257,9 @@ white box attack resistant cryptography, look up tables form, AES
     
  %   \section{Computing with encrypted data/functions}
 \section{Homomorphic encryption}
+    The idea oh homomorphic encryption comes from 
+    
+
     \begin{enumerate}
      \item cloud motivation
      \item computing with encrypted data / functions
@@ -595,7 +644,7 @@ white box attack resistant cryptography, look up tables form, AES
 
     \section{The BGE attack}\label{sec:bge_attack}
     The paper \citep{Billet:2004:CWB:2080787.2080809} by Billet~\eal~demonstrated that whitebox AES implementation as described in the previous section is vulnerable
-    to an algebraic attack. The attack is named after authors, the BGE attack. It recovers the symmetric key from whitebox AES implementation and
+    to an algebraic attack. The attack is named after initials of authors, the BGE attack. It recovers the symmetric key from whitebox AES implementation and
     negligible memory requirements in $2^{30}$ computational steps.
     
     The BGE attack does not analyze look-up tables locally, but instead the whole AES round function is analyzed as a~single look-up table. This has few benefits:
@@ -744,6 +793,21 @@ white box attack resistant cryptography, look up tables form, AES
     important part since it plays crucial role in a~proof that this scheme is vulnerable. At first is described generalization of the AES and how to construct
     mappings between them. 
 
+	\subsection{Ciphers duality}
+	This section introduces notion of dual ciphers used in this chapter. Dual ciphers has interesting properties and are used in construction
+	of the scheme that is described by this chapter. Consider the following definition.
+	
+	\begin{mydef}\label{def:dual_cipher}
+	Two ciphers $E$ and $E'$ are called Dual Ciphers, if they are
+	isomorphic, i.e., if there exist invertible transformations $f$, $g$ and $h$ such
+	that
+
+	\begin{equation} 
+	\forall p, k: E_k(p) = f^{-1}\left(E'_{g(k)}(h(p))\right)
+	\end{equation}
+	where $p$ is the plaintext, and $k$ is the secret key.
+	\end{mydef}
+
 	\subsection{Generic AES}
 	It is possible to generalize AES by changing its irreducible polynomial and generator to obtain generic form of AES.
 
@@ -756,19 +820,6 @@ white box attack resistant cryptography, look up tables form, AES
 
 	It is known that there are $30$ irreducible polynomials over $\gfe$. For each of them there are $8$ possible
 	generators that can be used to generate field and to preserve duality mentioned in the next section.
-
-	\subsection{AES duality}
-
-	\begin{mydef}\label{def:dual_cipher}
-	Two ciphers $E$ and $E'$ are called Dual Ciphers, if they are
-	isomorphic, i.e., if there exist invertible transformations $f()$, $g()$ and $h()$ such
-	that
-
-	\begin{equation} 
-	\forall p, k: E_k(p) = f^{-1}\left(E'_{g(k)}(h(p))\right)
-	\end{equation}
-	where $p$ is the plaintext, and $k$ is the secret key.
-	\end{mydef}
 
 	\subsection{Generic AES duality}
 	Let's assume we have some arbitrary generic AES $\{R(x), \beta \}$. 
@@ -1388,8 +1439,8 @@ white box attack resistant cryptography, look up tables form, AES
 
     \begin{table}
     \begin{center}
-    \begin{tabular}{ l | l }
-% 	\hline
+    \begin{tabular}{ | l | l | }
+ 	\hline    
 	function & hashes per second \\ \hline
 	SHA1     & $63$ G/s \\ \hline
 	MD5      & $180$ G/s \\ \hline
