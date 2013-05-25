@@ -167,7 +167,7 @@
 % END OF ENGLISH ABSTRACT
  
 \begin{ThesisKeyWords}
-white box attack resistant cryptography, look up tables form, AES
+whitebox attack resistant cryptography, AES, dual ciphers, whitebox cipher implementation
 \end{ThesisKeyWords}
 \MainMatter
 \renewcommand{\contentsname}{Table of contents}
@@ -177,17 +177,11 @@ white box attack resistant cryptography, look up tables form, AES
 % with this - there are no decorative lines in page header
 %\pagestyle{plain}
 
-\chapter{Introduction}
-%     [TODO] Introduction here
-%     Classic ciphers, authentication protocols. Now study of computing in untrusted environment.
-    
-%     The development and recent advances in 
-    
+\chapter{Introduction}    
     In the last few decades we have been witnessing a development in a field of outsourced computations and storage.
     The rising prevalence of this computing model slightly changes the classical attacker model 
     that cryptography used to dealt with, what gave rise to a \emph{mobile cryptography}.
 
-    %The classical cryptography address
     The classical goals the cryptography addresses~are confidentiality, data integrity, authentication~and non-repundation~\citep{Menezes:1996:HAC:548089}.
     From the data confidentiality perspective, the typical scenario is two remote parties, Alice and Bob, want to communicate via untrusted channel, while the 
     computations on both sides are considered as trusted. A potential attacker resides in a communication link.
@@ -202,7 +196,7 @@ white box attack resistant cryptography, look up tables form, AES
     
     Another major part of use cases is the protecting a private function computed in an untrusted environment. A typical example
     of the function to be protected is the license code verification embedded in a software or it is a software that provides access 
-    to some protected material.  The major goal is to protect these
+    to some protected material, e.g. copyrighted content.  The major goal is to protect these
     functions from analysis, tampering or extraction of a cryptographic material. Software protection techniques like an \emph{obfuscation}
     addressing these issues are used in practice. This thesis is devoted to a \emph{whitebox cryptography}, the field of 
     cryptography that studies the level of security of cryptographic algorithms executed in an untrusted environment.
@@ -228,7 +222,6 @@ white box attack resistant cryptography, look up tables form, AES
 \chapter{Area overview}\label{sec:theory}
     
     \section{Overview}
-    %[TODO] Overview, setting picture in cryptographic world
     Computing in an untrusted environment is closely related to the notion of \emph{mobile cryptography}~\citep{mobile_cryptography} which was established two decades ago.
     It analyzes the security problems raised by the concept of mobility of the executable code. The executable code that acts autonomously on behalf a user in collecting 
     and processing information is denoted as a \emph{mobile agent}. Mobile cryptography mainly studies the two security threats:
@@ -237,8 +230,8 @@ white box attack resistant cryptography, look up tables form, AES
      \item protection mobile code from the malicious host
     \end{enumerate}
     
-    The former threat can be mitigated to a acceptable level with countermeasures like sandboxing/virtualization and code signing,
-    what is widely adopted by current anti-virus protection software.
+    The former threat can be mitigated to a acceptable level with countermeasures like sandboxing, virtualization and code signing~\citep{Menezes:1996:HAC:548089},
+    what is widely adopted by current anti-virus protection software and operating systems.
     
     The latter is much difficult
     to address. Existing techniques provide protection to some extent, making tampering the code on malicious host difficult for ordinary attacker,
@@ -254,8 +247,8 @@ white box attack resistant cryptography, look up tables form, AES
     can be lost, forgotten, unintentionally damaged, etc...
     Then it is preferable to use software-based protection techniques due to low cost and its flexibility. The downside of this approach is a limited strength.
     
-    \section{Obfuscation}
-    \emph{Obfuscation} is another technique addressing the same problem, protecting the software implementation. 
+    \section{Obfuscation}\label{sec:obfuscation}
+    An \emph{obfuscation} is another technique addressing the same problem, protecting a software implementation. 
     Roughly speaking, the major principle is the transformation of the code to a form that is very difficult 
     to analyze and eventually to modify. The potential attacker should not be able to gain any knowledge from the running program, 
     in the ideal case, while the original functionality of the program is preserved.
@@ -289,11 +282,34 @@ white box attack resistant cryptography, look up tables form, AES
     In a practice, the obfuscation is widely used as a software protection technique that provides some level of a protection from attackers but 
     it often lacks some proof of security. In major cases it is collection of techniques that makes the static and/or run-time analysis of a program
     significantly more difficult, but it does not rule out the probability of an successful attack by a strong and determined attacker. 
-    A rich collection of current obfuscation techniques, protecting from static and run-time analysis can be found in a dissertation thesis
+    A rich collection of state of the art obfuscation techniques, protecting from static and run-time analysis can be found in a dissertation thesis
     of J. Cappaert \citep{codeObfuscation}. 
     
+    The concept of obfuscation is closely related to \emph{computing with private function}.
+
+\section{Computing with encrypted data}
+As mentioned in the introduction, the fundamental question whether data can be manipulated without being 
+decrypted has been attracting attention for a long time. 
+
+The first positive results on this question make use of \emph{interaction}.  
+
+-multiparty security scheme
+-communicational and computational overhead.
+
+Later homomorphic schemes were designed.
+
+\subsection{Interactive schemes}
+It was discovered that with use of \emph{interaction} it is possible to compute functions over data 
+secure multiparty scheme
+
+    
  %   \section{Computing with encrypted data/functions}
-\section{Homomorphic encryption}
+\subsection{Fully homomorphic encryption}
+    
+
+
+
+
     The idea oh homomorphic encryption comes from 
     
 
@@ -377,6 +393,10 @@ white box attack resistant cryptography, look up tables form, AES
     
     The main goals of a~whitebox attack is to extract a~key material (usually the symmetric key) or to build an inverse cipher i.e. perform decryption 
     with tables for encryption with a~embedded key.
+
+    Whitebox cryptography is closely related to the \emph{obfuscation} mentioned in section \ref{sec:obfuscation}. It is also a program transformation,
+    but obfuscation as defined in literature is too restrictive and does not take specific security notios, e.g. cipher invertibility
+    a.k.a. PR-CPA (plaintext recovery under chosen plaintext attack), into account. 
     
     The definition of whitebox cryptography could be:
     ``The challenge that white-box cryptography aims to address is to implement a~cryptographic algorithm in 
@@ -1748,7 +1768,9 @@ white box attack resistant cryptography, look up tables form, AES
 
     From the fact the cryptanalysis uses algebraic approach to break the AES based scheme, it would be needed to study schemes with complex algebraic 
     representation, in order to make the algebraic analysis more difficult. For example an IDEA \citep{Lai:1991:PNB:112331.112375} is a cipher 
-    with complex algebraic representation. 
+    with complex algebraic representation. The design of IDEA is supported by a careful analysis of the interaction and algebraic incompatibilities 
+    of operations across the groups $\left(\mathbb{F}_2^n, \oplus\right)$, $\left(\mathbb{Z}_{2^n}, \boxplus\right)$ 
+    and $\left(\mathbb{Z}^{\ast}_{2^n+1}, \odot\right)$~\citep{Menezes:1996:HAC:548089}.
     
     Since the basic building block, look-up tables with XOR function, is vulnerable to recovering non-linear bijections, what enables to mount 
     a potential algebraic attack, it is needed to come up with new building blocks, resistant to this kind of attacks. Possibly adding some noise or working
@@ -1760,7 +1782,7 @@ white box attack resistant cryptography, look up tables form, AES
 
 \chapter{Conclusion}\label{sec:conclusion}   
     This thesis gives an introduction to a computing in an untrusted environment, summarizes current state of the art in this field, focusing 
-    mainly on fully homomorphic encryption and whitebox cryptography.
+    mainly on the obfuscation, fully homomorphic encryption and whitebox cryptography.
     
     Foundations and the basic building blocks used in whitebox implementations were explained. The thesis further goes through 
     the construction of classical and new whitebox scheme using AES. The proof that scheme using dual ciphers is not more secure than the classical one 
