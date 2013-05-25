@@ -1726,12 +1726,15 @@ white box attack resistant cryptography, look up tables form, AES
     This thesis gives an introduction to a computing in an untrusted environment, summarizes current state of the art in this field, focusing 
     mainly on fully homomorphic encryption and whitebox cryptography.
     
-    Foundations and explanation of basic building blocks used in whitebox implementations were explained. The thesis further goes through 
-    construction of classical and new whitebox scheme using AES. The proof that scheme using dual ciphers is not more secure than the classical one 
+    Foundations and the basic building blocks used in whitebox implementations were explained. The thesis further goes through 
+    the construction of classical and new whitebox scheme using AES. The proof that scheme using dual ciphers is not more secure than the classical one 
     was given. This result is new and was not found in the literature before. The thesis also describes implementation of those schemes and 
-    the attack. It also suggests some new improvements that should increase resistance to the algebraic attack, with following analysis of the improvements, but
+    the attack. The implementation is publicly available so that researches interested in whitebox cryptography could use it, test their new improvements and
+    attacks, since it provides flexible framework for whitebox applications and implemented examples.
+    
+    The thesis also suggests some new improvements that should increase resistance to the algebraic attack, with following analysis of the improvements, but
     there is still a work to be done toward making whitebox implementation secure. The current state of the art suggests new primitives must be discovered, since
-    to strong whitebox non-broken implementation was published. As the literature \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd} suggest, in order 
+    no strong whitebox non-broken implementation was published. As the literature \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd} suggest, in order 
     to design a strong scheme, new and innovative approaches has to be used. It is suggested to design a new cipher, with whitebox implementation pitfalls in mind.
     This thesis attempted to make a such small step toward this target by modifying the design of AES, introducing key-dependent building blocks.
     
