@@ -884,7 +884,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     This step is particularly interesting because of its universality. It could be applied on a different whitebox implementation.
     
     The main goal of this step is to recover non-linear parts of $\left(Q^r_i\right)_{i=0,\dots,3}$. Consider $y_0$ as a~function of $\left(x_0, x_1, x_2, x_3\right)$.
-    If $x_1, x_2, x_3$ are fixed as constants $c_1, c_2, c_3$, it is easy to see that the following holds:
+    If $x_1, x_2, x_3$ are fixed as constants $c_1, c_2, c_3$, it is easy to see that there exist $\alpha, \beta_{c_1,c_2,c_3} \in \gfe$ such that the following holds:
     
     \begin{equation} \label{eq:y0}    
     \begin{aligned}
@@ -918,11 +918,11 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
      solution $\widetilde{Q}$ such that there exists an affine mapping $A$ so that $\widetilde{Q} = Q \circ A$.
     \end{mytheorem}
     
-    For the proof see the original paper~\citep{Billet:2004:CWB:2080787.2080809}. In order to recover non-linear part of the IO bijection it is needed to generate
+    For the proof see the original paper~\citep{Billet:2004:CWB:2080787.2080809}. In order to recover a non-linear part of the IO bijection it is needed to generate
     the set $\mathcal{S}$ (by evaluating $y_0$ functions) and to apply the theorem.
     
     Note that the set $\mathcal{S}$ contains $256$ functions, but only as look-up tables so the $\beta$ is unknown. One easily verifies the set
-    $\mathcal{S}$ together with operation of a function composition form a~group. 
+    $\mathcal{S}$ together with the operation of a function composition form a~group. 
     
     Observe there exists isomorphism $\varphi:\; $
     
@@ -935,8 +935,8 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{center}
     
     Since we don't know the values $\beta$ for the functions in $\mathcal{S}$ the $\varphi$ cannot be constructed directly, however it is possible to 
-    recover $\varphi$ up to unknown linear transformation $L$ i.e. $\psi = L^{-1} \circ \varphi$. Without going into details, the 
-    $\psi$ is determined by finding base functions $f_1,\dots,f_8$ that spans the whole $\mathcal{S}$ under composition. Mapping $\psi$ is then constructed by assigning
+    recover $\varphi$ up to unknown linear transformation $L$ i.e. $\psi = L^{-1} \circ \varphi$. Without going into the details, the 
+    $\psi$ is determined by finding base functions $f_1,\dots,f_8$ that span the whole $\mathcal{S}$ under composition. Mapping $\psi$ is then constructed by assigning
     standard basis vectors $e_1,\dots,e_8 \in \gf^8$ to these functions.
     
     It is then possible to obtain $\widetilde{Q}$ by using the mapping $\psi$ from the theorem \ref{prop:bge1} according to the following formula:
@@ -945,12 +945,12 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{equation}
     
     Note that the value $g\left(0\right)$ is known, the function was evaluated during $\psi$ construction. The term $\psi\left(g\right)$ is also easy to
-    evaluate, since we have constructed mapping $\psi$. Thus in order to recover $\widetilde{Q}$ as a~look-up table we just run over the set $\widetilde{Q}$
+    evaluate, since we have constructed mapping $\psi$. Thus in order to recover $\widetilde{Q}$ as a~look-up table we just run over the set $\mathcal{S}$
     and compute the values of mapping $\widetilde{Q}$ according to the equation \ref{eq:Qtilde}.
     
     \subsection{Recovering the symmetric key}
-    As the rest of the BGE attack is very AES and implementation specific it is not covered in detail. In this phase, we are still in situation as
-    depicted in figure \ref{fig:aes_round_bge} with a difference $\left(Q^r_i\right)_{i=0,\dots,3}$ and $\left(P^{r+1}_i\right)_{i=0,\dots,3}$
+    As the rest of the BGE attack is very AES and implementation specific, it is not covered in detail. In this phase, we are still in situation as
+    is depicted in figure \ref{fig:aes_round_bge} with a difference $\left(Q^r_i\right)_{i=0,\dots,3}$ and $\left(P^{r+1}_i\right)_{i=0,\dots,3}$
     are affine, still matching, bijections. This fact makes further algebraic analysis of round function possible.
     
     Consider following useful proposition:
@@ -961,23 +961,23 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
      \end{equation}
     \end{myprop}
     
-    By using \ref{prop:bge_prop1} one can obtain the linear parts of $Q_1, Q_2, Q_3$ from the knowledge of the $Q_0$ linear part in $2^{16}$ steps by simple
+    By using Theorem \ref{prop:bge_prop1} one can obtain the linear parts of $Q_1, Q_2, Q_3$ from the knowledge of the $Q_0$ linear part in $2^{16}$ steps by simple
     running over $c$ and testing the resulting mapping for linearity in $2^8$ steps. Thus the rest of the attack focuses on $Q_0$ determination.
     
     First of all, the linear part of $Q_0$ up to $\left[\gamma\right], \gamma \in \gfe \setminus \{0\}$ is determined, where $\left[\gamma\right]$ denotes the
-    matrix in $\gf$ corresponding to multiplication by $\gamma$ in $\gfe$, for more details see appendix \ref{appendix:mult_matrix}.
+    matrix in $\gf$ corresponding to multiplication by $\gamma$ in $\gfe$. For more details see appendix \ref{appendix:mult_matrix}.
     
-    Then $\gamma$ and constant part $q_0$ of $Q_0$ are determined. During this steps, the public knowledge of S-boxes and MixColumn matrix coefficients is used.
+    Then $\gamma$ and a constant part $q_0$ of $Q_0$ are determined. During these steps, the public knowledge of S-boxes and MixColumn matrix coefficients is used.
     
     With completely determined $Q_0$ the round keys are extracted.
     The attack ends using the fact the key-schedule of AES is reversible, so from two consecutive round keys one can derive original symmetric key.
     
 \chapter{WBCAR AES using dual ciphers}\label{sec:wb_dual_aes_sec}
-    WBCAR stands for whitebox context attack resistant, meaning cipher implementation should resist attacks like key-extraction, cipher inversion
-    and others against attacker in whitebox context.
+    WBCAR stands for the  whitebox context attack resistant, meaning cipher implementation should resist attacks like key-extraction, cipher inversion
+    and others against attacker in the whitebox context.
     
-    In this chapter we describe whitebox scheme proposed in~\citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers. It is supposed 
-    that using dual AES, different in each round, will increase security of whitebox implementation of the cipher. Paper says that this modification
+    In this chapter we describe a whitebox scheme proposed in~\citep{Karroumi:2010:PWA:2041036.2041060} that make use of AES dual ciphers. It is supposed 
+    that using dual AES, different in each round, will increase security of the whitebox implementation of the cipher. The paper says that this modification
     results in raising BGE attack~\citep{Billet:2004:CWB:2080787.2080809} complexity to $2^{91}$ computational steps, making it unfeasible to perform it in practice. It is shown in section
     \ref{sec:attacking_dual_aes} that this assumption is false due to existence of an attack we performed.
     
@@ -986,11 +986,11 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 
     In the original paper~\citep{Karroumi:2010:PWA:2041036.2041060} the explanation how to obtain dual AES ciphers and how to construct mapping from one 
     to another is not given. This is
-    important part since it plays crucial role in a~proof that this scheme is vulnerable. At first is described generalization of the AES and how to construct
+    important part since it plays a crucial role in a~proof that this scheme is vulnerable. At first is described the generalization of the AES and how to construct
     mappings between them. 
 
 	\subsection{Ciphers duality}
-	This section introduces notion of dual ciphers used in this chapter. Dual ciphers has interesting properties and are used in construction
+	This section introduces a notion of dual ciphers used in this chapter. Dual ciphers have interesting properties and are used in a construction
 	of the scheme that is described by this chapter. Consider the following definition.
 	
 	\begin{mydef}\label{def:dual_cipher}
@@ -1005,17 +1005,17 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{mydef}
 
 	\subsection{Generic AES}\label{sec:genericAES}
-	It is possible to generalize AES by changing its irreducible polynomial and generator to obtain generic form of AES.
+	It is possible to generalize AES by changing its irreducible polynomial and generator to obtain a generic form of AES.
 
-	Generic AES can be represented as a~$\{R(x), \beta \}$, where $R(x) \in \left(\mathbb{Z}/p\mathbb{Z}\right)[x]$ is 
-	irreducible polynomial of degree 8, $\beta \in \gfe$ is a~generator of the field $\gfe$.
+	The generic AES can be represented as a~$\{R(x), \beta \}$, where $R(x) \in \left(\mathbb{Z}/p\mathbb{Z}\right)[x]$ is 
+	a irreducible polynomial of degree 8, $\beta \in \gfe$ is a~generator of the field $\gfe$.
 
-	Default AES (as in NIST standard) in this notation is represented as $\{\{11B\}_x, \{03\}_x\}$. Polynomial is expressed
-	in hexadecimal notation, each bit corresponds to polynomial coefficient, LSB corresponds to constant term.\\
+	Default AES (as in NIST standard \citep{AES-FIPS}) in this notation is represented as $\{\{11B\}_x, \{03\}_x\}$. Polynomial is expressed
+	in the hexadecimal notation. Each bit corresponds to a polynomial coefficient, LSB\footnote{least significant bit} corresponds to constant term.\\
 	Thus $0x11B_{16} = 1 \; 0001 \; 1011_{2} \; \Rightarrow \{11B\}_x \sim x^8+x^4+x^3+x+1$.
 
 	It is known that there are $30$ irreducible polynomials over $\gfe$. For each of them there are $8$ possible
-	generators that can be used to generate field and to preserve duality mentioned in the next section.
+	generators that can be used to generate field and to preserve the duality mentioned in the next section.
 
 	\subsection{Generic AES duality}
 	Let's assume we have some arbitrary generic AES $\{R(x), \beta \}$. 
@@ -1050,7 +1050,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 
 	\paragraph*{Default AES}
 	\emph{ShiftRows}, \emph{AddRoundKey} functions are quite simple and remain same after AES generalization. \emph{SubByte}, \emph{MixColumn} are affected by 
-	generalization, for proper understanding of construction generic AES, description follows.
+	generalization. For proper understanding of construction generic AES, description follows.
 
 	\subparagraph*{SubByte}\label{sec:aes_subbyte}
 	\begin{equation}
@@ -1059,7 +1059,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	x               & \longmapsto A \times x^{-1} \oplus c
 	\end{aligned}
 	\end{equation}
-	where $x^{-1}$ is element inverse in $\gfe$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard.
+	where $x^{-1}$ is element inverse in $\gfe$, A is $8 \times 8$ matrix over $\text{GF}(2)$, c is column vector $\text{GF}(2)^8$. A, c are constants defined in NIST standard \citep{AES-FIPS}.
 
 	Equation for affine transformation used in S-box:
 	\begin{align}
@@ -1110,7 +1110,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 
 	\subparagraph*{MixColumn}
 	    \begin{itemize}
-	    \item columns considered as polynomials over $\gfe$
+	    \item columns of the state array considered as polynomials over $\gfe$
 	    \item $p(x) \cdot c(x) \imod{x^4+1}$\\
 	    where $c(x)$ is fixed polynomial $c(x) = 03x^3+01x^2 + 01x + 02$
 	    \end{itemize}
@@ -1149,7 +1149,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{equation}
 
 	\subparagraph*{MixColumn}
-	MixColumn matrix coefficients are expressed in terms of generator $\beta = 03$.
+	MixColumn matrix coefficients are expressed in terms of the generator $\beta = 03$.
 	\[
 	\begin{bmatrix}
 		    \beta^{25} & \beta^{1} & \beta^{0} & \beta^{0}\\
@@ -1160,7 +1160,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\]
 
 	\paragraph*{Round function - default AES}
-	We consider whole AES round as a~single function $R$ of a~state array. Let's define
+	We consider the whole AES round as a~single function $R$ of a~state array. Let's define
 	\[
 	\begin{bmatrix} 
 	    x_{0,0} & x_{0,1} & x_{0,2} & x_{0,3}\\
@@ -1182,7 +1182,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \bigoplus^3_{l=0} \alpha_{l,j} \cdot S(x_{i,l} \oplus k_{i,l})
 	\end{equation}
 	where $\alpha_{k,j}$ is MixColumn matrix coefficient in $k$-th row and $j$-th column. We are abstracting here \emph{ShiftRows} operation, it won't be needed for our further argumentation.
-	To make it clear here are equations for the first column of state array:
+	To make it clear here are the equations for the first column of the state array:
 
 	{\footnotesize
 	\begin{subequations}
@@ -1196,15 +1196,15 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	where $T_{i,j}(x) = S\left(x \oplus k_{i,j}\right)$.
 
 	\paragraph*{Round function - generic AES}
-	Using aforementioned generic form of \emph{SubByte} and \emph{MixColumn} functions we can define round function also for generic AES in the same way, using base change transformation.
+	Using aforementioned generic form of \emph{SubByte} and \emph{MixColumn} functions we can define round function also for the generic AES in the same way, using base change transformation.
 	From this we define $y_{i,j}$ as a~function with 4 arguments from $\gfe$:
 	\begin{equation}
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) = \bigoplus^3_{l=0} \Delta(\alpha_{l,j}) \cdot \left( \Delta \times A \times \Delta^{-1} \left( \left(x_{i,l} \oplus \Delta\left(k_{i,l}\right) \right)^{-1} \right) \oplus \Delta \left(c\right) \right)
 	\end{equation}
 
 	\subsection{Whitebox Dual AES}\label{sec:wb_dual_aes}
-	The paper describing AES whitebox implementation with use of dual AES~\citep{Karroumi:2010:PWA:2041036.2041060}, claimed that this implementation should be harder (in terms of time complexity)
-	to break using the BGE attack on whitebox AES. On the figure \ref{fig:wbaesdual} is scheme for one round, one column of state array, whitebox dual AES implementation for round 2.
+	The paper describing the AES whitebox implementation with use of the dual AES~\citep{Karroumi:2010:PWA:2041036.2041060}, claimed that this implementation should be more difficult (in terms of time complexity)
+	to break using the BGE attack on the whitebox AES. On the figure \ref{fig:wbaesdual} is scheme for one round, one column of state array, the whitebox dual AES implementation for round 2.
 	According to the original paper, in each
 	column is used different generic AES. This implementation is compatible with default AES, so after computing in dual AES we have to transform the result to default AES
 	with base change transformation $\Delta$.\\
@@ -1219,10 +1219,10 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\label{fig:wbaesdual}
 	\end{figure*}
 	
-	By changing irreducible polynomial and generator we obtain $30 \cdot 8 = 240$ different generic AES ciphers. The bigger is set of possible ciphers to use, the harder is
+	By changing irreducible polynomial and generator we obtain $30 \cdot 8 = 240$ different generic AES ciphers. The bigger is set of possible ciphers to use, the more difficult is
 	for attacker to break the dual scheme, since he has to try all possible combinations, according to~\citep{Karroumi:2010:PWA:2041036.2041060}. But in 
 	\citep{Karroumi:2010:PWA:2041036.2041060} is assumed there are $61200$ different generic AES ciphers but it is not said how they are constructed and how 
-	such construction influences whitebox implementation.
+	such construction influences the whitebox implementation.
 	
 	In order to generate $61200$ different AES representations it is needed to study AES S-Box affine self-equivalences~\citep{Biryukov:2003:TCL:1766171.1766175}. 
 		
@@ -1233,12 +1233,12 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{equation}
 	\end{mydef}
 	
-	In~\citep{Biryukov:2003:TCL:1766171.1766175} are published effective algorithms for finding linear and affine equivalences for permutations (S-boxes). I have implemented
-	them \footnote{path: implementation/LinearAffineEq.\{h,cpp\}} to verify number of self-equivalences for AES S-Boxes for encryption and decryption algorithm. 
+	In~\citep{Biryukov:2003:TCL:1766171.1766175} are published effective algorithms for finding linear and affine equivalences for permutations (S-boxes). We have implemented
+	them \footnote{path: implementation/LinearAffineEq.\{h,cpp\}} to verify number of self-equivalences for AES S-Boxes for an encryption and a decryption algorithm. 
 	This algorithm can be further used to study modified S-boxed or basic building blocks of the cipher (see chapter \ref{sec:twofish_sbox}) for equivalences, what can lead
 	to revealing potential weaknesses.
 	
-	Algorithm found $2040$ affine self-equivalences, together with $30$ possible irreducible polynomials there are $61200$ dual ciphers.
+	The algorithm found $2040$ affine self-equivalences. Together with $30$ possible irreducible polynomials there are $61200$ dual ciphers.
 	Biryukov \emph{et~al.} derived general expressions for $A_1,\;A_2$:
 	\begin{subequations}
 	\begin{align}
@@ -1249,30 +1249,30 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	
 	Where
 	\begin{itemize}[leftmargin=5em]
-	 \item[{$A$}] is fixed affine mapping from AES S-box definition (see section \ref{sec:aes_subbyte}), $A^{-1}$ it's inverse.
-	 \item[{$[a]$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing \emph{multiplication} by $a \in \gfe \setminus \{0\}$ in $\gfe$. 
-	    From the fact $\gf^8 \simeq \gfe$ (all finite fields with same number of elements are isomorphic), multiplication is
-	    linear transformation in $\gfe$, it can be expressed in matrix form. Refer to \ref{appendix:mult_matrix} to see how to construct such matrix.
-	 \item[{$Q$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing \emph{squaring} in $\gfe$. Squaring is \emph{linear} operation
-	    in $\gfe$ so it is possible to represent it as a~matrix. Refer to \ref{appendix:sqr_matrix} for construction and proof. Note that 
+	 \item[{$A$}] is a fixed affine mapping from AES S-box definition (see section \ref{sec:aes_subbyte}), $A^{-1}$ it's inverse.
+	 \item[{$[a]$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing a \emph{multiplication} by $a \in \gfe \setminus \{0\}$ in $\gfe$. 
+	    From the fact $\gf^8 \simeq \gfe$ (all finite fields with same number of elements are isomorphic), the multiplication is
+	    linear transformation in $\gfe$, it can be expressed in a matrix form. Refer to \ref{appendix:mult_matrix} to see how to construct such matrix.
+	 \item[{$Q$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing \emph{squaring} in $\gfe$. Squaring is a \emph{linear} operation
+	    in $\gfe$ so it is possible to represent it as a~matrix. Refer to appendix \ref{appendix:sqr_matrix} for the construction and the proof. Note that 
 	    $Q^8 = I \Rightarrow Q^{-i} = Q^{8-i}$. Thus there are 8 different powers of Q, $Q^{i}, \; i \in [0,7]$.
 	\end{itemize}
 	
-	It is visible that with general expressions we can obtain $8 \cdot 255 = 2040$ different 
-	$A_1,\;A_2$ relations\footnote{by running through possible values for $a,i$ } confirming output of the algorithm. 
+	It is visible that with the general expressions we can obtain $8 \cdot 255 = 2040$ different 
+	$A_1,\;A_2$ relations\footnote{by running through possible values for $a,i$ } confirming the output of the algorithm. 
 	
-	Observe that by inserting $A_1,\;A_2$ before and after S-Box the cipher is not affected. Note that $A_1$ is linear, this can be used to 
-	push input mapping $A_1$ through the mixing layer and combine it with $A_2$ from previous round, then we obtain $2040$ different AES 
-	tables evaluating the same function. Note that they are not dual according to definition \ref{def:dual_cipher}, it is just different 
-	table implementation of AES, thus $\Delta = I$. This is potential flaw of whitebox scheme using dual ciphers, since it does not increase
+	Observe that by inserting $A_1,\;A_2$ before and after S-Box the cipher is not affected. Note that $A_1$ is linear, this fact can be used to 
+	push the input mapping $A_1$ through the mixing layer and combine it with $A_2$ from the previous round, then we obtain $2040$ different AES 
+	tables evaluating the same function. Note that they are dual, but with identity isomorphism, it is just a different 
+	table implementation of AES, thus $\Delta = I$. This is a potential flaw of the whitebox scheme using dual ciphers, since it does not increase
 	security against known attacks at all. This construction is neglected in the original paper~\citep{Karroumi:2010:PWA:2041036.2041060}.
 	
-	Layers of mixing bijections (L, MB) cancel between rounds so they can be neglected in pushing $A_1$ to previous round. 
+	The layers of mixing bijections (L, MB) cancel between rounds so they can be neglected in pushing $A_1$ to the previous round. 
 	%At first consider that in previous and current round we have standard AES, further it will be extended for generic case. 
-	Recall $A_2\left(S\left(A_1\left(x\right)\right)\right) = S(x)$. Input to S-box is output of previous round, so apply $A_1$ on previous round.
+	Recall $A_2\left(S\left(A_1\left(x\right)\right)\right) = S(x)$. An input to S-box is output of previous round, so apply $A_1$ on previous round.
 	It is shown only for one column (equation \ref{eq:a1_application}), others are analogical. It is easy to verify that 
 	$\left[a\right] \cdot Q^i \cdot \left[c\right] = \left[c^{2^{i}}\right] \cdot \left[c\right] \cdot Q^i$. 
-	Redefine $T_r(x) = A_2^r(S(x \oplus k))$ to take affine relations into account, where $k$ is particular round key byte. Then we can write:
+	Redefine $T_r(x) = A_2^r(S(x \oplus k))$ to take the affine relations into account, where $k$ is a particular round key byte. Then we can write:
 
 	% A_1^{r+1, i}(x) &= [l] \cdot Q^k (x)
 	
@@ -1286,26 +1286,26 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{align}
 	\end{subequations}}
 	
-	This gives us different tables for AES round function when using different $A_1,\;A_2$ relations. Note that table of type 2 with $A_1$ pushed from next round 
+	This gives us different tables for the AES round function when using different $A_1,\;A_2$ relations. Note that table of type II with $A_1$ pushed from next round 
 	is still the same, no matter which form of equation \ref{eq:a1_application} is used, due to linearity of $A_1$. 
 	For simplicity in further proofs and description we can assume form \ref{eq:a1_application_1}.
 
     \section{Attacking Dual AES scheme}\label{sec:attacking_dual_aes}
-	According to~\citep{Karroumi:2010:PWA:2041036.2041060} whitebox scheme using Dual AES is considered to be more difficult to crack with BGE attack and thus it is consider
-	safer than original scheme proposed in~\citep{Chow02white-boxcryptography}. But we show that it is not true. This result was not published yet.
+	According to~\citep{Karroumi:2010:PWA:2041036.2041060} the whitebox scheme using dual AES is considered to be more difficult to crack with the BGE attack and thus it is consider
+	safer than an original scheme proposed in~\citep{Chow02white-boxcryptography}. But we show that it is not true. This result has not been published yet.
 	
 	\begin{myprop}
-	Whitebox Dual AES scheme can be broken with the BGE attack with the same time complexity as Whitebox AES scheme.
+	Whitebox Dual AES scheme can be broken with the BGE attack with the same time complexity as the whitebox AES scheme.
 	\end{myprop}
 
 	\begin{proof}
-	Let's define round function for whitebox AES and for whitebox dual AES and compare it. 
+	Let's define a round function for the whitebox AES and for the whitebox dual AES and compare them. 
 	Note that MB mixing bijections are left out since their effect is canceled within one round. If we also assume use of $A_1, \; A_2$ affine relations,
 	they can be merged together with L mixing bijection to input/output encodings. Thus for simplicity $A_1, \; A_2$ is omitted from the proof (it is clearly visible 
-	it does not increase resistance against BGE attack - input/output encodings are fully determined in the attack).
+	it does not increase resistance against the BGE attack - input/output encodings are fully determined in the attack).
 
 	\paragraph*{Round function - whitebox AES.}
-	There are additional $Q' ,P' $ functions, input and output bijections, for details see~\citep{Chow02white-boxcryptography, Billet:2004:CWB:2080787.2080809}.
+	$Q' ,P' $ functions represent IO bijections, for details see~\citep{Chow02white-boxcryptography, Billet:2004:CWB:2080787.2080809}.
 	\begin{subequations}
 	\begin{align} 
 	y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right)  &= Q^{r \; \prime}_{i,j}\left( \bigoplus^3_{l=0} \alpha_{l,j} \cdot S \left(P^{r \; \prime}_{i,l}\left(x_{i,l}\right) \right) \right) \\
@@ -1319,7 +1319,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\begin{equation}
 	    P^{r \; \prime\prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ P^{r \; \prime}_{i,j} = \left(\Delta^{r-1}\right)^{-1} \circ (L^{r}_{j})^{-1} \circ P^{r}_{i,j} \label{eq:ioencoding_abstract_p}
 	\end{equation}
-	Also we have to distinguish in which dual AES is element encoded, so define $x^{\Delta}$ as a~element of the dual AES which base change matrix is $\Delta$ from standard AES field. 
+	Also we have to distinguish in which dual AES is element encoded, so define $x^{\Delta}$ as an~element of the dual AES which base change matrix is $\Delta$ from standard AES field. 
 	The same holds for inversion operation $^{-1}$. Denote $^{-1^{\Delta}}$ inversion in field of dual AES which has base change matrix $\Delta$.
 	
 	For simplicity assume that $\Delta = \Delta^r$ for round $r$ if it is obvious from context and is not defined otherwise.
@@ -1337,16 +1337,16 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{align}
 	\end{subequations}
 
-	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking whitebox AES breaks whitebox dual AES scheme. 
+	Now it is easy to see whitebox dual AES correctness, moreover it is visible that the same attack breaking the whitebox AES breaks the whitebox dual AES scheme as well 
 
-	Transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible due to base change matrix properties and fields we are computing in.
+	A transformation from \ref{eq:wb_dual_aes_r_proof1} to \ref{eq:wb_dual_aes_r_proof2} is possible due to base change matrix properties and fields we are computing in.
 	\begin{align}
 	    \forall x,y \in \gfe \; : \; y = x^{-1} \Rightarrow  \Delta y = \left( \Delta x \right)^{-1^{\Delta}}
 	\end{align}
 	Note that element inversion $\gfe$ has changed from one field to another.
 
 	Now if we compare equations \ref{eq:whitebox_aes_roud} and \ref{eq:wb_dual_aes_r_prooffinal}, they are very similar, 
-	the only difference here is the application of base change matrix $\Delta$.
+	the only difference here is the application of the base change matrix $\Delta$.
 
 	Here we can do the similar thing we did in equations \ref{eq:ioencoding_abstract_q}, \ref{eq:ioencoding_abstract_p} where we composed
 	two transformations, non-linear and linear to non-linear transformation, with equation \ref{eq:wb_dual_aes_r_prooffinal}. 
@@ -1355,57 +1355,58 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\begin{subequations}
 	\begin{align}
 	    Q^{r \; \prime\prime}_{i,j} &= Q^{r \; \prime}_{i,j} = Q^{r}_{i,j} \circ \Delta = Q^{r}_{i,j} \circ L^{r+1}_{j} \circ \Delta \\
-	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}       \circ \Delta \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \\
-	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime\prime}_{i,j} \circ R_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_dual_aes_round}
+	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime}_{i,j}       \circ \Delta \circ R_{i,j}^{\prime}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \\
+	    y_{i,j}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) &= Q^{r \; \prime\prime}_{i,j} \circ R_{i,j}^{\prime}\left(x_{i,0}, x_{i,1}, x_{i,2}, x_{i,3}\right) \label{eq:whitebox_dual_aes_round}
 	\end{align}
 	\end{subequations}
 
-	Now it is evident that equations for whitebox AES \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_round} are the same, the only difference is only in non-linear 
-	transformations $Q$, but it is important they are both non-linear. 
+	Now it is evident that equations for whitebox AES \ref{eq:whitebox_aes_roud} and \ref{eq:whitebox_dual_aes_round} are the same, the only differences are only in non-linear 
+	transformations $Q$, $P$ (inside $R^{\prime}$), but it is important they are both non-linear.
 
-	Conclusion is if attack can break whitebox AES scheme with round function \ref{eq:whitebox_aes_roud} it can also break whitebox dual AES scheme. During the attack is transformation $Q$ 
-	fully determined, we verified that if Dual AES scheme is used, transformation $Q$ is the exact form as described above.
+	Conclusion is if the attack can break the whitebox AES scheme with the round function \ref{eq:whitebox_aes_roud}, it can also break the whitebox dual AES scheme. During the attack is transformation $Q$ 
+	fully determined, we verified that if the dual AES scheme is used, transformation $Q$ is of the exact form as described above.
 	\end{proof}
 
     \section{Implementation of the cipher}
 %    [TODO] Cipher implementation description, generalization of oorschot design. Mixing bijections.
     As a implementation part of this thesis, 2 whitebox schemes were implemented.
-    The scheme using dual AES was chosen to be implemented, since in the time of making this decision there was no published cryptanalysis
-    of this scheme and it had interesting construction. The fact it is generalization of the original whitebox AES scheme
+    The scheme using dual AES was chosen to be implemented, since in time of making this decision there was no published cryptanalysis
+    of this scheme and it had interesting construction. The fact it is a generalization of the original whitebox AES scheme
     published by Chow~\eal\ is an additional benefit what simplifies the implementation.
     
     \subsection{NTL library}
     Recall AES cipher uses finite fields algebra extensively, namely in $\gf$ and $\gfe$. For this reason the library
     NTL\footnote{NTL is a high-performance, portable C++ library providing data structures and algorithms for manipulating signed, arbitrary length integers, 
 	and for vectors, matrices, and polynomials over the integers and over finite fields. \url{http://www.shoup.net/ntl/}} was selected
-    as a cornerstone of this implementation. It enables both an effective computation in the finite fields and to write simple, understandable and easy-to-read
+    as a cornerstone of this implementation. It enables both an effective computation in the finite fields and to write a simple, understandable and easy-to-read
     source code. 
     
     Besides NTL there was no need to use any other math library.
     
     \subsection{Generic AES}
-    In order to be able to implement whitebox AES implementation, it was necessary to implement the basic building blocks of the AES as described in
+    In order to be able to implement the whitebox AES, it was necessary to implement the basic building blocks of the AES as described in
     previous chapters (such as S-boxes, MixColumn, etc...), using the NTL library. It was preferred to implement it from the scratch, according to the specification,
     rather than taking existing implementations. The emphasis was put on a simple and extendable source code, rather than optimized and difficult to understand.
     The implementation is publicly available so that other researchers could use it, e.g. for experimenting with their own transformations. This was also 
     the reason why to write it from the scratch.
  
-    The another reason was the fact that AES implementations work with fixed finite field (as generated by irreducible polynomial and a generator - according 
-    to the AES specifications) so the algebraic nature of the operations was not clear from the code anymore, because of various optimizations. Due to the fact
-    dual AES scheme uses generalized AES, it was needed to generate such AES instances with changed irreducible polynomial and the generator. 
+    The another reason was the fact that AES implementations work with fixed finite field (as generated by an irreducible polynomial and a generator - according 
+    to the AES specifications) so the algebraic nature of the operations is not clear from the code anymore, because of various optimizations. Due to the fact
+    dual AES scheme uses generalized AES, it was needed to generate such AES instances with changed irreducible polynomial and generator. 
     
-    The output from the key-schedule (generated by generic AES) was also required by whitebox implementation.
+    The output from the key-schedule (generated by generic AES) was also required by the whitebox implementation, because the S-boxes with an embedded symmetric key
+    are generated during the construction.
     
     \subsection{Mixing Bijections}\label{sec:mixingBijectionsImpl}
-    As described in section \ref{sec:whitebox_aes_scheme_chow} the mixing bijection matrices has to have special form in order to provide sufficient 
+    As described in section \ref{sec:whitebox_aes_scheme_chow} the mixing bijection matrices have to have special form in order to provide a sufficient 
     level of protection. The algorithm described by Zhou~\eal\ in~\citep{journals/iacr/XiaoZ02} to generate matrices with desired properties was implemented.
     
     This part of the implementation is independent on whitebox context and thus can be used separately, to generate matrices with good diffusion properties.
     
-    In order to implement mentioned algorithm it was necessary to extend the NTL library. Namely it was needed to generate such matrices $P, Q$ for matrix $A$
+    In order to implement mentioned algorithm it was necessary to extend the NTL library. Namely it was needed to generate such matrices $P, Q$ for a matrix $A$
     so that the equation \ref{eq:normal_matrix_form} holds. The Gauss-Jordan elimination was modified to generate these matrices\footnote{Matrix $P$ corresponds to multiplication of 
-    elementary row matrices that transforms matrix A to row-echelon form. The matrix $Q$ corresponds to multiplication by column elementary matrices that
-    reorder the columns in a way the equation \ref{eq:normal_matrix_form} holds.}
+    elementary row matrices that transform matrix A to row-echelon form. The matrix $Q$ corresponds to multiplication by column elementary matrices that
+    reorder the columns in a way the equation \ref{eq:normal_matrix_form} holds.}.
 
     \begin{equation}\label{eq:normal_matrix_form}
 	P \cdot A \cdot Q = 
@@ -1423,7 +1424,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     in $\mathbb{F}_q$ is $q^{p\cdot p}$, while the number of all possible non-singular (invertible) matrices is $\prod_{i=0}^{p-1}(q^p - q^i)$.
     In our case $q=2, \; \mathbb{F}_q \equiv \gf$. The table \ref{tbl:random_matrix_nonsingular_probab} shows the probability of randomly generated matrix of particular 
     dimension being non-singluar. For our parameters the value converges around $0.2888$ so it is enough to generate a random matrix
-    and test whether it is invertible. Within 4 iterations the non-singular matrix is found with sufficient high probability.
+    and test whether it is invertible. Within 4 iterations the non-singular matrix is found with a sufficient probability.
 
     The rest of the algorithm for construction mixing bijections follows the paper by Zhou~\eal~\citep{journals/iacr/XiaoZ02}.
     
@@ -1449,8 +1450,8 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     In order to verify the general form of affine relations for AES S-box (see section \ref{sec:wb_dual_aes}) the mentioned algorithm was implemented. It is independent 
     on the rest of the implementation so it can be used separately. 
     
-    Note the attack on perturbated whitebox AES scheme~\citep{conf/indocrypt/MulderWP10} 
-    and the attack on Xiao~\eal\ implementation~\citep{conf/sacrypt/MulderRP12} uses this algorithm so it is particularly interesting and useful tool. It can be also used to analyze properties
+    Note the attack on the perturbated whitebox AES scheme~\citep{conf/indocrypt/MulderWP10} 
+    and the attack on the Xiao~\eal\ implementation~\citep{conf/sacrypt/MulderRP12} use this algorithm so it is particularly interesting and useful tool. It can be also used to analyze properties
     of new S-boxes proposed in sections \ref{sec:twofish_sbox} and \ref{sec:improvement_analysis} during a further research.
     
     \subsection{Whitebox AES}
@@ -1460,15 +1461,15 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     It is important to emphasize the implementation is not optimized for speed. The main focus was on the code readability and simplicity.
     
     One can choose several options how to generate whitebox AES. It is possible to 
-    enable/disable\footnote{If the feature is disabled it means the particular transformation is identity} following protections 
+    enable/disable\footnote{If the feature is disabled it means the particular transformation is identity} the following protections 
     (as described in sections \ref{sec:whitebox_aes_scheme_chow} and \ref{sec:wb_dual_aes_sec}):
     \begin{enumerate}
      \item $4\times4$ IO bijections
      \item external input/output encoding
-     \item $L$ mixing bijection
-     \item $MB$ mixing bijection
-     \item irreducible polynomial change in each column, to generate dual cipher
-     \item usage of affine $A_1,\;A_2$ relations to generate dual cipher
+     \item $8\times8 \; L$ mixing bijection
+     \item $32\times32$~MB mixing bijection
+     \item irreducible polynomial change in each column (to generate a dual cipher)
+     \item usage of affine $A_1,\;A_2$ relations (to generate a dual cipher)
     \end{enumerate}
     
     The algorithm for generating IO bijections in a networked manner, so the whole cipher works
@@ -1476,12 +1477,12 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     of generating and connecting bijections together. The main idea of the approach
     is that $4\times4$ bijections are generated at once, each having its own unique identifier. 
     There is a map of the IO bijections describing particular relations between them for each look-up table in the cipher. This map is constructed in a 
-    similar way the encryption algorithm works when using look-up tables for encryption. It is generated at run-time, but is constant for the scheme
-    and thus can be cached to speed-up the generation algorithm. The generating of tables for whitebox AES itself is then very simple, the map is used to determine 
+    similar way as the encryption algorithm works when using look-up tables for encryption. It is generated at run-time, but is constant for the scheme
+    and thus can be cached to speed-up the generation algorithm. The generating of tables for the whitebox AES itself is then very simple, the map is used to determine 
     the IO bijection identifier that should be used for the particular table that is being generated at the moment.
     
     The emphasis was also put on the comments in the source code. The details of every important step/block are described 
-    in the comments in a detail. The comments also contains diagrams, algebraic equations and important details about the implementation.
+    in the comments in a detail. The source code comments also contains diagrams, algebraic equations and important details about the implementation.
 
     The implementation is partially influenced by ideas used in similar whitebox implementation by Petr \v{S}venda \footnote{\url{http://www.fi.muni.cz/~xsvenda/securefw.html}}. 
     For more details, please, refer to the implementation.
@@ -1532,14 +1533,14 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     source codes.
 
     The demonstration of the attack is included in the implementation. At first the new whitebox AES is generated. Then the set~$\mathcal{S}$ is computed
-    by composing functions~$y_0$. The~$\psi$ recovering follows. This first step of the attack is performed for rounds~$0\dots8$. The same would be possible for 
-    the round~$9$ but the implementation would be complicated due to type~1 tables. When this step finishes the IO bijections on particular round boundaries
+    by composing functions~$y_0$. The~$\psi$ recovering follows. This first step of the attack is performed for rounds~$0\dots7$. The same would be possible for 
+    the round~$8$ but the implementation would be complicated due to type~I tables. When this step finishes, the IO bijections on particular round boundaries
     are affine and matching. This modified cipher is tested with AES test vectors to verify the attack managed to transform IO bijections properly. 
     The first step takes the~$\nicefrac{1}{3}$ of the time needed for the attack approximately.
     
     Note it is not required to transform all possible non-linear IO bijection to affine bijections. In order to finish the attack it needs to be done only for~3 consecutive rounds.
     
-    Parts of the affine transformations are gradually recovered in the rest of the attack. The attack ends by printing out symmetric key that was embedded to the whitebox AES.
+    Parts of the affine transformations are gradually recovered in the rest of the attack. The attack ends by printing out the symmetric key that was embedded to the whitebox AES.
     
     The benchmark of the attack is part of the implementation. The average time needed to break whitebox AES was~$46.8$~s (sample size = 10).
     
@@ -1547,44 +1548,44 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     The BGE attack~\citep{Billet:2004:CWB:2080787.2080809} strongly relies on publicly known constants and building blocks used in the AES cipher (MixColumn constants, fixed S-box). 
     This leads us to an idea of turning constant part of cipher into key dependent ones, according to Kerckhoffs's principle. 
 
-    It should increase computational complexity of the attack since attacker would have to try
+    It should increase computational complexity of the attack since an attacker would have to try
     all combinations of key dependent part of the cipher. In the ideal scenario the attack will be unfeasible due to high computational complexity. \\
     
-    As we know AES S-box is constant and has relatively simple algebraic form. In blackbox context, it is quite difficult to construct algebraic equations for whole AES (this was 
-    one of design criterion of an AES in order to prevent possible algebraic attacks), but BGE attack aims only on one round of the cipher and from this perspective it is 
-    quite easy to construct algebraic equations for 1 round - as we seen in the BGE attack, this is what makes AES vulnerable to algebraic attacks in whitebox context.\\
+    As we know, AES S-box is constant and has relatively simple algebraic form. In blackbox context, it is quite difficult to construct algebraic equations for whole AES (this was 
+    one of design criterion of AES in order to prevent possible algebraic attacks), but the BGE attack aims only on one round of the cipher and from this perspective it is 
+    quite easy to construct algebraic equations for 1 round - as we seen in the BGE attack, this is what makes AES vulnerable to algebraic attacks in the whitebox context.\\
     
-    In whitebox implementation of cipher we have two contrary goals - to minimize table size and to prevent attack in whitebox context. Table size is what puts quite limitations
-    in implementation and on security boundaries. In one extreme case we would build look-up table for whole AES for every possible input with total size 
+    In the whitebox implementation of the cipher we have two contrary goals - to minimize table size and to prevent an attack in the whitebox context. Table size is what puts quite limitations
+    in the implementation and on security boundaries. In one extreme case we would build look-up table for whole AES for every possible input with total size 
     $\left(2^{128} \cdot 16\right) > 10^{39}$ bytes. This 
     scheme is no weaker than AES in blackbox context, therefore with the same level of security in whitebox context, but rather unfeasible in practice.
 
-    As we seen in BGE attack it is easy to turn random non-linear bijections (input/output encodings), protecting table contents, to affine transformations between rounds of
-    cipher, what helps further algebraic analysis, so constructing more complicated non-linear bijections is probably not the way how to solve this problem. Whitebox construction
-    should not solely rely on non-linear bijections~\citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291}.
+    As we seen in the BGE attack it is easy to turn random non-linear IO bijections, protecting table contents from the local analysis, to the affine transformations between rounds of
+    the cipher, what helps further algebraic analysis. From this reason, constructing more complicated non-linear IO bijections is probably not the way how to solve this problem. Whitebox construction
+    should not solely rely on the non-linear IO bijections~\citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291}.
     
     Widely used ciphers nowadays were designed also with the goal to be effectively implemented in a~hardware (one of the criterion in AES contest). 
-    It influenced design of the cipher building blocks such as
-    size of diffusion layer, matrix coefficients (lower are better), recycling of cipher primitives in key schedule algorithm, etc...
-    Such additional restrictions do not lower security level of the cipher usually, because of iterating round function, but this can be problem in WBC.
+    It influenced a design of the cipher building blocks such as
+    size of a diffusion layer, matrix coefficients (lower are better), recycling of cipher primitives in a key-schedule algorithm, etc...
+    Such additional restrictions do not lower security level of the cipher usually, because of the iterating round function, but this can be problem in WBC.
     
-    To summarize weaknesses of the ciphers used to mount whitebox attacks:
+    To summarize the weaknesses of the ciphers used to mount the whitebox attacks:
     \begin{itemize}
-     \item simple key schedule (reversible, forward/backward)
+     \item simple key-schedule (reversible, forward/backward)
      \item key whitening technique
      \item publicly known, constant (key-independent) primitives
      \item weak round function, simple algebraic description
-     \item use of diffusion elements that are easy to remove in whitebox context (e.g. ShiftRows in the AES)
+     \item use of diffusion elements that are easy to remove in the whitebox context (e.g. ShiftRows in the AES)
      \item diffusion element with low diffusion power with respect to the one round of the cipher, i.e. low dependency of 
 	    output byte from round function on input bytes (1 output byte of the AES round function depends on 4 input bytes)
     \end{itemize}
     
-    As the AES in standard form is not suitable for WBC implementation, we are proposing to break the backward compatibility with AES (or any other well known cipher)- as it does not have proper structure for whitebox implementation, what is 
-    also visible from the fact there are no non-broken whitebox scheme of AES exists nowadays, as far as we know. Whitebox schemes using new techniques to protect cipher implementation
+    As the AES in a standard form is not suitable for the WBC implementation, we are proposing to break the backward compatibility with AES (or any other well known cipher)- as it does not have proper structure for whitebox implementation, what is 
+    also visible from the fact there are no non-broken whitebox scheme of AES nowadays, as far as we know. The whitebox schemes using new techniques to protect cipher implementation
     (but still preserving backward compatibility with the cipher) were successfully cryptanalyzed effectively~\citep{Billet:2004:CWB:2080787.2080809, Michiels:2007:MST:1314276.1314291, conf/indocrypt/MulderWP10, conf/sacrypt/MulderRP12}.    
     In literature was already proposed to design a~new cipher with whitebox implementation issues in mind~\citep{Billet:2004:CWB:2080787.2080809, wyseurPhd}. 
     
-    In our proposal of a~new cipher suitable for WBC implementation we are addressing aforementioned weaknesses. The base of our cipher is AES since it uses widely accepted
+    In our proposal of a~new cipher suitable for WBC implementation we are addressing the aforementioned weaknesses. The base of our cipher is AES since it uses widely accepted
     cipher building blocks and structure, it was extensively analyzed and is in general considered as a~secure cipher.
 	
     Our modifications of the AES consist of:
@@ -1594,12 +1595,12 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
      \item stronger (output byte dependence on input bytes), key-dependent diffusion element
     \end{itemize}
 
-    In our proposal, we took inspiration from Twofish \cite{Schneier98twofish:a} cipher which has key dependent S-boxes with rather
-    complicated algebraic representations. As emphasized before, the key idea here is to make expressing one round of cipher as algebraic equations
-    more difficult for an attacker. Our first scheme is to use Twofish key dependent S-boxes in AES algorithm. 
+    In our proposal, we took inspiration from the Twofish \cite{Schneier98twofish:a} cipher which has key dependent S-boxes with rather
+    complicated algebraic representations. As emphasized before, the key idea here is to make expressing one round of the cipher as algebraic equations
+    more difficult for an attacker. Our scheme uses Twofish-like key dependent S-boxes in AES algorithm. 
 
     \section{Twofish S-boxes}\label{sec:twofish_sbox}
-    Here observe Twofish S-boxes (from~\citep{Schneier98twofish:a}) and their algebraic representation.
+    Here observe the Twofish S-boxes (from~\citep{Schneier98twofish:a}) and their algebraic representation.
     \begin{subequations}\label{eq:twofish_sbox}
     \begin{align}
 	s_{0,k_0,k_1}\left(x\right) &= q_1\left[q_0\left[q_0\left[x\right] \oplus k_0 \right] \oplus k_1 \right]\\
@@ -1610,29 +1611,29 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{subequations}
     Where $q_0, q_1$ are fixed 8-bit permutations, $k_i,\; i \in [0,7]$ are key bytes, $s_{j,k_a,k_b},\; j \in [0,4]$ are resulting S-boxes.
 
-    Thus instead of fixed AES S-box we use Twofish key dependent S-boxes. In particular we use $s_{j,k_a,k_b},\; j \in [0,4]$ instead of 4 the same constant
-    S-boxes in computation of one column of state matrix - approach consistent with use of S-boxes Twofish algorithm (diffusion element is connected 
+    Thus instead of fixed AES S-box we use the Twofish key dependent S-boxes. In particular we use $s_{j,k_a,k_b},\; j \in [0,4]$ instead of four the same constant
+    S-boxes in computation of one column of the state matrix - approach consistent with use of S-boxes Twofish algorithm (diffusion element is connected 
     to the output of S-box). 
 
-    In blackbox context there is disadvantage for key dependent S-boxes since it takes some time to generate them, for each encryption key, but in whitebox context
-    the whole cipher is generated before use, including S-boxes, so during encryption/decryption there is no such disadvantage anymore.
+    In the blackbox context there is a disadvantage for the use of key dependent S-boxes, since it takes some time to generate them, for each encryption key, but in the whitebox context
+    the whole cipher is generated before use, including S-boxes, so during the encryption/decryption there is no such disadvantage anymore.
    
     \section{Key schedule}
-    Part of the BGE attack also make use of reversible AES key schedule to obtain encryption key. It is only needed to obtain round keys for two consecutive
-    rounds of cipher in order to obtain full encryption key.
+    The part of the BGE attack also make use of reversible AES key-schedule, to obtain an encryption key. It is only needed to obtain round keys for two consecutive
+    rounds of the cipher in order to obtain full encryption key.
 
-    In order to avoid this reversing we propose to modify key schedule.
-    In particular we suggest to use hash-chains as round keys, so attacker would not be able to combine knowledge of two consecutive rounds as is done in the BGE attack.
+    In order to avoid this reversing we propose to modify the key-schedule.
+    In particular we suggest to use hash-chains as round keys, so an attacker would not be able to combine knowledge of two consecutive rounds as is done in the BGE attack.
     
     We suggest to use \emph{bcrypt}~\citep{Provos99afuture-adaptable} or \emph{scrypt}~\citep{Percival_strongerkey} as a~hash function for generating hash chains. 
-    We could also use iterated SHA hash function for this purpose, but the main reason we are proposing bcrypt or scrypt is the fact SHA hash been
-    very successfully implemented in hardware (ASICS chips, for Bitcoin mining), with performance 1500~G hashes per second for one device \cite{shamining_web}.
+    We could also use iterated SHA hash function for this purpose, but the main reason we are proposing bcrypt or scrypt is the fact SHA has been
+    very successfully implemented in a hardware (ASICS chips, for Bitcoin\footnote{\url{http://bitcoin.org/en/}} mining), with performance 1500~G hashes per second for one device \cite{shamining_web}.
     Also the Bitcoin economy is based on SHA hash function, so there is motivation to build machines specialized on computing SHA hashes - making
     brute force attacks on SHA easier.
 
-    As an illustration consider \cite{bcrypthash}, where M. Gosney used cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
-    details see table \ref{tbl:hash_performance}. \emph{bcrypt} is by orders of magnitude slower than SHA1, almost by factor $10^6$. This makes brute-force
-    attack practically unfeasible on general purpose hardware. 
+    As an illustration consider \cite{bcrypthash}, where M. Gosney used a cluster made of GPUs (general purpose hardware) and benchmarked hash functions from performance perspective, for
+    details see table \ref{tbl:hash_performance}. \emph{Bcrypt} is by orders of magnitude slower than SHA1, almost by factor $10^6$. This makes brute-force
+    attack practically unfeasible on the general purpose hardware. 
 
     \begin{table}
     \begin{center}
@@ -1649,21 +1650,21 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{table}
 
     From this reason we propose to use hash functions that were specifically designed to take a~long time to evaluate (bcrypt, scrypt) 
-    and/or to be difficult to implement in hardware (contrary to standard hash functions like SHA, MD5).
+    and/or to be more difficult to implement in a hardware (contrary to standard hash functions like SHA, MD5).
 
-    Note that as key schedule is done during preparation of whitebox instance (generating tables) of a~cipher, there is no time penalty during 
+    Note that as key-schedule is done during preparation of whitebox instance (generating tables) of a~cipher, there is no time penalty during 
     usage of the implementation.
         
     In AES-128 we have 128~bit cipher key, $k_0,\dots,k_{15}$. We define $k_i^r$ to be round key byte $i \in [0,15]$ used in round $r \in [0,10]$.
     
-    We define hash function used further in our modified key schedule
+    We define hash function used further in our modified key schedule:
     \begin{equation}
 	hash\left(inp, salt\right)_{N_{bc}, N_{sha}} = bcrypt\left(N_{bc}, salt, \text{SHA-}256^{N_{sha}}\left(inp\right)\right)
     \end{equation}
     Where we have 2 security parameters in this scheme.
-    $N_{bc}$ is work load for bcrypt, determines computation complexity of bcrypt hash function. $N_{sha}$ is number of nested iterations of SHA-256 function. 
+    $N_{bc}$ is a work load for bcrypt, determines computation complexity of bcrypt hash function. $N_{sha}$ is a number of nested iterations of SHA-256 function. 
     
-    With this we define key schedule for our new cipher:
+    With this we define key-schedule for our new cipher:
     \begin{equation}\label{eq:keySchedule}
     k_i^r = \left\{ 
     \begin{array}{l l} 
@@ -1673,28 +1674,28 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{equation}
     Where
     \begin{itemize}
-     \item[$i$] subscript on right side stands for i-th byte of resulting hash
-     \item[$key$] is encryption key, 128 bits
-     \item[$k^{r-1}$] is whole round key for round $r-1$
+     \item[$i$] subscript on the right side stands for $i$-th byte of resulting hash
+     \item[$key$] is an encryption key, 128 bits
+     \item[$k^{r-1}$] is a whole round key for round $r-1$
      \item[$||$] symbol is concatenation of two binary arguments
-     \item[$salt$] is arbitrary 128 bit salt used in bcrypt algorithm. This can be publicly known - published together with ciphertext or 
+     \item[$salt$] is arbitrary 128 bit salt used in bcrypt algorithm. This can be publicly known - published together with the ciphertext or 
 	in particular whitebox cipher instance.
     \end{itemize}
 
-    Equation for $k_i^r$ is chosen with two primary goals in mind, attacker is not able to:
+    Equation for $k_i^r$ is chosen with two primary goals in mind, an attacker is not able to:
     \begin{enumerate}
-     \item derive encryption key from two (or more) consecutive round keys. This results from infeasability of reversing hash chain. 
+     \item derive the encryption key from two (or more) consecutive round keys. This results from the infeasability of reversing hash chain. 
 	We are also using computational intensive hash function so even brute-forcing is unfeasible.
-     \item derive round key for $r_1-1$ or $r_2+1$ if he already have round keys for rounds $[r_1, r_2]$. Unavailability of deriving 
+     \item derive the round key for $r_1-1$ or $r_2+1$ if he already has round keys for rounds $[r_1, r_2]$. Unavailability of deriving 
 	round key for $r_1-1$ results from the previous argument, but here is also important that from already derived round keys we are not able to derive 	
-	next ones (when compared to standard AES) since it also depends on encryption key directly.
+	next ones (when compared to standard AES) since it also depends on the encryption key directly.
     \end{enumerate}
     
     \subsection{Key bytes for S boxes}
-    In order to increase strength of proposed scheme we don't use round key bytes for S-box computation directly. If someone succeeds in determining 
-    this round key bytes by computing proposition 3 from BGE attack for all key bytes possibilities it could help to derive the round keys.
+    In order to increase strength of the proposed scheme we don't use round key bytes for S-box computation directly. If someone succeeds in determining 
+    this round key bytes by computing the Proposition 3 from the BGE attack for all key bytes possibilities, it could help to derive the round keys.
     
-    From this reason we use completely different keys for key-dependent S-boxes that in rest of the cipher.
+    From this reason we use completely different keys for the key-dependent S-boxes that in the rest of the cipher.
 
     \begin{equation}\label{eq:keyForSbox}
     k_i^{r \; \prime} = \left\{ 
@@ -1704,25 +1705,25 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{array} \right.
     \end{equation}
     
-    The equation \ref{eq:keyForSbox} is the same as \ref{eq:keySchedule} with only difference of concatenation of "magicConstant". This makes 
-    two hash chains (1 for round keys, 1 for S-boxes) completely different and non-transformable one to another.
+    The equation \ref{eq:keyForSbox} is the same as \ref{eq:keySchedule} with only difference of concatenation of a "magicConstant". This makes 
+    two hash chains (one for round keys, one for S-boxes) completely different and non-transformable one to another.
    
     \section{Diffusion layer modification}\label{sec:cipher_invert_improvement}
-    In section \ref{sec:cipher_invertibility} was mentioned cipher invertibility. I suggest to extend input/output space of the round function
-    from 32-bits to 128-bits, raising complexity of mentioned inverting attack to $10\cdot4\cdot2^{128}$ operations. In AES one byte of state array depends
-    only on 4 bytes = one column of state array. Round function of AES acts independently on 4 columns, making it easy to invert it. 
+    In section \ref{sec:cipher_invertibility} was mentioned the cipher invertibility. We suggest to extend input/output space of the round function
+    from 32-bits to 128-bits, raising complexity of mentioned inverting attack to $10\cdot4\cdot2^{128}$ operations. In AES one byte of the state array depends
+    only on 4 bytes = one column of the state array. Round function of AES acts independently on 4 columns, making it easy to invert it. 
 
-    Proposed improvement is in changing MDS (Maximum Distance Separable) matrix from $4 \times 4$ to $16 \times 16$. 
-    Then would one byte of state array depend on 16 bytes, making round function 128-bit wide.
+    The proposed improvement is in changing a MDS (Maximum Distance Separable) matrix from $4 \times 4$ to $16 \times 16$. 
+    Then would one byte of the state array depend on 16 bytes, making round function 128-bit wide.
 
-    MDS matrix acts as diffusion element in the cipher, since our cipher is of type substitution-permutation cipher, our MDS matrix 
+    MDS matrix acts as a diffusion element in the cipher, since our cipher belongs to substitution-permutation cipher category. Our MDS matrix 
     represents invertible linear mapping. The important metric for its security is \emph{branch number}~\citep{daemenBranch}, it gives measure on
-    worst case diffusion. If the diffusion matrix has a~maximal possible branch number, it is \emph{optimal}. 
-    AES~\citep{2002-daemen}, Twofish~\citep{Schneier98twofish:a} and SHARK~\citep{shark96} ciphers are using MDS matrices optimizing branch number as 
-    main security measure of diffusion layer.
+    the worst case diffusion. If the diffusion matrix has a~maximal possible branch number, it is \emph{optimal}. 
+    AES~\citep{2002-daemen}, Twofish~\citep{Schneier98twofish:a} and SHARK~\citep{shark96} ciphers are using MDS matrices optimizing the branch number as 
+    a main security measure of diffusion layer.
     
-    For generating such MDS matrices is particularly interesting following proposition from SHARK cipher paper~\citep{shark96} (for proof see
-    original paper).
+    For generating such MDS matrices is particularly interesting following proposition from SHARK cipher paper~\citep{shark96} (for the proof see
+    the original paper).
     
     \begin{myprop}
 	Let C be a~$(2n,\; n,\; n+1)$-code over the Galois field $\text{GF}(2^m)$. Let $G_e$  be the generator matrix of C in echelon form:
