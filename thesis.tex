@@ -538,21 +538,23 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     uses fault injection~\citep{conf/ccs/JacobBF02}, another one published in 2005 by Link~\eal\ uses statistical analysis~\citep{Link:2005:COI:1058430.1059147}.
     Later cryptanalysis of fully encoded variant of DES was published by Wyseur~\eal\ in~2007 using truncated differentials.
    
-    The similar case is AES. Two years after publishing whitebox AES scheme the successful cryptanalysis~\citep{Billet:2004:CWB:2080787.2080809} was
+    The similar case holds for AES. Two years after publishing whitebox AES scheme the successful cryptanalysis~\citep{Billet:2004:CWB:2080787.2080809} was
     published by Billet~\eal~that enabled to recover embedded symmetric 
     key in less that $2^{30}$ steps. Later in 2008 the generalized version of the previous attack
     was published~\citep{Michiels:2007:MST:1314276.1314291} by Michiels~\eal\ affecting the larger family of ciphers using the same structure as AES.   
    
     There were also attempts to fix whitebox AES scheme by adding additional linear mappings and increasing size of the implementation in~\citep{XiaoLai}
     as a~response to the Billet's attack.
-    The attack using linear equivalence algorithm was published in 2012 \cite{conf/sacrypt/MulderRP12}.
+    The attack against improved scheme using linear equivalence algorithm was published in 2012 \cite{conf/sacrypt/MulderRP12}.
     
     The another attempt how to fix whitebox AES was introducing random perturbations~\citep{journals/iacr/BringerCD06a}, 
     complicating algebraic cryptanalysis but the effective attack was published by Mulder~\eal~\citep{conf/indocrypt/MulderWP10}.
     
-    Last not least a whitebox AES scheme using dual ciphers~\citep{Karroumi:2010:PWA:2041036.2041060} was published in 2011. The paper claimed 
-    the scheme is robust enough to resist practical attacks on the implementation what we proved is false. 
-    Thesis is mainly focused on this scheme, what is generalization of the first whitebox AES scheme. 
+    Last, but not least a whitebox AES scheme using dual ciphers~\citep{Karroumi:2010:PWA:2041036.2041060} was published in 2011. The paper claimed 
+    the scheme is robust enough to resist practical attacks on the implementation. We proved this assumption false by finding out the published attack
+    works in the same way on this implementation as on the original one, for proof see the section \ref{sec:attacking_dual_aes}.
+    
+    This thesis is mainly focused on the scheme using dual ciphers, note it is generalization of the first whitebox AES scheme. 
     
 
     \section{Whitebox AES scheme}
@@ -561,7 +563,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     The first whitebox AES implementation, published by Chow~\eal~\citep{Chow02white-boxcryptography} is based on the look-up tables implementation, that was also
     mentioned in original AES paper~\citep{2002-daemen}. Note that it is easy to transform AES cipher with embedded encryption key 
     to a~network of look-up tables and to use these computed tables for encryption (or decryption). But this implementation is vulnerable in whitebox context,
-    since it is possible to extract encryption key with algebraic analysis of the look-up tables, recall all building blocks (except key schedule) of AES are key-independent 
+    since it is possible to extract encryption key with algebraic analysis of the look-up tables. Recall that all the building blocks (except key schedule) of AES are key-independent 
     and publicly available. Thus these look-up tables has to be further protected to resist algebraic attacks. 
     
     We are mainly focused on AES-128, for simplicity but the same strategy can be applied also to AES-256.
@@ -583,7 +585,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     over $4\times4$ byte array. AES works with $\gfe$ and operations used in AES have quite algebraic nature. For each round is generated a key material called round keys
     by key-schedule routine from encryption key. 
     
-    The key-schedule is not important operation from our perspective and can be abstracted in further explanations. Important fact about the key-schedule is it is reversible i.e. 
+    The key-schedule is not important operation from our perspective and can be abstracted in further explanations. Important fact about the key-schedule is that it is reversible i.e. 
     if we have round keys from 2 consecutive rounds it is possible to derive all other round keys, even the encryption key (the encryption key is used as round key in the first round).
     
     Besides the key-schedule there are 4 operations used in main AES body:
@@ -669,8 +671,8 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     \end{aligned}
     \end{equation}
     
-    Thus the $32\rightarrow32$ linear mapping represented by a~matrix multiplication is decomposed to 4 $8\rightarrow32$ look-up tables
-    connected by 3 32-bit XOR tables. The tables performing this operation are denoted as $T_y$ tables in a further text.
+    Thus the $32\rightarrow32$ linear mapping represented by a~matrix multiplication is decomposed to four $8\rightarrow32$ look-up tables
+    connected by three 32-bit XOR tables. The tables performing this operation are denoted as $T_y$ tables in a further text.
 
     Figure \ref{fig:table_aes} illustrates evaluation of the AES round function using look-up tables for one column of state array.
 
@@ -765,7 +767,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
 
     Note $32\times32$ mixing bijection added after the \emph{MixColumn} operation to increase diffusion. To cancel this transformation the table 
     type 3 is used as illustrates figure \ref{fig:aes_t3_t4}. Also recall the matrix multiplication decomposition requires addition operation, this is done
-    by exclusive-OR (XOR), cascade of table type 4 is used for this purpose. Note that performing XOR by table look-up is rather ineffective, but it is required to 
+    by exclusive-OR (XOR), cascade of table type IV is used for this purpose. Note that performing XOR by table look-up is rather ineffective, but it is required to 
     protect look-up tables by IO bijections and mixing bijections (to form protected network of look-up tables without revealing true values on 
     table boundaries).
     
@@ -805,7 +807,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     with embedded key one should not be able to use it also for decryption and vice versa. This property is especially useful if one wants to use symmetric
     cipher to simulate an asymmetric. But it is important to realize that this goal is difficult to achieve in whitebox context.
     
-    As an example take AES whitebox implementation
+    As an example take AES whitebox implementation.
     Inverting the cipher in blackbox context is rather computationally difficult. Using brute-force one would
     need $2^{128}$ operations to invert the cipher. The whitebox context is in contrast to blackbox advantageous for an attacker. One of the problems here is 
     that ShiftRows operation can be very easily canceled in whitebox context and that attacker can execute only particular round of the cipher. 
@@ -1355,10 +1357,10 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
 
     \section{Implementation of the cipher}
 %    [TODO] Cipher implementation description, generalization of oorschot design. Mixing bijections.
-    As the part of the assignment of this thesis was to implement 2--3 whitebox AES schemes, together with cryptanalysis, if is available. 
+    As a implementation part of this thesis, 2 whitebox schemes were implemented.
     The scheme using dual AES was chosen to be implemented, since in the time of making this decision there was no published cryptanalysis
-    of this scheme and it had interesting and easy construction. The fact it is generalization of the original whitebox AES scheme
-    published by Chow~\eal\ is additional benefit what simplifies the implementation.
+    of this scheme and it had interesting construction. The fact it is generalization of the original whitebox AES scheme
+    published by Chow~\eal\ is an additional benefit what simplifies the implementation.
     
     \subsection{NTL library}
     Recall AES cipher uses finite fields algebra extensively, namely in $\gf$ and $\gfe$. For this reason the library
@@ -1372,7 +1374,10 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     \subsection{Generic AES}
     In order to be able to implement whitebox AES implementation, it was necessary to implement the basic building blocks of the AES as described in
     previous chapters (such as S-boxes, MixColumn, etc...), using the NTL library. It was preferred to implement it from the scratch, according to the specification,
-    rather than taking existing implementations. The emphasis was put on a simple and extendable source code, rather than optimized and difficult to understand. 
+    rather than taking existing implementations. The emphasis was put on a simple and extendable source code, rather than optimized and difficult to understand.
+    The implementation is publicly available so that other researchers could use it, e.g. for experimenting with their own transformations. This was also 
+    the reason why to write it from the scratch.
+ 
     The another reason was the fact that AES implementations work with fixed finite field (as generated by irreducible polynomial and a generator - according 
     to the AES specifications) so the algebraic nature of the operations was not clear from the code anymore, because of various optimizations. Due to the fact
     dual AES scheme uses generalized AES, it was needed to generate such AES instances with changed irreducible polynomial and the generator. 
@@ -1440,10 +1445,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     The implementation exactly follows description given in the previous chapters. Detailed description of the implementation is out of scope of this thesis, 
     for further details, please, refer to the source code. 
     
-    It is important to emphasize the implementation is not optimized. The main focus was on the code readability and simplicity.
-    
-    The fact the dual AES scheme is generalization of scheme proposed by Chow~\eal\ makes implementation simpler. If all dual ciphers used in the scheme are the 
-    standard AES the original scheme by Chow is obtained. 
+    It is important to emphasize the implementation is not optimized for speed. The main focus was on the code readability and simplicity.
     
     One can choose several options how to generate whitebox AES. It is possible to 
     enable/disable\footnote{If the feature is disabled it means the particular transformation is identity} following protections 
@@ -1458,7 +1460,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     \end{enumerate}
     
     The algorithm for generating IO bijections in a networked manner, so the whole cipher works
-    in the same way as without them, takes the substantial part of the source code. It was very non-trivial to design this approach 
+    in the same way as without them, takes the substantial part of the source code. It was non-trivial to design this approach 
     of generating and connecting bijections together. The main idea of the approach
     is that $4\times4$ bijections are generated at once, each having its own unique identifier. 
     There is a map of the IO bijections describing particular relations between them for each look-up table in the cipher. This map is constructed in a 
@@ -1514,7 +1516,8 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     The BGE attack as described in the section \ref{sec:bge_attack} was implemented. The implementation exactly follows the description. Since
     the attack proceeds in steps, the implementation is quite straightforward. It has the same structure as described in the original paper~\citep{Billet:2004:CWB:2080787.2080809}.
     
-    The detailed description of the attack implementation is out of scope of the this thesis, for further details please refer to the implementation.
+    The detailed description of the attack implementation is out of scope of this thesis. For the implementation details of the attack please refer to the attack 
+    source codes.
 
     The demonstration of the attack is included in the implementation. At first the new whitebox AES is generated. Then the set~$\mathcal{S}$ is computed
     by composing functions~$y_0$. The~$\psi$ recovering follows. This first step of the attack is performed for rounds~$0\dots8$. The same would be possible for 
@@ -1524,7 +1527,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
     Note it is not required to transform all possible non-linear IO bijection to affine bijections. In order to finish the attack it needs to be done only for~3 consecutive rounds.
     
-    There are gradually recovered parts of affine transformations in the rest of the attack. The attack ends by printing out symmetric key that was embedded to the whitebox AES.
+    Parts of the affine transformations are gradually recovered in the rest of the attack. The attack ends by printing out symmetric key that was embedded to the whitebox AES.
     
     The benchmark of the attack is part of the implementation. The average time needed to break whitebox AES was~$46.8$~s (sample size = 10).
     
@@ -1827,9 +1830,9 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     difference is made during particular whitebox instance (look-up tables) generation. Encryption/decryption algorithm itself is not affected.
     
     \section{Analysis of diffusion layer modification}
-    Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger look-up tables. Mainly type 2 tables are affected, previously 
-    it was mapping $2^8 \rightarrow 2^{32}$, with cascade of XOR tables to sum $4 \; \times\; 32$-bit values to obtain one column of state array. Now type 2 tables are
-    $2^8 \rightarrow 2^{128}$, with cascade of XOR tables to obtain whole state column vector. Cipher with modified structure uses type 1 tables instead of type 2 tables
+    Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger look-up tables. Mainly type II tables are affected, previously 
+    it was mapping $2^8 \rightarrow 2^{32}$, with cascade of XOR tables to sum four $32$-bit values to obtain one column of state array. Now type II tables are
+    $2^8 \rightarrow 2^{128}$, with cascade of XOR tables to obtain whole state column vector. Cipher with modified structure uses type 1 tables instead of type II tables
     and cascade of XOR tables is working in the same manner as in external encodings in the first and the last round.
 
     Table \ref{tbl:table_sizes} summarizes changes in table sizes of WB AES. From this is visible that
@@ -1858,10 +1861,12 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     inverted by running over $\gfe^{16}$. 
     
     Key-dependent MDS matrix also prevents mounting the BGE attack. In particular we don't know MixColumn matrix coefficients so we are not able to construct set $\beta$
-    from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so proposition 2 and 3 won't work anymore. This also makes recovering 
-    affine parts of I/O encodings unfeasible, using this attack. But proposition 1 still works, random I/O bijections can be converted of affine ones quite easily.
+    from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so Proposition 2 and 3 from the BGE attack won't work anymore. 
+    This also makes recovering 
+    affine parts of I/O encodings unfeasible, using this attack. But recovering non-linear parts of random IO bijections is not affected by these modifications.
 
-    As noted above, also  Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients.
+    As noted above, also  Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients, that are not known in our proposal
+    due to their key-dependency.
     
     \section{Drawbacks}
     By modification of AES design we are coming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
