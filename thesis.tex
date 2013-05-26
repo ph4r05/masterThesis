@@ -302,15 +302,16 @@ This problem has direct applications in e-commerce, e.g. on-line bidding and auc
 Many protocols for secure multiparty schemes are based on \emph{arithmetic circuits}. This is also a one of cornerstones 
 used in the following chapter so it is important to describe it.
 
-The function $\mathcal{F}$ is transformed to a network of gates performing addition and multiplication operation, what forms arithmetic circuit
-that is able to evaluate the function $\mathcal{F}$.
+The function $\mathcal{F}$ is transformed to a network, that forms a directed acyclic graph, of gates performing addition 
+and multiplication operation, what forms arithmetic circuit that is able to evaluate the function $\mathcal{F}$.
 It is known that considering arithmetic circuits is without loss of generality, i.e. any function that is feasible to compute 
 at all can be specified as a polynomial-size Boolean circuit using \emph{and} and \emph{negation}. Note that any such circuit 
 can be simulated by operations in $\mathbb{F}$: Boolean values \emph{true} or \emph{false} can be encoded as 1 resp. 0. Then
 \emph{negation} of a bit $b$ is $1-b$ and \emph{and} of bits $b,\;c$ is $b\cdot c$ \citep{smcBook}. The resulting 
 circuit is then evaluated by remote parties in order to compute function $\mathcal{F}$ over their private data. 
+A \emph{depth} of a circuit is the longest path in the circuit.
 
-Ishai~\eal\citep{Ishai:2008:FCO:1429103.1429148} demonstrated a two-party computation protocol of a function
+Ishai~\eal\citep{Ishai:2008:FCO:1429103.1429148} in 2008 demonstrated a two-party computation protocol of a function
 $\mathcal{F}$ with communication overhead is a fixed constant factor larger than circuit size of $\mathcal{F}$. 
 
 
@@ -323,45 +324,95 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
  %   \section{Computing with encrypted data/functions}
 \subsection{Fully homomorphic encryption}
+    A cryptosystem is denoted as a fully homomorphic if it supports evaluation of two operations, \emph{addition} and \emph{multiplication} on ciphertexts
+    where the result after decryption matches the same operation on corresponding plaintexts.
+\begin{subequations}
+ \begin{align}
+    a + b     &\equiv D\left(E\left(a\right) \oplus E\left(b\right)\right) \\
+    a \cdot b &\equiv D\left(E\left(a\right) \odot  E\left(b\right)\right)
+ \end{align}
+\end{subequations}
     
+    The power of the the fully homomorphic system is in it's ability to evaluate an arbitrary function over 
+    encrypted data, without actually decrypting the data. This is exactly the situation where Alice want to outsource some computations
+    to Bob, but doesn't want Bob to learn her information. When the function is evaluated homomorphically, the result is again encrypted,
+    so only Alice is able to read it. This is done by using the concept from the previous chapter, \emph{arithmetic circuits}.
 
+    The function $\mathcal{F}$ that Alive wants to compute, is converted into the \emph{arithmetic circuits} that computes the same function. This circuit evaluated
+    over plaintext gives the wanted result, but note that it can be evaluated also over ciphertexts using the homomorphic property of
+    the cryptosystem. Intuitively, Alice sends circuit representing $\mathcal{F}$ to Bob, Bob evaluates the circuit on ciphertext and returns a result to Alice.
+    When Alice decrypts the result from Bob, obtains the result of $\mathcal{F}$.
 
+    It is important to emphasize that in this use case, the cryptosystem becomes a computational platform, 
+    since computations are carried in the cryptosystem. Thus the possible overheads slows down entire computation.
+        
+    \paragraph*{History.} 
 
-
-    The idea oh homomorphic encryption comes from 
+    The concept of \emph{computing with encrypted data} was first proposed by Rivest~\eal~\citep{Rivest1978} in~1978, a few months ago 
+    before introduction of RSA implementation. The suggested that fully homomorphic encryption may be possible, but were unable to find 
+    such scheme. The question whether it is possible to construct fully homomorphic scheme was an open problem for 30 years.
     
+    Some partially homomorphic schemes were known, for example RSA supports homomorphic evaluation of multiplication. 
+    There were also some limited homomorphic schemes published, for example \citep{Boneh:2005:EFC:2140004.2140029} in 2005. 
+    Their cryptosystem supports unlimited number of additions and one multiplication operation. Even this restricted 
+    scheme has interesting applications, for example efficient election system. 
+    
+    The breakthrough in this field was done by Gentry in 2009 \citep{Gentry:2009:FHE:1536414.1536440}. He demonstrated the fully 
+    homomorphic encryption (FHE) scheme is possible to construct, using an ideal lattices. Since then this field is undergoing a rapid development.
+    
+    \paragraph*{Key ideas.} 
+    Gentry first constructed ``\emph{somewhat homomorphic}'' scheme that supports evaluating of low-degree polynomials on ciphertexts.
+    The information is hidden in a large amount of \emph{noise}. Without going into further details, the main problem 
+    is the addition doubles and the multiplication squares the noise level. Once the level exceeds acceptable boundary, 
+    decryption is ambiguous even for Alice. 
+    
+    The ingenious idea of a noise reduction is called \emph{refreshing}. It is a process of evaluating decryption circuit 
+    homomorphically. Note that such evaluation produces again ciphertext, but the level of noise is normalized. 
+    
+    Using this idea, Gentry built the FHE from the somewhat homomorphic scheme, by periodically applying the refreshing 
+    operation when the noise reached the acceptable level.
 
+    \paragraph*{Recent advances.} 
+    There are three main FHE schemes known to date:
     \begin{enumerate}
-     \item cloud motivation
-     \item computing with encrypted data / functions
-     \item multiparty schemes using interaction
-     \item converting arbitrary function to network of boolean functions (or addition/multiplication)
-	\begin{enumerate}
-	 \item depth of the circuit
-	 \item universality vs. depth restriction
-	\end{enumerate}
-    
-%     \section{Mobile cryptography}
-%     [TODO] Motivation for white box cryptography
-%     \begin{itemize}
-%      \item computation with encrypted data
-%      \item computation with encrypted function
-%     \end{itemize}
-%
-%    \section{Homomorphic encryption}
-%     [TODO] Homomorphic encryption follows computation with encrypted data function.
-%    Motivation: cloud computation. Short history, recent state of the art...
-    
-    
-     \item simple schemes - GCD, somewhat homomorphic scheme, bootstraping, noise
-     \item summarize 3 different approaches (integer lattice, approximate GCD, learning with errors)
-     \item special somewhat schemes (unlimited addition, limited multiplication, uses)
-     \item new advances in 2010--2012, noise reduction techniques, modulus switching
-     \item SIMD execution with Chineese Remainder Theorem, slots of plaintext in ciphertext, cyclotomic ring of polynomials
-     \item practical usability, homomorphic AES implementation
-     \item state of the art practical results - numbers, key, running time
+     \item Gentry's original scheme based on ideal lattices. The implementation was introduced 
+	by Gentry~\eal\ in \citep{Gentry:2011:IGF:2008684.2008697}. The public key has a size $2.3$~GB, refreshing operation takes 30 minutes.
+
+    \item Dijk~\eal\ \citep{vanDijk:2010:FHE:2163822.2163825} scheme DGHV based on problem from number theory, approximate Greatest Common Divisor.
+	The latest results by Coron~\eal\ \citep{Coron:2012:PKC:2260849.2260886} from 2012, significantly reduced the public key size
+	to $10.3$~MB, refreshing operation takes $11$ minutes. The result from 2013 by Coron~\eal\ \citep{DBLP:journals/iacr/CoronLT13} 
+	added support for performing \emph{batch} operations with plaintexts, meaning it is possible to do the same operation simultaneously
+	on a vector of plaintext by just applying the operation in one ciphertext. The ciphertext has so-called plaintext slots embedded inside.
+	The fully homomorphic evaluation of AES encryption was performed, with amortized cost 12 minutes per 
+	AES block on a standard desktop computer.
+
+    \item Brakerski~\eal\ \citep{Brakerski:2011:FHE:2033036.2033075} Ring Learning with Errors (RLWE) scheme, based on a solving of a system
+	of equations where some may be false. The improvement by Brakerski~\eal\ \citep{Brakerski:2012:FHE:2090236.2090262} changed the noise 
+	management via \emph{modulus switching}. The refreshing procedure as used by Gentry is not necessary in this case. The noise is reduced
+	gradually after each multiplication, protecting from growing exponentially. This scheme also supports batch operations as previous one.
+	The fully homomorphic evaluation of AES encryption was performed \citep{journals/iacr/GentryHS12} with amortized time 37 minutes per 
+	AES block on a standard desktop computer with 256~GB RAM.
     \end{enumerate}
 
+    \paragraph*{Batch operation.}
+    As mentioned previously, batched operations are important improvement that supports to execute some operations in parallel.
+
+    In the original FHE scheme by Gentry, the plaintext being encrypted was only one bit, while ciphertext was 
+    by order of magnitudes larger, due to added noise. The main idea was that we are not using the plaintext space effectively.
+
+    The key idea was to embed more plaintext slots into ciphertext, so that operation performed over ciphertext 
+    is performed on a vector of embeded plaintext in slots, independently of each other.
+    
+    As an illustration\footnote{Example taken from \citep{gentryAfrica}} consider plaintext space is group $Z_{15} = Z_3 \times Z_5$, from Chinese Remainder Theorem.
+    Using this structure we obtain 2 slots for plaintext of size 3 and 5. Let's have two ciphertexts $c, c^{\prime}$
+    with $(p_3, p_5)$ and $(p_3^{\prime}, p_5^{\prime})$ in their plaintext slots respectively. 
+
+    Then after ADD$(c,c^{\prime})$ the plaintext slots are $(p_3 + p_3^{\prime}, p_5 + p_5^{\prime})$. The analogy holds for multiplication
+    MULT$(c,c^{\prime})$ then the plaintext slots are $(p_3 \cdot p_3^{\prime}, p_5 \cdot p_5^{\prime})$.
+    
+    The batching mechanism proposed \citep{Brakerski:2012:FHE:2090236.2090262} is based on the similar idea but uses 
+    ring that optimizes number of plaintext slots in ciphertext. 
+    
 \chapter{Whitebox cryptography}
     
     \section{Introduction}    
@@ -427,9 +478,9 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     The whitebox cryptography is a quite new field of cryptography. The study of the whitebox implementation of the ciphers started by first 
     whitebox implementation of AES~\citep{Chow02white-boxcryptography} and DES~\citep{Chow02awhite-box} by Chow~\eal~in~2002. 
     
-    At first the cryptanalysis of DES focused on simplified variant of DES. The first published in 2002 by Jacob~\eal
-    uses fault injection~\citep{conf/ccs/JacobBF02}, another one published in 2005 by Link\eal. uses statistical analysis~\citep{Link:2005:COI:1058430.1059147}.
-    Later cryptanalysis of fully encoded variant of DES was published by Wyseur~\eal~in~2007 using truncated differentials.
+    At first the cryptanalysis of DES focused on its simplified variant. The first published in 2002 by Jacob~\eal\ 
+    uses fault injection~\citep{conf/ccs/JacobBF02}, another one published in 2005 by Link~\eal\ uses statistical analysis~\citep{Link:2005:COI:1058430.1059147}.
+    Later cryptanalysis of fully encoded variant of DES was published by Wyseur~\eal\ in~2007 using truncated differentials.
    
     The similar case is AES. Two years after publishing whitebox AES scheme the successful cryptanalysis~\citep{Billet:2004:CWB:2080787.2080809} was
     published by Billet~\eal~that enabled to recover embedded symmetric 
