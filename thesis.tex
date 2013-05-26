@@ -155,7 +155,10 @@
 \end{ThesisThanks}
 
 \begin{ThesisAbstract}
-[TODO] Abstract here
+This thesis is focused on a study of security issues related to an execution of cryptographic algorithms in an untrusted environment.
+It mainly studies whitebox cryptography methods of transformation algorithms in such a way they resist attacks like key-extraction and inverting in some extent.
+Particularly it studies whitebox transformations of AES cipher and attacks on these transformations.
+This thesis proposes new improvements for  increasing resistance to known attacks.
 \end{ThesisAbstract}
 
 % BEGINING OF ENGLISH ABSTRACT
@@ -412,6 +415,9 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
     The batching mechanism proposed \citep{Brakerski:2012:FHE:2090236.2090262} is based on the similar idea but uses 
     ring that optimizes number of plaintext slots in ciphertext. 
+
+    \paragraph*{Note.} It is important to emphasize that even the FHE schemes provide a provably secure way of computing with encrypted data, 
+    they are still not usable in practice due to giant computational overhead. From this reason another techniques have to be studied.
     
 \chapter{Whitebox cryptography}
     
