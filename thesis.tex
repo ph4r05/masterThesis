@@ -151,7 +151,17 @@
 \end{ThesisDeclaration}
 
 \begin{ThesisThanks}
-[TODO] Thanks here
+I would like to express my gratitude to my thesis advisor, RNDr. Petr Švenda, Ph.D., for his guidance, helpfull ideas, patience and 
+non-negligible time invested in consultations what made this thesis possible. I am also grateful to people form 
+Laboratory of Security and Applied Cryptography of the Faculty of Informatics of Masaryk University, for their valuable comments,
+especially to RNDr. Jiří Kůr.
+
+I would like to thank my parents for their constant support, to my girlfriend, Martina Bošková, for her encouragement and inspiration.
+
+I am also thankfull to all my close friends for their advices and support.
+
+    
+% [TODO] Thanks here
 \end{ThesisThanks}
 
 \begin{ThesisAbstract}
@@ -219,7 +229,8 @@ whitebox attack resistant cryptography, AES, dual ciphers, whitebox cipher imple
     In chapter 5, improvements for whitebox schemes are proposed with their analysis. The last two chapters are devoted to possible further 
     research directions and conclusion.
 
-    I declare this thesis is my own work, but I consulted the problems and proposed solutions together with people from the Laboratory of Security of
+    I declare this thesis is my own work, but I consulted the problems and proposed solutions together with people from the 
+    Laboratory of Security and Applied Cryptography of the
     Faculty of Informatics of Masaryk University, and from this reason is a personal pronoun ``we'' used instead of ``I''.
 
 \chapter{Area overview}\label{sec:theory}
@@ -256,7 +267,7 @@ whitebox attack resistant cryptography, AES, dual ciphers, whitebox cipher imple
     to analyze and eventually to modify. The potential attacker should not be able to gain any knowledge from the running program, 
     in the ideal case, while the original functionality of the program is preserved.
 
-    The program obfuscation received an attention when Barak~\eal~formalized the notion of obfuscation
+    The program obfuscation received an attention when Barak~\eal\ formalized the notion of obfuscation
     in~\citep{Barak:2012:POP:2160158.2160159}, providing significant theoretical result
     that it is impossible to create a generic obfuscator. They did so by showing the existence of a (contrived) family of functions that 
     are unobfuscatable, i.e. the family of functions always leaking some information. They used assumption of existence of one-way functions.
@@ -273,7 +284,7 @@ whitebox attack resistant cryptography, AES, dual ciphers, whitebox cipher imple
     ciphertext for the same message $m$ under Bob’s public key. \citep{Hohenberger:2007:SOR:1760749.1760767}}.
 
     The question whether there exist family of potentially interesting functions for which exist provably secure obfuscators and how to construct them
-    is subject of ongoing research. But the work of Goldwasser~\eal~\citep{Goldwasser:2005:IOA:1097112.1097490} suggests it is unlikely. 
+    is subject of ongoing research. But the work of Goldwasser~\eal~\citep{Goldwasser:2005:IOA:1097112.1097490} suggest it is unlikely. 
     Namely they state that there exist many natural classes of functions that cannot be obfuscated w.r.t. auxiliary input.
 
     An \emph{approximate obfuscation} defined by Barak~\eal~\citep{Barak:2012:POP:2160158.2160159} is the relaxation of the functionality
@@ -326,7 +337,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
 
     
  %   \section{Computing with encrypted data/functions}
-\subsection{Fully homomorphic encryption}
+\subsection{Fully homomorphic encryption}\label{sec:fhe}
     A cryptosystem is denoted as a fully homomorphic if it supports evaluation of two operations, \emph{addition} and \emph{multiplication} on ciphertexts
     where the result after decryption matches the same operation on corresponding plaintexts.
 \begin{subequations}
@@ -357,8 +368,8 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
     Some partially homomorphic schemes were known, for example RSA supports homomorphic evaluation of multiplication. 
     There were also some limited homomorphic schemes published, for example \citep{Boneh:2005:EFC:2140004.2140029} in 2005. 
-    Their cryptosystem supports unlimited number of additions and one multiplication operation. Even this restricted 
-    scheme has interesting applications, for example efficient election system. 
+    Their cryptosystem is based on elliptic curves and supports unlimited number of additions and one multiplication operation. Even this restricted 
+    scheme has interesting applications, for example efficient election system, as proposed in their paper.
     
     The breakthrough in this field was done by Gentry in 2009 \citep{Gentry:2009:FHE:1536414.1536440}. He demonstrated the fully 
     homomorphic encryption (FHE) scheme is possible to construct, using an ideal lattices. Since then this field is undergoing a rapid development.
@@ -381,31 +392,51 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
      \item Gentry's original scheme based on ideal lattices. The implementation was introduced 
 	by Gentry~\eal\ in \citep{Gentry:2011:IGF:2008684.2008697}. The public key has a size $2.3$~GB, refreshing operation takes 30 minutes.
 
-    \item Dijk~\eal\ \citep{vanDijk:2010:FHE:2163822.2163825} scheme DGHV based on problem from number theory, approximate Greatest Common Divisor.
-	The latest results by Coron~\eal\ \citep{Coron:2012:PKC:2260849.2260886} from 2012, significantly reduced the public key size
-	to $10.3$~MB, refreshing operation takes $11$ minutes. The result from 2013 by Coron~\eal\ \citep{DBLP:journals/iacr/CoronLT13} 
-	added support for performing \emph{batch} operations with plaintexts, meaning it is possible to do the same operation simultaneously
-	on a vector of plaintext by just applying the operation in one ciphertext. The ciphertext has so-called plaintext slots embedded inside.
-	The fully homomorphic evaluation of AES encryption was performed, with amortized cost 12 minutes per 
-	AES block on a standard desktop computer.
+    \item Dijk's~\eal\ \citep{vanDijk:2010:FHE:2163822.2163825} scheme DGHV, based on problem from number theory, approximate Greatest Common Divisor.
+	\begin{itemize}
+	 \item simpler that previous scheme
+	 \item The latest results by Coron~\eal\ \citep{Coron:2012:PKC:2260849.2260886} from 2012, significantly reduced the public key size
+	to $10.3$~MB, refreshing operation takes $11$ minutes.
+	 \item The result from 2013 by Coron~\eal\ \citep{DBLP:journals/iacr/CoronLT13} 
+ 	added support for performing \emph{batch} operations with plaintexts%, meaning it is possible to do the same operation simultaneously
+% 	on a vector of plaintext by just applying the operation in one ciphertext. The ciphertext has so-called plaintext slots embedded inside.
+	\item The fully homomorphic evaluation of AES encryption was performed, with amortized cost 12 minutes per 
+	AES block on a standard desktop computer with 32~GB RAM.
+	\end{itemize}
+% 
+% 	The latest results by Coron~\eal\ \citep{Coron:2012:PKC:2260849.2260886} from 2012, significantly reduced the public key size
+% 	to $10.3$~MB, refreshing operation takes $11$ minutes. The result from 2013 by Coron~\eal\ \citep{DBLP:journals/iacr/CoronLT13} 
+% 	added support for performing \emph{batch} operations with plaintexts, meaning it is possible to do the same operation simultaneously
+% 	on a vector of plaintext by just applying the operation in one ciphertext. The ciphertext has so-called plaintext slots embedded inside.
+% 	The fully homomorphic evaluation of AES encryption was performed, with amortized cost 12 minutes per 
+% 	AES block on a standard desktop computer.
 
     \item Brakerski~\eal\ \citep{Brakerski:2011:FHE:2033036.2033075} Ring Learning with Errors (RLWE) scheme, based on a solving of a system
-	of equations where some may be false. The improvement by Brakerski~\eal\ \citep{Brakerski:2012:FHE:2090236.2090262} changed the noise 
+	of equations where some may be false.
+	\begin{itemize}
+	 \item The improvement by Brakerski~\eal\ \citep{Brakerski:2012:FHE:2090236.2090262} changed the noise 
 	management via \emph{modulus switching}. The refreshing procedure as used by Gentry is not necessary in this case. The noise is reduced
-	gradually after each multiplication, protecting from growing exponentially. This scheme also supports batch operations as previous one.
-	The fully homomorphic evaluation of AES encryption was performed \citep{journals/iacr/GentryHS12} with amortized time 37 minutes per 
+	gradually after each multiplication, protecting from growing exponentially.
+	 \item Improvement by Gentry~\eal\ \citep{Gentry:2012:RSB:2414993.2414996} adds batch operation, using a cyclotomic number field.
+	 \item The fully homomorphic evaluation of AES encryption was performed \citep{journals/iacr/GentryHS12} with amortized time 37 minutes per 
 	AES block on a standard desktop computer with 256~GB RAM.
+	\end{itemize}
+
+% 	The improvement by Brakerski~\eal\ \citep{Brakerski:2012:FHE:2090236.2090262} changed the noise 
+% 	management via \emph{modulus switching}. The refreshing procedure as used by Gentry is not necessary in this case. The noise is reduced
+% 	gradually after each multiplication, protecting from growing exponentially. This scheme also supports batch operations as previous one.
+% 	The fully homomorphic evaluation of AES encryption was performed \citep{journals/iacr/GentryHS12} with amortized time 37 minutes per 
+% 	AES block on a standard desktop computer with 256~GB RAM.
     \end{enumerate}
 
-    \paragraph*{Batch operation.}
-    As mentioned previously, batched operations are important improvement that supports to execute some operations in parallel.
+    \paragraph*{Batch operation,} also called plaintext ``packing'', is technique where one multiple independent plaintexts slots are embedded into a single ciphertext,
+    using proper algebraic structure. Then when an operation is performed on the ciphertext, it has effect 
+    like it is performed on the whole vector of plaintexts embedded in the ciphertext. 
+    This strongly resembles Single-Instruction-Multiple-Data (SIMD) architecture of a paralell computer. 
+    This adds significant improvement, since multiple blocks (like in AES case) are computed simultaneously, what gives better amortized running time
+    of algorithms.Recall in original Gentry's scheme,
+    the plaintext space size was only 1 bit. 
 
-    In the original FHE scheme by Gentry, the plaintext being encrypted was only one bit, while ciphertext was 
-    by order of magnitudes larger, due to added noise. The main idea was that we are not using the plaintext space effectively.
-
-    The key idea was to embed more plaintext slots into ciphertext, so that operation performed over ciphertext 
-    is performed on a vector of embeded plaintext in slots, independently of each other.
-    
     As an illustration\footnote{Example taken from \citep{gentryAfrica}} consider plaintext space is group $Z_{15} = Z_3 \times Z_5$, from Chinese Remainder Theorem.
     Using this structure we obtain 2 slots for plaintext of size 3 and 5. Let's have two ciphertexts $c, c^{\prime}$
     with $(p_3, p_5)$ and $(p_3^{\prime}, p_5^{\prime})$ in their plaintext slots respectively. 
@@ -416,14 +447,28 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     The batching mechanism proposed \citep{Brakerski:2012:FHE:2090236.2090262} is based on the similar idea but uses 
     ring that optimizes number of plaintext slots in ciphertext. 
 
-    \paragraph*{Note.} It is important to emphasize that even the FHE schemes provide a provably secure way of computing with encrypted data, 
-    they are still not usable in practice due to giant computational overhead. From this reason another techniques have to be studied.
+    \paragraph*{Somewhat homomorphic encryption schemes.} 
+    FHE schemes is a very active area of research nowadays, with still better and better improvements on a performance of the schemes,
+    but in spite of this the practical use of FHE is stil out of question due to its computational complexity. 
+    
+    Naehrig~\eal\ \citep{Naehrig:2011:HEP:2046660.2046682} proposed to sacrifice ``fully'' property and use just \emph{somewaht homomorphic schemes} (SWHM),
+    with limited number of multiplications. In this setup it is not possible to evaluate arbitraru function, but some families of functions can still be
+    useful. They give examples of application in medical, financial sectors and advertising.
+    
+    Boneh~\eal\ \citep{swhm-db01} designed and implemented a protocol for private database queries using somewhat homomorphic encryption.
     
 \chapter{Whitebox cryptography}
-    
     \section{Introduction}    
-% Whitebox def
-    In this part of a cryptography we are studying the cryptographic algorithms with a~much stronger attacker model, saying it is executed in a~whitebox context. 
+    Whitebox cryptography studies security issues related to an execution of cryptographic algorithms in an untrusted environment, it is 
+    than said to be executed in a \emph{whitebox context}.
+
+%     Key Recovery under Chosen Plaintext Attack (KR-CPA) and Plaintext recovery under chosen plaintext attack (PR-CPA), i.e.
+%     the cipher invertibility. 
+    
+%     A cryptographic algorithm executed in an untrusted environment is said to be executed in a whitebox context.
+% 
+% % Whitebox def
+%     In this part of a cryptography we are studying the cryptographic algorithms with a~much stronger attacker model, saying it is executed in a~whitebox context. 
 
 % attacker def
     \emph{Whitebox context} (also abbreviated as WBC) is itself defined by the attacker model, which was introduced by Chow \emph{et~al.}~\citep{Chow02white-boxcryptography} in 2002.
@@ -466,10 +511,13 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     is used by Twofish~\citep{Schneier98twofish:a} and in modified version (only adding the key material in the last round) also AES~\citep{2002-daemen}. In Key Whitening Attack
     cipher's binary is modified (we are in whitebox context) in such a~way that the output of the cipher will be the key material itself. 
     
-    The main goals of a~whitebox attack is to extract a~key material (usually the symmetric key) or to build an inverse cipher i.e. perform decryption 
-    with tables for encryption with a~embedded key.
+     Main two attacks in whitebox context are: (1) Key Recovery, i.e. an extraction of a embedded symmetric key. (2) Plaintext recovery under Chosen Plaintext Attack (PR-CPA), e.g. perform decryption with 
+ 	implementation of cipher with embedded encryption that is supposed to be able only to perform encryption.
 
-    Whitebox cryptography is closely related to the \emph{obfuscation} mentioned in section \ref{sec:obfuscation}. It is also a program transformation,
+%      The main goals of a~whitebox attack is to extract a~key material (usually the symmetric key) or to build an inverse cipher i.e. perform decryption 
+%      with tables for encryption with a~embedded key.
+
+    Whitebox cryptography is closely related to the \emph{obfuscation} mentioned in the section \ref{sec:obfuscation}. It is also a program transformation,
     but obfuscation as defined in literature is too restrictive and does not take specific security notios, e.g. cipher invertibility
     a.k.a. PR-CPA (plaintext recovery under chosen plaintext attack), into account. 
     
@@ -482,7 +530,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     % History overview, oorschot, billet, imposibility of obfuscation, generic attacks on AES, DES
     
     The whitebox cryptography is a quite new field of cryptography. The study of the whitebox implementation of the ciphers started by first 
-    whitebox implementation of AES~\citep{Chow02white-boxcryptography} and DES~\citep{Chow02awhite-box} by Chow~\eal~in~2002. 
+    whitebox implementation of AES~\citep{Chow02white-boxcryptography} and DES~\citep{Chow02awhite-box} by Chow~\eal\ in~2002. 
     
     At first the cryptanalysis of DES focused on its simplified variant. The first published in 2002 by Jacob~\eal\ 
     uses fault injection~\citep{conf/ccs/JacobBF02}, another one published in 2005 by Link~\eal\ uses statistical analysis~\citep{Link:2005:COI:1058430.1059147}.
@@ -491,7 +539,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     The similar case is AES. Two years after publishing whitebox AES scheme the successful cryptanalysis~\citep{Billet:2004:CWB:2080787.2080809} was
     published by Billet~\eal~that enabled to recover embedded symmetric 
     key in less that $2^{30}$ steps. Later in 2008 the generalized version of the previous attack
-    was published~\citep{Michiels:2007:MST:1314276.1314291} by Michiels~\eal~affecting the larger family of ciphers using the same structure as AES.   
+    was published~\citep{Michiels:2007:MST:1314276.1314291} by Michiels~\eal\ affecting the larger family of ciphers using the same structure as AES.   
    
     There were also attempts to fix whitebox AES scheme by adding additional linear mappings and increasing size of the implementation in~\citep{XiaoLai}
     as a~response to the Billet's attack.
@@ -662,7 +710,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     Another whitebox building block is a~\emph{mixing bijection}. It is a~linear transformation (represented as a~multiplication by a~non-singluar mixing bijection matrix)
     that realizes the diffusion. It is used together with the the IO~bijections to increase a~security level of the concatenated bijections, since it diffuses a~single change
     in the one sub-bijection to the whole range of the concatenated bijection. In order to fulfill this purpose properly, the mixing bijections has to be constructed
-    in a~special way. Zhou~\eal describes in~\citep{journals/iacr/XiaoZ02} the algorithm that generates large random non-singular matrices with blocks of a~full-rank.
+    in a~special way. Zhou~\eal\ describes in~\citep{journals/iacr/XiaoZ02} the algorithm that generates large random non-singular matrices with blocks of a~full-rank.
     The size of the sub-blocks is $4$ what matches the size of basic IO bijection what gives good diffusion properties for concatenated bijections. 
     
     Note that full-rank property of matrix blocks provides good level of diffusion. It lies somewhere between two extreme cases, random non-singular matrices without any
@@ -672,7 +720,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
     \paragraph*{External input/output encoding.}
     Consider AES protected with aforementioned whitebox techniques. The possible place where to attack is input and output of the algorithm, since it is not protected 
-    from a~whitebox attack. To mitigate this weakness Chow~\eal also introduces \emph{external} encoding that wraps the whole AES. Usually the cipher is not standalone element,
+    from a~whitebox attack. To mitigate this weakness Chow~\eal\ also introduces \emph{external} encoding that wraps the whole AES. Usually the cipher is not standalone element,
     but part of a~system. This technique helps to tie AES to its context and to prevent from using the cipher separately as an oracle.
 
     Whitebox implementation computes:
@@ -775,7 +823,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     to invert WB AES with negligible memory requirements.
 
     \section{The BGE attack}\label{sec:bge_attack}
-    The paper~\citep{Billet:2004:CWB:2080787.2080809} by Billet~\eal~demonstrated that whitebox AES implementation as described in the previous section is vulnerable
+    The paper~\citep{Billet:2004:CWB:2080787.2080809} by Billet~\eal\ demonstrated that whitebox AES implementation as described in the previous section is vulnerable
     to an algebraic attack. The attack is named after initials of authors, the BGE attack. It recovers the symmetric key from whitebox AES implementation and
     negligible memory requirements in $2^{30}$ computational steps.
     
@@ -1308,7 +1356,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     As the part of the assignment of this thesis was to implement 2--3 whitebox AES schemes, together with cryptanalysis, if is available. 
     The scheme using dual AES was chosen to be implemented, since in the time of making this decision there was no published cryptanalysis
     of this scheme and it had interesting and easy construction. The fact it is generalization of the original whitebox AES scheme
-    published by Chow~\eal~is additional benefit what simplifies the implementation.
+    published by Chow~\eal\ is additional benefit what simplifies the implementation.
     
     \subsection{NTL library}
     Recall AES cipher uses finite fields algebra extensively, namely in $\gf$ and $\gfe$. For this reason the library
@@ -1331,7 +1379,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
     \subsection{Mixing Bijections}
     As described in section \ref{sec:whitebox_aes_scheme_chow} the mixing bijection matrices has to have special form in order to provide sufficient 
-    level of protection. The algorithm described by Zhou~\eal in~\citep{journals/iacr/XiaoZ02} to generate matrices with desired properties was implemented.
+    level of protection. The algorithm described by Zhou~\eal\ in~\citep{journals/iacr/XiaoZ02} to generate matrices with desired properties was implemented.
     
     This part of the implementation is independent on whitebox context and thus can be used separately, to generate matrices with good diffusion properties.
     
@@ -1358,7 +1406,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     dimension being non-singluar. For our parameters the value converges around $0.2888$ so it is enough to generate a random matrix
     and test whether it is invertible. Within 4 iterations the non-singular matrix is found with sufficient high probability.
 
-    The rest of the algorithm for construction mixing bijections follows the paper by Zhou~\eal.
+    The rest of the algorithm for construction mixing bijections follows the paper by Zhou~\eal~\citep{journals/iacr/XiaoZ02}.
     
     \begin{table}[!htb]
     \begin{center}
@@ -1383,7 +1431,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     on the rest of the implementation so it can be used separately. 
     
     Note the attack on perturbated whitebox AES scheme~\citep{conf/indocrypt/MulderWP10} 
-    and the attack on Xiao~\eal~implementation~\citep{conf/sacrypt/MulderRP12} uses this algorithm so it is particularly interesting and useful tool. It can be also used to analyze properties
+    and the attack on Xiao~\eal\ implementation~\citep{conf/sacrypt/MulderRP12} uses this algorithm so it is particularly interesting and useful tool. It can be also used to analyze properties
     of new S-boxes proposed in sections \ref{sec:twofish_sbox} and \ref{sec:improvement_analysis} during a further research.
     
     \subsection{Whitebox AES}
@@ -1392,7 +1440,7 @@ $\mathcal{F}$ with communication overhead is a fixed constant factor larger than
     
     It is important to emphasize the implementation is not optimized. The main focus was on the code readability and simplicity.
     
-    The fact the dual AES scheme is generalization of scheme proposed by Chow~\eal~makes implementation simpler. If all dual ciphers used in the scheme are the 
+    The fact the dual AES scheme is generalization of scheme proposed by Chow~\eal\ makes implementation simpler. If all dual ciphers used in the scheme are the 
     standard AES the original scheme by Chow is obtained. 
     
     One can choose several options how to generate whitebox AES. It is possible to 
