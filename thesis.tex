@@ -1736,21 +1736,21 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{equation}
     \end{myprop}
     
-    Recall that $(2n,\; n,\; n+1)$-code is MDS \footnote{$(n,\;k,\;d)$-code is MDS iff $d=n-k+1$}. Reed-Solomon codes are subset of MDS codes, so their 
-    parity check matrix can be used as MDS matrix, in the cipher acting as a~strong diffusion element. MDS matrices derived from Reed-Solomon codes are used by many 
+    Recall that $(2n,\; n,\; n+1)$-code is MDS \footnote{$(n,\;k,\;d)$-code is MDS iff $d=n-k+1$}. Reed-Solomon codes are subset of the MDS codes, so their 
+    parity-check matrix can be used as MDS matrix in the cipher acting as a~strong diffusion element. The MDS matrices derived from the Reed-Solomon codes are used by many 
     ciphers, for example Twofish, Shark. 
 
     In our case we would be interested in $(32,\;16,\;17)$-code, to obtain $16 \times 16$ MDS matrix with wanted properties.
     
-    Another way how to generate MDS matrices with is described in~\citep{Roth:1985:GMM:7030.7044} using Cauchy matrices. 
+    Another way how to generate the MDS matrices is described in~\citep{Roth:1985:GMM:7030.7044} using \emph{Cauchy matrices}\footnote{\url{http://www.proofwiki.org/wiki/Definition:Cauchy_Matrix}}. 
 
-    It is important to mention that ciphers using MDS matrix as diffusion element usually puts additional requirements on the MDS matrix, also optimizing
-    performance and simplicity in hardware implementation. In blackbox context it is usually security/performance trade off. In whitebox context we need
-    to have diffusion element very strong, so we can neglect performance point of view to increase security.
+    It is important to mention that ciphers using the MDS matrix as the diffusion element usually put additional requirements on the MDS matrix, also optimizing
+    the performance and simplicity of a hardware implementation. In the blackbox context it is usually the security/performance trade off. In the whitebox context we need
+    to have a diffusion element very strong, so we can sacrifice the performance in order to increase a security.
     
-    Also article \cite{mds_aes} mentions AES diffusion layer modification from $4 \times 4$ to $16 \times 16$ MDS matrix, argumenting with 
-    stronger security within one round, what is particularly interesting in whitebox context. They are constructing MDS matrix using Cauchy matrices. Cauchy matrices
-    depends on the first row only, this increases possible diversity of $16 \times 16$ MDS matrices helping the following idea - key dependent diffusion.
+    Also an article \cite{mds_aes} mentions AES diffusion layer modification from $4 \times 4$ to $16 \times 16$ MDS matrix, argumenting with a
+    stronger security within one round, what is particularly interesting in the whitebox context. They constructs the MDS matrix using Cauchy matrices. Cauchy matrices
+    depend on the first row only, this increases a possible diversity of $16 \times 16$ MDS matrices helping the following idea - a key dependent diffusion element.
 
     \begin{figure*}
     \begin{center}
@@ -1762,8 +1762,8 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \label{fig:aes_mds}
     \end{figure*}
     
-    Consider also idea to have key-dependent MDS matrices. If we can generate set $S_{MDS}$ of MDS matrices representing optimal linear mapping, their selection 
-    can be based on key-dependent criteria. Set $S_{MDS}$ can be also extended using following proposition from~\citep{journals/iacr/MalikN11}.
+    Consider also idea to have key-dependent MDS matrices. If we can generate the set $S_{MDS}$ of MDS matrices representing an optimal linear mapping, their selection 
+    can be based on a key-dependent criteria. Set $S_{MDS}$ can be also extended using following proposition from~\citep{journals/iacr/MalikN11}.
 
     \begin{myprop}
 	Let $B = \left[b_{i,j} \right]_{n \times n},\; b_{i,j} \in \mathbb{F}_q$ an MDS matrix, for an element $e \in \mathbb{F}_q, \; e \neq 0$, $e \cdot B$ is an MDS matrix.
@@ -1773,7 +1773,8 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     the Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients (thus key-independent).    
     
     \section{Analysis}\label{sec:improvement_analysis}
-    In this chapter we try to analyze suggested scheme improvement from whitebox point of view, particularly we try to mount BGE attack to this modified variant. 
+    In this chapter we try to analyze the suggested scheme improvements from the whitebox point of view, particularly we try to mount the BGE attack to this modified variant. 
+    Note the diffusion layer modification is not assumed here, but in the next section.
 
     S-box definitions are needed in proposition 3 in BGE attack where we obtain 4 affine mappings.
     \begin{subequations}\label{eq:BGE_prop3}
@@ -1786,27 +1787,27 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{subequations}
     
     In our implementation of the BGE attack we iterate over $\left(\delta_i, c_i\right)_{i=0,\dots,3} \in \gfe \times \gfe$ what gives complexity $2^{16}$ for one mapping.
-    In each step is mapping checked for affinity in $2^8$ steps (for affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
+    In each step is mapping checked for an affinity in $2^8$ steps (for the affinity check algorithm see \ref{appendix:affcheck}), altogether one relation takes $2^{24}$ steps, for all relations
     $2^{26}$ steps.
     
-    Here is the place where we use public knowledge of AES S-Box definitions. One way how to mount BGE attack to this modified variant is to guess also particular S-box
-    mapping for each $\widetilde{P}$ and to test for its affinity. 
+    Here is the place where we use public knowledge of AES S-Box definitions. One way how to mount the BGE attack to this modified variant is to guess also a particular S-box
+    mapping for each $\widetilde{P}$ and to test it for affinity. 
     
-    Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mappings stored as look-up table takes $2^8$ bytes.
+    Equations \ref{eq:twofish_sbox} describe Twofish S-boxes. There are $2^{16}$ possible $s_0$ S-boxes. One S-box mapping stored as look-up table takes $2^8$ bytes.
     Thus pre-computed $s_0$ s-box for all possible key bytes would take $2^8 \cdot 2^{16} = 2^{24} > 10^7$ bytes. 
     
-    Even if attacker determines round keys for S-boxes it will be completely useless for further extraction of cipher key since hash chains are different. 
+    Even if an attacker determines round keys for S-boxes it will be completely useless for further extraction of the cipher key since the hash chains are different. 
     
-    Twofish S-boxes thus increase complexity of proposition 3 from BGE from $2^{24}$ to $2^{40}$. This is still not strong enough, it is highly parallelizable problem.
-    In order to increase work needed to mount proposition 3 attack one could redefine key-dependent S-boxes to increase attack complexity to level $2^{128}$ what is larger
-    than best known attack on AES~\citep{cryptoeprint:2011:449}. We then would S-box need to depend on 13 bytes derived from encryption key. Upper bound on number of different non-linear S-boxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand 
-    S-box space. 
+    Twofish S-boxes thus increase a complexity of the Proposition 3 from the BGE from $2^{24}$ to $2^{40}$ steps. This is still not strong enough, it is a highly parallelizable problem.
+    In order to increase the work needed to mount the Proposition 3 attack, one could redefine key-dependent S-boxes to increase attack complexity to level $2^{128}$, what is larger
+    than best known attack on AES~\citep{cryptoeprint:2011:449}. We then would need S-box to depend on 13 bytes derived from the encryption key. Upper bound on number of different 
+    non-linear S-boxes is $256! \approx 8,5\cdot 10^{506}$ so there are still options to expand the S-box space. 
     
     \begin{equation}\label{eq:complex_sbox}
 	s^{\prime}_{j}\left(x\right) = sboxgen(j,12,x)
     \end{equation}
     
-    S-box is generated recursively by $sboxgen$ (defined in \ref{eq:sboxgen}), following the idea of nesting fixed permutations with addition of round key:
+    The S-box is generated recursively by a $sboxgen$ (defined in \ref{eq:sboxgen}), following the idea of nesting fixed permutations with addition of the round key:
     
     \begin{equation}\label{eq:sboxgen}
 	sboxgen(j,l,x) = \left\{ 
@@ -1816,37 +1817,38 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	\end{array} \right.
     \end{equation}
     
-    Where $q^{\prime}_{j,l}$ is one of two fixed Twofish 8-bit permutations. Particular sequence of nested permutations requires deeper analysis, to avoid possible weaknesses 
-    induced by composing inappropriate permutations together, but we can choose for example:
+    Where $q^{\prime}_{j,l}$ is one of two fixed Twofish 8-bit permutations. In order to select a good sequence of nested permutations,
+    a deeper analysis woudl be needed, to avoid possible weaknesses 
+    induced by composing inappropriate permutations together. We can choose for example:
     \setcounter{MaxMatrixCols}{13}
-    \begin{subequations}
-    \begin{align}
+    \begin{equation}
+    \begin{aligned}
 	q^{\prime}_{0} &= \begin{bmatrix}  q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_1 & q_0 & q_0 \end{bmatrix}\\
 	q^{\prime}_{1} &= \begin{bmatrix}  q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 \end{bmatrix}\\
 	q^{\prime}_{2} &= \begin{bmatrix}  q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 & q_0 & q_1 & q_1 & q_0 \end{bmatrix}\\
 	q^{\prime}_{3} &= \begin{bmatrix}  q_0 & q_0 & q_0 & q_1 & q_1 & q_1 & q_0 & q_0 & q_0 & q_1 & q_1 & q_1 & q_1 \end{bmatrix}
-    \end{align}
-    \end{subequations}
+    \end{aligned}
+    \end{equation}
 
-    We suggest to study linear/affine self-equivalences~\citep{Biryukov:2003:TCL:1766171.1766175} during analysis of S-boxes generated by this algorithm.
+    We suggest to study linear/affine self-equivalences~\citep{Biryukov:2003:TCL:1766171.1766175} as a part of an further analysis of the S-boxes generated by this algorithm.
 
-    Proposed S-Boxes give us good security margin for the BGE attack, raising computational complexity to $2^{128}$. 
+    Proposed S-Boxes give us a good security margin for the BGE attack, raising computational complexity to $2^{128}$ steps. 
     Pre-computed $s_0$ S-box for all possible key bytes would take $2^8 \cdot 2^{8\cdot13} = 2^{112} > 10^{33}$ bytes. 
 
-    Also as long as are SHA-256 and bcrypt uncracked, key extraction should be unfeasible, since it is not possible to invert hash easily. 
+    Also, as long as are SHA-256 and bcrypt uncracked, key extraction should be unfeasible, since it is not possible to invert the hash easily. 
 
-    Cipher modification that affects only S-boxes and round keys, so other parts of the BGE attack are not affected, namely transforming non-linear parts
-    to affine, propositions 1 and 2 work as before. 
+    The proposed cipher modifications affects only S-boxes and round keys, so other parts of the BGE attack are not affected, namely transforming non-linear parts
+    to affine, the Propositions 1 and 2 work as before modifications. 
 
-    Cipher modification don't increase table sizes, because modifications made are only in S-box definitions and key schedule - both 
-    parts of the cipher are already evaluated and stored in the look-up tables. Our modifications also don't affect encryption/decryption performance since the only
-    difference is made during particular whitebox instance (look-up tables) generation. Encryption/decryption algorithm itself is not affected.
+    The cipher modifications don't increase table sizes, because modifications are made only in S-box definitions and key-schedule - both 
+    parts of the cipher are already evaluated and stored in the look-up tables. Our modifications also don't affect the encryption/decryption performance since the only
+    difference is made during particular whitebox instance (look-up tables) generation. An encryption/decryption algorithm itself is not affected.
     
     \section{Analysis of diffusion layer modification}
-    Taking also section \ref{sec:cipher_invert_improvement} into account will result also in bigger look-up tables. Mainly type II tables are affected, previously 
+    Taking also the section \ref{sec:cipher_invert_improvement} into account will result in bigger look-up tables. Mainly type II tables are affected, previously 
     it was mapping $2^8 \rightarrow 2^{32}$, with cascade of XOR tables to sum four $32$-bit values to obtain one column of state array. Now type II tables are
-    $2^8 \rightarrow 2^{128}$, with cascade of XOR tables to obtain whole state column vector. Cipher with modified structure uses type 1 tables instead of type II tables
-    and cascade of XOR tables is working in the same manner as in external encodings in the first and the last round.
+    $2^8 \rightarrow 2^{128}$, with cascade of XOR tables to a obtain whole state column vector. The cipher with modified structure uses type I tables instead of type II tables.
+    Cascade of XOR tables is working in the same manner as in the external encodings in the first and the last round.
 
     Table \ref{tbl:table_sizes} summarizes changes in table sizes of WB AES. From this is visible that
     they come at a~substantial price ($215\%$) compared to the original whitebox AES implementation.
@@ -1870,72 +1872,74 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{table}
     \end{center}
     
-    From security point of view this modifications also prevents inverting attack mentioned in section \ref{sec:cipher_invertibility}. Function is now too wide to be
+    From the security point of view this modifications also prevent the inverting attack mentioned in section \ref{sec:cipher_invertibility}. The function is now too wide to be
     inverted by running over $\gfe^{16}$. 
     
-    Key-dependent MDS matrix also prevents mounting the BGE attack. In particular we don't know MixColumn matrix coefficients so we are not able to construct set $\beta$
-    from section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so Proposition 2 and 3 from the BGE attack won't work anymore. 
-    This also makes recovering 
-    affine parts of I/O encodings unfeasible, using this attack. But recovering non-linear parts of random IO bijections is not affected by these modifications.
+    The key-dependent MDS matrix also prevents mounting the BGE attack. In particular we don't know MixColumn matrix coefficients so we are not able to construct the set $\beta$
+    from the section 3.3 in \cite{Billet:2004:CWB:2080787.2080809}. This leads to further ambiguities so the Proposition 2 and 3 from the the BGE attack won't work anymore. 
+    This also makes complete recovering of I/O encodings unfeasible, using this attack. 
+    The transformation of random IO bijections to affine is not affected by these modification, but the parameters of the affine IO bijections are unkown.
 
-    As noted above, also  Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients, that are not known in our proposal
+    As noted above, also the Generic attack by Michiels~\citep{Michiels:2007:MST:1314276.1314291} requires known MDS matrix coefficients, that are not known in our proposal
     due to their key-dependency.
     
     \section{Drawbacks}
-    By modification of AES design we are coming up with new cipher, what brings also some possible problems. AES and Twofish have advantage of being well analyzed from blackbox 
-    context and being relatively secure. Designing a~new cipher may help with increasing security in whitebox context but there also may be weaknesses in blackbox context. 
-    It would be needed to analyze the new cipher from this point of view, for example for resistance to linear or differential cryptanalysis. There is no guarantee that 
-    proposed cipher modifications are strong enough to resist classical blackbox context cryptanalysis.
+    By modification of an AES design we are coming up with a new cipher, what could also bring some possible problems. AES and Twofish have advantage of being well analyzed from the blackbox 
+    context and being relatively secure. Designing a~new cipher may help to increase security level in whitebox context but there also may be weaknesses in the blackbox context. 
+    It would be needed to analyze the new cipher from this point of view, for example for a resistance to the linear or differential cryptanalysis.
+
+    We tried to design the scheme improvements following the standard established principles for a designing a secure block cipher, inspired by AES, Twofish, Shark and others.
+    However, there is no guarantee that the proposed cipher is strong enough to resist classical blackbox context cryptanalysis.
     
-    But when designing scheme improvements we tried to follow standard principles in designing secure block cipher, inspired by AES, Twofish, Shark and others.
-    
-%     \section{Discussion}
-%     Few words about field, discussion about WB cryptography.
-    
+%     There is no guarantee that 
+%     proposed cipher modifications are strong enough to resist classical blackbox context cryptanalysis.
+%     
+%     But when designing scheme improvements we tried to follow standard principles in designing secure block cipher, inspired by AES, Twofish, Shark and others.
+
 \chapter{Future work}\label{sec:futurework}
-    As a~future work we would like to study blackbox properties of suggested improved cipher. In particular it is worth to study S-box construction, to test
-    it for possible weaknesses. It will be needed to model S-boxes as algebraic equations and to test it for fixed points, for example. One can also study this S-boxes
-    and their differential / linear probability coefficients (measuring resistance of an S-box to differential / linear cryptanalysis). Testing S-boxes 
+    As a~future work we would like to study the blackbox properties of suggested improved cipher. In particular, it is worth to study the S-box construction and to test
+    it for possible weaknesses. It will be needed to model S-boxes as algebraic equations and to perform various test, e.g. number of fixed points. One can also study these S-boxes
+    and their differential / linear probability coefficients (measuring a resistance of the S-box to a differential / linear cryptanalysis). Testing S-boxes 
     for Square and linear approximation attacks are also possible research directions.
     
-    Resistance to the BGE attack results from dependence on 13 round key bytes. If one shows that S-box space is smaller than assumed, it can be a vulnerability 
-    that can be exploited by a whitebox attack. Possible, a deeper study of key-dependent S-boxes construction will be needed. One could also analyze key-dependent
+    The resistance to the BGE attack results from dependence on 13 round key bytes. If one shows that S-box space is smaller than assumed, it can be a vulnerability 
+    that can be exploited by a whitebox attack. Possible, a deeper study of the key-dependent S-boxes construction will be needed. One could also analyzethe  key-dependent
     S-boxes of another ciphers, e.g. Blowfish~\citep{Schneier:1993:DNV:647930.740558}. 
     
-    We are proposing the systematic generation of MDS matrices in the previous chapter. It would be needed to analyze the size of MDS matrix space and
+    We are proposing the systematic generation of the MDS matrices in the previous chapter. It would be needed to analyze the size of the MDS matrix space and
     the contribution of the key-dependence to the increasing resistance to attacks.
     
-    We would like to examine attacks on whitebox implementations, when each round of the cipher is considered as a~single mini-cipher with its own key. Whitebox
-    cipher implementation then would be a network of serially connected mini-ciphers. From this point of view, we would be interested in resistance of the mini-ciphers
-    to linear and differential cryptanalysis.
+    We would like to examine attacks on whitebox implementations, where each round of the cipher is considered as a~single mini-cipher with its own key. The whitebox
+    cipher implementation then would be a network of serially connected mini-ciphers. From this point of view, we would be interested in a resistance of the mini-ciphers
+    to a linear and differential cryptanalysis.
 
-    From the fact the cryptanalysis uses algebraic approach to break the AES based scheme, it would be needed to study schemes with complex algebraic 
+    From the fact the cryptanalysis uses algebraic approach to break the AES based scheme, it would be needed to study and adapt ideas from schemes with a complex algebraic 
     representation, in order to make the algebraic analysis more difficult. For example an IDEA \citep{Lai:1991:PNB:112331.112375} is a cipher 
-    with complex algebraic representation. The design of IDEA is supported by a careful analysis of the interaction and algebraic incompatibilities 
+    with a complex algebraic representation. The design of IDEA is supported by a careful analysis of the interaction and algebraic incompatibilities 
     of operations across the groups $\left(\mathbb{F}_2^n, \oplus\right)$, $\left(\mathbb{Z}_{2^n}, \boxplus\right)$ 
     and $\left(\mathbb{Z}^{\ast}_{2^n+1}, \odot\right)$~\citep{Menezes:1996:HAC:548089}.
     
     Since the basic building block, look-up tables with XOR function, is vulnerable to recovering non-linear bijections, what enables to mount 
-    a potential algebraic attack, it is needed to come up with new building blocks, resistant to this kind of attacks. Possibly adding some noise or working
-    with real numbers could help in constructing new, probabilistic building blocks.
+    a potential algebraic attack, it is needed to come up with new building blocks, resistant to this kind of attacks. Possibly adding some noise could help 
+    in constructing new, probabilistic building blocks.
     
-    The important part of the further research should be devoted to an analysis of known hard problems and their possible use in whitebox cryptography.
-    Incorporating such hard problem to a cipher on one hand should not limit its proper use, on the another hand it should be difficult for an attacker to break
+    The important part of the further research should also be devoted to an analysis of known hard problems and their possible use in whitebox cryptography.
+    Incorporating such a hard problem to a cipher should not limit its proper use, and what is more, it should be difficult for an attacker to break
     such scheme.     
 
 \chapter{Conclusion}\label{sec:conclusion}   
-    This thesis gives an introduction to a computing in an untrusted environment, summarizes current state of the art in this field, focusing 
+    This thesis gives an introduction to a computing in an untrusted environment and summarizes current state of the art in this field, focusing 
     mainly on the obfuscation, fully homomorphic encryption and whitebox cryptography.
     
     Foundations and the basic building blocks used in whitebox implementations were explained. The thesis further goes through 
-    the construction of classical and new whitebox scheme using AES. The proof that scheme using dual ciphers is not more secure than the classical one 
-    was given. This result is new and was not found in the literature before. The thesis also describes implementation of those schemes and 
+    the construction of classical and new whitebox schemes using AES. The proof that scheme using dual ciphers is not more secure than the classical one 
+    was given. This result is new and was not published before. The thesis also describes implementation of those schemes and 
     the attack. The implementation is publicly available so that researches interested in whitebox cryptography could use it, test their new improvements and
-    attacks, since it provides flexible framework for whitebox applications and implemented examples.
+    attacks, since it aims at providing flexible framework for whitebox applications.
     
-    The thesis also suggests some new improvements that should increase resistance to the algebraic attack, with following analysis of the improvements, but
+    The thesis also suggests some new improvements that should increase a resistance to the algebraic attack, with following analysis of the improvements. But
     there is still a work to be done toward making whitebox implementation secure. The current state of the art suggests new primitives must be discovered, since
-    no strong whitebox non-broken implementation was published. As the literature \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd} suggest, in order 
+    no strong whitebox non-broken implementation is known. As the literature \citep{Billet:2004:CWB:2080787.2080809, wyseurPhd} suggest, in order 
     to design a strong scheme, new and innovative approaches has to be used. It is suggested to design a new cipher, with whitebox implementation pitfalls in mind.
     This thesis attempted to make such a small step toward this target by modifying the design of AES, introducing key-dependent building blocks.
     
@@ -1944,20 +1948,20 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 \chapter{Appendix A}
     \section{Attachments}\label{appendix:attach}
     The electornic archive of this thesis contains a folder \emph{impl} that contains implemented algorithms. 
-    The following list put files with given file name prefix and implemented algorithm into a relation:
+    The following list puts files with given file name prefix and implemented algorithm into a relation:
     \begin{itemize}
      \item \verb+NTLUtils+ contains some helper methods for NTL library
      \item \verb+MixingBijections+ contains algorithm for generating mixing bijections as described in the sections \ref{sec:mixingBijections01} and \ref{sec:mixingBijectionsImpl}
      \item \verb+LinearAffineEq+ contains algorithm for finding linear and affine equivalences as described in the sections \ref{sec:wb_dual_aes} and \ref{sec:linearAffineEqImpl}
      \item \verb+GenericAES+ implements generalized AES, with adjustable irreducible polynomial and generator, as described in the section \ref{sec:genericAES}
      \item \verb+WBAES+ implements both whitebox AES scheme described by Chow~\eal~\citep{Chow02white-boxcryptography} and Karroumi~\citep{Karroumi:2010:PWA:2041036.2041060}
-     \item \verb+WBAESGenerator+ contains algorithm for generating schemes mentioned from the previous point
+     \item \verb+WBAESGenerator+ contains algorithm for generating schemes mentioned in the previous point
      \item \verb+BGEAttack+ implements the BGE attack as described in the sections \ref{sec:bge_attack} and \ref{sec:bge_attack_impl}
-     \item \verb+main+ contains benchmarking operations, compiles to binary executable code, use \verb+--help+ for more details
+     \item \verb+main+ contains benchmarking tests, compiles to binary executable code, use \verb+--help+ for more details
     \end{itemize}
     
     \section{Hardware and software specifications}\label{appendix:hw_spec}
-    Several performance tests were performed in this thesis, here is detailed description of used hardware and software.
+    Several performance tests were performed in this thesis, here is a detailed description of used hardware and software.
     
     \begin{center}
     \begin{table}[ht]
@@ -1976,7 +1980,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{center}
     
     \section{Squaring matrix}\label{appendix:sqr_matrix}
-    Here is shown how to compute matrix $Q$ from section \ref{sec:wb_dual_aes} that represents squaring operation in $\gfe$. Consider the following proposition:
+    Here is shown how to compute matrix $Q$ from the section \ref{sec:wb_dual_aes} that represents squaring operation in $\gfe$. Consider the following proposition:
     
     \begin{myprop}\label{prop:squaring_is_linear}
      $\forall a,b \in \gfe \; : \; \left(a + b\right)^2 = a^2 + b^2$. 
@@ -2057,7 +2061,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 
 
     \section{Affinity check}\label{appendix:affcheck}
-    In this section we describe affinity check needed in proposition 3 of BGE attack. We are given relation $\widetilde{P}$ as a~look-up table
+    In this section we describe affinity check needed in proposition 3 of the BGE attack. We are given relation $\widetilde{P}$ as a~look-up table
     and the task is to test it for affinity. If $\widetilde{P}$ is affine it must hold:
     \begin{equation}
 	\widetilde{P}\left(x\right) = M \times x \oplus c
