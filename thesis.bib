@@ -4,29 +4,31 @@
  author = {Menezes, Alfred J. and Vanstone, Scott A. and Oorschot, Paul C. Van},
  title = {Handbook of Applied Cryptography},
  year = {1996},
- isbn = {0849385237},
+ isbn = {0-8493-8523-7},
  edition = {1st},
  publisher = {CRC Press, Inc.},
  address = {Boca Raton, FL, USA},
 } 
 
 % mobile cryptography
-@proceedings{mobile_cryptography,
-    author = {Thomas Sander and Christian F. Tschudin},
-    citeulike-article-id = {341426},
-    citeulike-linkout-0 = {http://ieeexplore.ieee.org/xpls/abs\_all.jsp?arnumber=674837},
-    journal = {Security and Privacy, 1998. Proceedings. 1998 IEEE Symposium on},
-    keywords = {mobilecrypt},
-    pages = {215--224},
-    posted-at = {2005-10-05 15:16:46},
-    priority = {2},
-    title = {{Towards mobile cryptography}},
-    url = {http://ieeexplore.ieee.org/xpls/abs\_all.jsp?arnumber=674837},
-    year = {1998}
+@inproceedings{mobile_cryptography,
+  title = {Towards Mobile Cryptography},
+  author = {Tomas Sander and Christian F. Tschudin},
+  year = {1998},
+  doi = {http://dx.doi.org/10.1109/SECPRI.1998.674837},
+  tags = {mobile},
+  researchr = {http://researchr.org/publication/SanderT98},
+  cites = {0},
+  citedby = {0},
+  pages = {215-224},
+  booktitle = {Security and Privacy - 1998 IEEE Symposium on Security and Privacy, Oakland, CA, USA, May 3-6, 1998, Proceedings},
+  publisher = {IEEE Computer Society},
+  isbn = {0-8186-8386-4},
 }
 
 % obfuscators
 % http://www.wisdom.weizmann.ac.il/~oded/PS/obf4.pdf
+% url = {http://dl.acm.org/citation.cfm?id=646766.704152},
 @inproceedings{Barak:2012:POP:2160158.2160159,
  author = {Barak, Boaz and Goldreich, Oded and Impagliazzo, Russell and Rudich, Steven and Sahai, Amit and Vadhan, Salil P. and Yang, Ke},
  title = {On the (Im)possibility of Obfuscating Programs},
@@ -36,7 +38,6 @@
  isbn = {3-540-42456-3},
  pages = {1--18},
  numpages = {18},
- url = {http://dl.acm.org/citation.cfm?id=646766.704152},
  acmid = {704152},
  publisher = {Springer-Verlag},
  address = {London, UK, UK},
@@ -51,6 +52,7 @@
 }
 
 % obfuscating re-encryption algorithms
+% url = {http://dl.acm.org/citation.cfm?id=1760749.1760767},
 @inproceedings{Hohenberger:2007:SOR:1760749.1760767,
  author = {Hohenberger, Susan and Rothblum, Guy N. and Shelat, Abhi and Vaikuntanathan, Vinod},
  title = {Securely obfuscating re-encryption},
@@ -61,7 +63,6 @@
  location = {Amsterdam, The Netherlands},
  pages = {233--252},
  numpages = {20},
- url = {http://dl.acm.org/citation.cfm?id=1760749.1760767},
  acmid = {1760767},
  publisher = {Springer-Verlag},
  address = {Berlin, Heidelberg},
@@ -160,7 +161,8 @@
     booktitle={Secure Multiparty Computation and Secret Sharing - An Information Theoretic Appoach},
     author={Ronald Cramer and Ivan Damgard and Jesper Buus Nielsen},
     year={2012},
-    howpublished={[online] \url{http://www.daimi.au.dk/~ivan/MPCbook.pdf}, cit. 26.5.2013 }
+    url = {http://www.daimi.au.dk/~ivan/MPCbook.pdf},
+    howpublished={[online], accessed 26.5.2013 }
 }
 
 % secure multiparty schemes - computational bound
@@ -235,6 +237,7 @@
 } 
 
 % Implementing gentry
+% url = {http://dl.acm.org/citation.cfm?id=2008684.2008697},
 @inproceedings{Gentry:2011:IGF:2008684.2008697,
  author = {Gentry, Craig and Halevi, Shai},
  title = {Implementing Gentry's fully-homomorphic encryption scheme},
@@ -245,7 +248,6 @@
  location = {Tallinn, Estonia},
  pages = {129--148},
  numpages = {20},
- url = {http://dl.acm.org/citation.cfm?id=2008684.2008697},
  acmid = {2008697},
  publisher = {Springer-Verlag},
  address = {Berlin, Heidelberg},
@@ -302,6 +304,7 @@
 }
 
 % FHE ring learning wit errors
+% url = {http://dl.acm.org/citation.cfm?id=2033036.2033075},
 @inproceedings{Brakerski:2011:FHE:2033036.2033075,
  author = {Brakerski, Zvika and Vaikuntanathan, Vinod},
  title = {Fully homomorphic encryption from ring-LWE and security for key dependent messages},
@@ -312,7 +315,6 @@
  location = {Santa Barbara, CA},
  pages = {505--524},
  numpages = {20},
- url = {http://dl.acm.org/citation.cfm?id=2033036.2033075},
  acmid = {2033075},
  publisher = {Springer-Verlag},
  address = {Berlin, Heidelberg},
@@ -379,7 +381,7 @@
     author       = {Craig Gentry}, 
     title        = {{Fully Homomorphic Encryption}: current state of the art},
     year         = {2012},
-    howpublished = {Africacrypt 2012, [online]},
+    howpublished = {Africacrypt 2012, [online], accessed 26.5.2013},
     url          = {http://www.aui.ma/africacrypt2012/images/africacrypt2012/fully%20homomorphic%20encryption.pdf}
 }
 
@@ -408,7 +410,8 @@
     title = {Private Database Queries Using Somewhat Homomorphic Encryption},
     howpublished = {Cryptology ePrint Archive, Report 2011/449},
     year = {2012},
-    howpublished={[online] \url{http://researcher.ibm.com/researcher/files/us-shaih/privateQueries.pdf}, cit. 26.5.2013}
+    url = {http://researcher.ibm.com/researcher/files/us-shaih/privateQueries.pdf},
+    howpublished={[online], accessed 26.5.2013}
 }
 
 % AES
@@ -424,6 +427,7 @@
 }
 
 % Xiao-Lai WB AES
+% url={http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=05404239}
 @INPROCEEDINGS{XiaoLai, 
     author={Xiao, Yaying and Xuejia Lai}, 
     booktitle={Computer Science and its Applications, 2009. CSA '09. 2nd International Conference on}, 
@@ -432,17 +436,26 @@
     pages={1-6}, 
     keywords={Billets;Cryptography;Encoding;Information analysis;Manipulator dynamics;Protection;Resists;Security;Software algorithms;Table lookup}, 
     doi={10.1109/CSA.2009.5404239},
-    url={http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=05404239}
 }
 
 % AES attack, AES-128 with 2126.1 work
-@misc{cryptoeprint:2011:449,
-    author = {Andrey Bogdanov and Dmitry Khovratovich and Christian Rechberger},
-    title = {Biclique Cryptanalysis of the Full {AES}},
-    howpublished = {Cryptology ePrint Archive, Report 2011/449},
-    year = {2011},
-    note = {\url{http://eprint.iacr.org/}},
-}
+@inproceedings{cryptoeprint:2011:449,
+ author = {Bogdanov, Andrey and Khovratovich, Dmitry and Rechberger, Christian},
+ title = {Biclique cryptanalysis of the full AES},
+ booktitle = {Proceedings of the 17th international conference on The Theory and Application of Cryptology and Information Security},
+ series = {ASIACRYPT'11},
+ year = {2011},
+ isbn = {978-3-642-25384-3},
+ location = {Seoul, South Korea},
+ pages = {344--371},
+ numpages = {28},
+ url = {http://dx.doi.org/10.1007/978-3-642-25385-0_19},
+ doi = {10.1007/978-3-642-25385-0_19},
+ acmid = {2184047},
+ publisher = {Springer-Verlag},
+ address = {Berlin, Heidelberg},
+ keywords = {AES, bicliques, block ciphers, key recovery, preimage},
+} 
 
 % Key whitening attack
 @INPROCEEDINGS{Kerins06acautionary,
@@ -457,7 +470,7 @@
 @misc{hiding_keys,
    title = {WHITE-BOX CRYPTOGRAPHY: HIDING KEYS IN SOFTWARE},
    author = {Brecht Wyseur},
-   howpublished = {[online]},
+   howpublished = {[online], accessed 26.5.2013},
    year = {2012},
    url = {http://whiteboxcrypto.com/files/2012_misc.pdf}
 }
@@ -501,6 +514,7 @@
 }
 
 % Billet
+% url = {http://dx.doi.org/10.1007/978-3-540-30564-4_16},
 @inproceedings{Billet:2004:CWB:2080787.2080809,
  author = {Billet, Olivier and Gilbert, Henri and Ech-Chatbi, Charaf},
  title = {Cryptanalysis of a white box {AES} implementation},
@@ -511,7 +525,6 @@
  location = {Waterloo, Canada},
  pages = {227--240},
  numpages = {14},
- url = {http://dx.doi.org/10.1007/978-3-540-30564-4_16},
  doi = {10.1007/978-3-540-30564-4_16},
  acmid = {2080809},
  publisher = {Springer-Verlag},
@@ -613,7 +626,7 @@
  location = {Seoul, Korea},
  pages = {278--291},
  numpages = {14},
- url = {http://dl.acm.org/citation.cfm?id=2041036.2041060},
+ url = {http://link.springer.com/chapter/10.1007%2F978-3-642-24209-0_19},
  acmid = {2041060},
  publisher = {Springer-Verlag},
  address = {Berlin, Heidelberg},
@@ -621,6 +634,7 @@
 }
 
 % Linear and affine equivalence algorithms, AES-Sbox affine self-equivalences, 61200 AESes
+% url = {http://dl.acm.org/citation.cfm?id=1766171.1766175},
 @inproceedings{Biryukov:2003:TCL:1766171.1766175,
  author = {Biryukov, Alex and De Canni\`{e}ere, Christophe and Braeken, An and Preneel, Bart},
  title = {A toolbox for cryptanalysis: linear and affine equivalence algorithms},
@@ -631,7 +645,6 @@
  location = {Warsaw, Poland},
  pages = {33--50},
  numpages = {18},
- url = {http://dl.acm.org/citation.cfm?id=1766171.1766175},
  acmid = {1766175},
  publisher = {Springer-Verlag},
  address = {Berlin, Heidelberg},
@@ -663,7 +676,8 @@
     author = {Colin Percival},
     title = {STRONGER KEY DERIVATION VIA SEQUENTIAL MEMORY-HARD FUNCTIONS},
     url = {http://www.daemonology.net/papers/scrypt.pdf},
-    year = {2009}
+    year = {2009},
+    note={[online], accessed 26.5.2013 }
 }
 
 % Tutorial on WBAES
@@ -671,6 +685,7 @@
     author = {James A. Muir},
     title = {A Tutorial on White-box {AES}},
     url = {http://eprint.iacr.org/2013/104.pdf},
+    howpublished={[online], accessed 26.5.2013 },
     year = {2011}
 }
 
@@ -681,7 +696,8 @@
     title        = {Password Cracking HPC},
     month        = {December},
     year         = {2012},
-    howpublished = {Passwords \textasciicircum 12 Security Conference, [online]},
+    howpublished = {Passwords \textasciicircum 12 Security Conference},
+    note         = {[online], accessed 26.5.2013 },
     url          = {http://passwords12.at.ifi.uio.no/Jeremi_Gosney_Password_Cracking_HPC_Passwords12.pdf}
 }
 
@@ -706,9 +722,9 @@
 @misc{shamining_web,
   author = {Butterfly labs},
   title = {{1,500 GH/s Bitcoin Miner}},
-  howpublished = "\url{https://products.butterflylabs.com/homepage/1500gh-bitcoin-miner.html}",
+  url = {https://products.butterflylabs.com/homepage/1500gh-bitcoin-miner.html},
   year = {2013}, 
-  note = "[Online; accessed 15-May-2013]"
+  note = "[online], accessed 15.03.2013"
 }
 
 % On generator matrices of MDS codes
@@ -797,6 +813,7 @@
     author = {Jan Cappaert},
     school = {Katholieke Universiteit Leuven},
     url = {http://www.cosic.esat.kuleuven.be/publications/thesis-199.pdf},
+    howpublished = {[online], accessed 26.5.2013},
     year = {2012}
 }
 
@@ -808,7 +825,8 @@
    url = {http://docserver.bis.uni-oldenburg.de/publikationen/dissertation/2001/aneacr01/aneacr01.html},
    year = {2009},
    pages = {169+32},
-   howpublished = {[online] \url{http://www.cosic.esat.kuleuven.be/publications/thesis-152.pdf‎}}
+   url = {http://www.cosic.esat.kuleuven.be/publications/thesis-152.pdf‎},
+   howpublished = {[online], accessed 26.5.2013}
 }
 
 % 16x16 AES MDS
@@ -892,6 +910,7 @@
 } 
 
 % Blowfish
+% url = {http://dl.acm.org/citation.cfm?id=647930.740558},
 @inproceedings{Schneier:1993:DNV:647930.740558,
  author = {Schneier, Bruce},
  title = {Description of a New Variable-Length Key, 64-bit Block Cipher (Blowfish)},
@@ -900,13 +919,13 @@
  isbn = {3-540-58108-1},
  pages = {191--204},
  numpages = {14},
- url = {http://dl.acm.org/citation.cfm?id=647930.740558},
  acmid = {740558},
  publisher = {Springer-Verlag},
  address = {London, UK, UK},
 } 
 
 % IDEA
+% url = {http://dl.acm.org/citation.cfm?id=112331.112375},
 @inproceedings{Lai:1991:PNB:112331.112375,
  author = {Lai, Xuejia and Massey, James L.},
  title = {A proposal for a new block encryption standard},
@@ -917,7 +936,6 @@
  location = {Aarhus, Denmark},
  pages = {389--404},
  numpages = {16},
- url = {http://dl.acm.org/citation.cfm?id=112331.112375},
  acmid = {112375},
  publisher = {Springer-Verlag New York, Inc.},
  address = {New York, NY, USA},

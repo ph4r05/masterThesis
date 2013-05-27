@@ -95,6 +95,7 @@
 \usepackage{url}
 \usepackage[numbers]{natbib}
 \bibliographystyle{unsrtnat}
+%\bibliographystyle{plain}
 
 \usepackage{fancyhdr}
 \pagestyle{plain}
@@ -260,7 +261,7 @@ whitebox attack resistant cryptography, AES, dual ciphers, whitebox cipher imple
     authorities protecting their secret cryptographic material. Another example is a cryptographic smart card, widely used in use 
     cases with high security requirements.    
 
-    However, the tamper-resistant hardware is not suitable for many applications, due to it's cost and physical nature, e.g. need to be distributed somehow, 
+    However, the tamper-resistant hardware is not suitable for many applications, due to its cost and physical nature, e.g. need to be distributed somehow, 
     can be lost, forgotten, unintentionally damaged, etc...
     Then it is preferable to use software-based protection techniques for their low cost and flexibility. The downside of this approach is a limited strength.
     
@@ -291,8 +292,8 @@ whitebox attack resistant cryptography, AES, dual ciphers, whitebox cipher imple
     Namely they state that there exist many natural classes of functions that cannot be obfuscated w.r.t. auxiliary input.
 
     An \emph{approximate obfuscation} defined by Barak~\eal~\citep{Barak:2012:POP:2160158.2160159} is a relaxation of the functionality
-    requirement of the obfuscated program. They presented impossibility result in the case when an obfuscated program is deviates from the original
-    circuit only with negligible probability and allows this event to depend only on the coin tosses of the obfuscator. Recently 
+    requirement of the obfuscated program. They presented impossibility result in the case when an obfuscated program deviates from the original
+    program only with a negligible probability and allows this event to depend only on the coin tosses of the obfuscator. Recently 
     Bitansky~\eal~\citep{journals/iacr/BitanskyP12} improved this impossibility result by hardening the requirements.
     They showed there exist families of robust unobfuscatable functions for which even approximate obfuscation is impossible.
     According to their definition, obfuscated program is only required to agree with the original one with probability slightly more than $0.5$
@@ -312,7 +313,7 @@ decrypted has been attracting attention for a long time.
 
 \subsection{Secure multiparty communication}
 The first positive results on this question make use of \emph{interaction}. The concept of a \emph{secure multiparty communication} was 
-introduced by Yao~\citep{Yao:1982:PSC:1398511.1382751} in 1982. Roughly speaking, it enables to evaluate a function over private
+introduced by Yao~\citep{Yao:1982:PSC:1398511.1382751} in 1982. Roughly speaking, it enables to evaluate a function over a private
 data of remote parties, while keeping the private data still confidential. For this, both parties have to follow some protocol.
 A typical toy example is a well-known 
 Yao's Millionaire's Problem. In this problem two millionaires, Alice and Bob, want to know which is richer, without 
@@ -353,12 +354,12 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
  \end{align}
 \end{subequations}
     
-    The power of the the fully homomorphic system is in it's ability to evaluate an arbitrary function over 
+    The power of the the fully homomorphic system is in its ability to evaluate an arbitrary function over 
     encrypted data, without actually decrypting the data. This is exactly the situation where Alice wants to outsource some computations
     to Bob, but doesn't want Bob to learn her information. When the function is evaluated homomorphically, the result is again encrypted,
     so only Alice is able to read it. This is done by using the concept from the previous chapter, \emph{arithmetic circuits}.
 
-    The function $\mathcal{F}$ that Alive wants to compute, is converted into the \emph{arithmetic circuits} that computes the same function. This circuit evaluated
+    The function $\mathcal{F}$ that Alive wants to compute, is converted into the \emph{arithmetic circuit} that computes the same function. This circuit evaluated
     over plaintext gives the wanted result, but note that it can be evaluated also over ciphertexts using the homomorphic property of
     the cryptosystem. Intuitively, Alice sends circuit representing $\mathcal{F}$ to Bob, Bob evaluates the circuit on ciphertext and returns a result to Alice.
     When Alice decrypts the result from Bob, obtains the result of $\mathcal{F}$.
@@ -368,8 +369,8 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \paragraph*{History.} 
 
     The concept of \emph{computing with encrypted data} was first proposed by Rivest~\eal~\citep{Rivest1978} in~1978, a few months ago 
-    before introduction of RSA implementation. They suggested that fully homomorphic encryption may be possible, but were unable to find 
-    such scheme. The question whether it is possible to construct fully homomorphic scheme was an open problem for 30 years.
+    before introduction of RSA implementation. They suggested that a fully homomorphic encryption may be possible, but were unable to find 
+    such scheme. The question whether it is possible to construct a fully homomorphic scheme was an open problem for 30 years.
     
     Some partially homomorphic schemes were known, for example RSA supports homomorphic evaluation of multiplication. 
     There were also some limited homomorphic schemes published, for example \citep{Boneh:2005:EFC:2140004.2140029} in 2005. 
@@ -377,7 +378,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     scheme has interesting applications, for example efficient election system, as proposed in their paper.
     
     The breakthrough in this field was done by Gentry in 2009 \citep{Gentry:2009:FHE:1536414.1536440}. He demonstrated the fully 
-    homomorphic encryption (FHE) scheme is possible to construct, using an ideal lattices. Since then this field is undergoing a rapid development.
+    homomorphic encryption (FHE) scheme is possible to construct, using \emph{ideal lattices}. Since then this field is undergoing a rapid development.
     
     \paragraph*{Key ideas.} 
     Gentry first constructed ``\emph{somewhat homomorphic}'' scheme that supports evaluating of low-degree polynomials on ciphertexts 
@@ -400,16 +401,16 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
      \item Gentry's original scheme based on ideal lattices. The implementation was introduced 
 	by Gentry~\eal\ in \citep{Gentry:2011:IGF:2008684.2008697}. The public key has a size $2.3$~GB, refreshing operation takes 30 minutes.
 
-    \item Dijk's~\eal\ \citep{vanDijk:2010:FHE:2163822.2163825} scheme DGHV, based on problem from number theory, approximate Greatest Common Divisor (GCD).
+    \item Dijk's~\eal\ \citep{vanDijk:2010:FHE:2163822.2163825} scheme DGHV, based on a problem from number theory, approximate Greatest Common Divisor (GCD).
 	\begin{itemize}
-	 \item simpler that previous scheme
+	 \item Simpler that previous scheme.
 	 \item The latest results by Coron~\eal\ \citep{Coron:2012:PKC:2260849.2260886} from 2012, significantly reduced the public key size
 	to $10.3$~MB, refreshing operation takes $11$ minutes.
 	 \item The result from 2013 by Coron~\eal\ \citep{DBLP:journals/iacr/CoronLT13} 
- 	added support for performing \emph{batch} operations with plaintexts%, meaning it is possible to do the same operation simultaneously
+ 	added support for performing \emph{batch} operations with plaintexts. %, meaning it is possible to do the same operation simultaneously
 % 	on a vector of plaintext by just applying the operation in one ciphertext. The ciphertext has so-called plaintext slots embedded inside.
 	\item The fully homomorphic evaluation of AES encryption was performed, with amortized cost 12 minutes per 
-	AES block on a standard desktop computer with 32~GB RAM \citep{DBLP:journals/iacr/CoronLT13} .
+	AES block on a standard desktop computer with 32~GB RAM \citep{DBLP:journals/iacr/CoronLT13}.
 	\end{itemize}
 % 
 % 	The latest results by Coron~\eal\ \citep{Coron:2012:PKC:2260849.2260886} from 2012, significantly reduced the public key size
@@ -438,14 +439,14 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
     \end{enumerate}
 
     \paragraph*{Batch operation,} also called plaintext ``packing'', is a technique where multiple independent plaintexts slots are embedded into a single ciphertext,
-    using proper algebraic structure. Then when an operation is performed on the ciphertext, it has effect 
+    using a proper algebraic structure. Then when an operation is performed on the ciphertext, it has effect 
     like it is performed on the whole vector of plaintexts embedded in the ciphertext. 
     This strongly resembles Single-Instruction-Multiple-Data (SIMD) architecture of a paralell computer. 
     This adds significant improvement, since multiple blocks (like in AES case) are computed simultaneously, what gives better amortized running time
-    of algorithms. Recall that in original Gentry's scheme,
+    of algorithms. Recall that in the original Gentry's scheme,
     the plaintext space size was only 1 bit. 
 
-    As an illustration\footnote{Example taken from \citep{gentryAfrica}} consider plaintext space is group $Z_{15} = Z_3 \times Z_5$, from Chinese Remainder Theorem.
+    As an illustration\footnote{Example taken from \citep{gentryAfrica}} consider that a plaintext space is a group $Z_{15} = Z_3 \times Z_5$, from Chinese Remainder Theorem.
     Using this structure we obtain 2 slots for plaintext of size 3 and 5. Let's have two ciphertexts $c, c^{\prime}$
     with $(p_3, p_5)$ and $(p_3^{\prime}, p_5^{\prime})$ in their plaintext slots respectively. 
 
@@ -457,11 +458,11 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 
     \paragraph*{Somewhat homomorphic encryption schemes.} 
     FHE schemes is a very active area of research nowadays, with still better and better improvements on a performance of the schemes,
-    but in spite of this the practical use of FHE is stil out of question due to its computational complexity. 
+    but in spite of this, the practical use of FHE is still out of question due to its computational complexity. 
     
     Naehrig~\eal\ \citep{Naehrig:2011:HEP:2046660.2046682} proposed to sacrifice ``fully'' property and use just \emph{somewaht homomorphic schemes} (SWHM),
     with limited number of multiplications. In this setup it is not possible to evaluate arbitrary function, but some families of functions can still be
-    useful. They give examples of application in medical, financial sectors and advertising.
+    useful. They give examples of an application in medical, financial sectors and advertising.
     
     Boneh~\eal\ \citep{swhm-db01} designed and implemented a protocol for private database queries using somewhat homomorphic encryption.
     
@@ -1249,7 +1250,7 @@ $\mathcal{F}$ while communication overhead is a fixed constant factor larger tha
 	
 	Where
 	\begin{itemize}[leftmargin=5em]
-	 \item[{$A$}] is a fixed affine mapping from AES S-box definition (see section \ref{sec:aes_subbyte}), $A^{-1}$ it's inverse.
+	 \item[{$A$}] is a fixed affine mapping from AES S-box definition (see section \ref{sec:aes_subbyte}), $A^{-1}$ its inverse.
 	 \item[{$[a]$}] denotes $8 \times 8$ matrix with coefficients from $\gf$ representing a \emph{multiplication} by $a \in \gfe \setminus \{0\}$ in $\gfe$. 
 	    From the fact $\gf^8 \simeq \gfe$ (all finite fields with same number of elements are isomorphic), the multiplication is
 	    linear transformation in $\gfe$, it can be expressed in a matrix form. Refer to \ref{appendix:mult_matrix} to see how to construct such matrix.
